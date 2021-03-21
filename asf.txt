@@ -1,0 +1,12 @@
+mkdir -p dist/riscv && \
+riscv64-unknown-linux-gnu-ld -o dist/riscv/kernel.elf -n -T src/linker.ld  build/riscv/Kernel/Arch/riscv/boot.o  build/riscv/Kernel/Arch/riscv/mem.o  build/riscv/Kernel/Arch/riscv/trap.o  build/riscv/Kernel/Paging.o  build/riscv/Kernel/PagingTable.o  build/riscv/Kernel/Uart.o  build/riscv/Kernel/Page.o  build/riscv/Kernel/VirtualMemory.o  build/riscv/Kernel/Init.o  build/riscv/Utils/Option.o  build/riscv/Utils/DebugConsole.o  build/riscv/Utils/Assertions.o  build/riscv/Utils/Basic.o
+UART initialized!
+
+Paging initialized!
+Still tryiing
+80002000
+Tryiing to
+There is some free mem
+1010101
+QEMU: Terminated
+
