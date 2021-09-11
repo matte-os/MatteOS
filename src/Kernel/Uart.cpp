@@ -18,7 +18,7 @@ namespace Kernel{
 
     Utils::Option<char> get(){
         u8* ptr = (u8*) 0;
-        if((*(ptr + 5)) & 1 == 0){
+        if(((*(ptr + 5)) & 1) == 0){
             return Utils::Option<char>();
         }else{
             return Utils::Option<char>(*(ptr + 0));

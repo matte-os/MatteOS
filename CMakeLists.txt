@@ -1,0 +1,23 @@
+cmake_minimum_required(VERSION 3.10)
+project(RISCVOS)
+
+enable_language(C CXX ASM)
+
+set(CMAKE_BUILD_TYPE Debug)
+
+set(CMAKE_CXX_COMPILER clang)
+set(CMAKE_ASM_COMPILER clang)
+set(CMAKE_LINKER riscv64-unknown-linux-gnu-ld)
+set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/src/linker.ld)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/dist/riscv)
+set(TARGET kernel)
+
+add_compile_options(-Wno-int-to-pointer-cast -fpermissive -Wno-conversion -Wno-narrowing -Wno-everything --target=riscv64 -mabi=lp64 -march=rv64gc -mcmodel=medany -c)
+
+add_subdirectory(src)
+
+set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_LINKER} -n -T ${LINKER_SCRIPT} <FLAGS> <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <OBJECTS> <LINK_LIBRARIES> -o ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TARGET}.elf ")
+
+add_executable(${TARGET}.elf $<TARGET_OBJECTS:Kernel> $<TARGET_OBJECTS:Utils>)

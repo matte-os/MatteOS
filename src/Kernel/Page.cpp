@@ -1,38 +1,32 @@
 #include <Kernel/Page.hh>
 
-namespace Kernel{
-    Page::Page(){}
-
-    Page::Page(PageBits flag){
-        this->flags = flag;
+namespace Kernel
+{
+    Page::Page(){
+        status = PageStatus::FREE;
     }
 
-    bool Page::isLast(){
-        if(flags & PageBits::LAST != 0){
-            return true;
-        }else{
-            return false;
-        }
-    }
+    Page::~Page(){
 
-    bool Page::isTaken(){
-        if(flags & PageBits::TAKEN != 0){
-            return true;
-        }else{
-            return false;
-        }
     }
 
     bool Page::isFree(){
-        return !Page::isTaken();
+        return status == PageStatus::FREE; 
+    }
+
+    bool Page::isTaken(){
+        return status == PageStatus::TAKEN;
+    }
+
+    bool Page::isLast(){
+        return status == PageStatus::LAST;
     }
 
     void Page::clear(){
-        flags = PageBits::EMPTY;
+        status = PageStatus::FREE;
     }
 
-    void Page::setFlag(PageBits flag){
-        flags |= flag;
+    void Page::setStatus(PageStatus status){
+        this->status = status;
     }
-
-}
+};

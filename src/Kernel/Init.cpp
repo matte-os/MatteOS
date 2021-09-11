@@ -1,15 +1,23 @@
 #include <Kernel/Uart.hh>
-#include <Kernel/Paging.hh>
-#include <Kernel/PagingTable.hh>
-#include <Kernel/VirtualMemory.hh>
 #include <Utils/DebugConsole.hh>
 #include <Utils/Basic.hh>
+#include <Kernel/Page.hh>
+#include <Kernel/PageController.hh>
+#include <Kernel/PageTableEntry.hh>
+#include <Kernel/PageTable.hh>
+#include <Kernel/CPU.hh>
 
 using Kernel::Uart;
-using Kernel::Paging;
-using Kernel::PagingTable;
-using Kernel::VirtualMemory;
+using Kernel::Page;
+using Kernel::PageController;
 using Kernel::EntryBits;
+using Kernel::PageTableEntry;
+using Kernel::PageTable;
+using Kernel::SatpMode;
+using Kernel::CPU;
+using Kernel::SATP;
+using Kernel::VirtualAddress;
+using Kernel::PhysicalAddress;
 using Utils::DebugConsole;
 
 extern "C" {
@@ -29,74 +37,114 @@ extern "C" {
     char _stack_end;
 }
 
-void mapRange(PagingTable& root, size_t start, size_t end, __int64 bits){
-    size_t memAddr = start & !(Kernel::PAGE_SIZE - 1);
-    size_t numKbPages = (Kernel::alignValue(end, 12) - memAddr) / Kernel::PAGE_SIZE;
+//void mapRange(PagingTable& root, size_t start, size_t end, __int64 bits){
+//    size_t memAddr = start & !(Kernel::PAGE_SIZE - 1);
+//    size_t numKbPages = (Kernel::alignValue(end, 12) - memAddr) / Kernel::PAGE_SIZE;
+//
+//    for(int i = 0; i < numKbPages; i++){
+//        PageController::map(root, memAddr, memAddr, bits, 0);
+//        memAddr += 1 << 12;
+//    }
+//
+//}
 
-
-    for(int i = 0; i < numKbPages; i++){
-        Kernel::map(root, memAddr, memAddr, bits, 0);
-        memAddr += 1 << 12;
-    }
-
+extern "C" void kmain(){
+    DebugConsole::println("Welcome to WatermeloneOS (RISC-V)");
+    return;
 }
-
-
 //EntryPoint
-extern "C" size_t kinit(){
+extern "C" u64 kinit(){
     Uart uart(0x10000000);
     uart.init();
     DebugConsole::println("UART initialized!");
+    PageController::init((uintptr_t) &_heap_start, (uintptr_t) &_heap_size);
 
-    Paging::init(&_heap_start, &_heap_size);
-    DebugConsole::println("Paging initialized!");
+    size_t* ptr = PageController::alloc(5);
 
-    VirtualMemory::init();
-    DebugConsole::println("Virtual Memory initialized!");
+    //For first page table
+    size_t* zPtr = PageController::zalloc(1);
 
-    auto rootPtr = VirtualMemory::getPagingTable();
-    size_t root = (size_t) rootPtr;
-    auto kHeapHead = (size_t) VirtualMemory::getHead();
-    auto kNumAlloc = VirtualMemory::getNumAllocations();
+    PageController::debugOutput();
+
+    PageController::dealloc(ptr);
+
+    PageController::debugOutput();
+
+    PageTable* pageTable = (PageTable*) zPtr;
+    //DebugConsole::println("Entries finished.");
+    //DebugConsole::println("Tak asi nic");
+    //pageTable->debugOutput();
+    //PageTableEntry& entry = pageTable->entries[0];
+    //entry.valid = 0b1;
+    //entry.ppn0 = 0b110110110;
+    //pageTable->debugOutput();
+    SATP satp = CPU::buildSatp(SatpMode::Sv39, 0, (uintptr_t) pageTable);
+    
+    char buffer[64];
+    itoa(buffer, (size_t)SatpMode::Sv39,16);
+    DebugConsole::println(buffer);
+    itoa(buffer, *(u64*)&satp, 16);
+    DebugConsole::println(buffer);
+    
+    CPU::writeSatp(*(u64*)&satp);
+    //size_t pageSize = sizeof(PageTableEntry);
+    //char buffer[64];
+    //itoa(buffer, pageSize, 10);
+    //DebugConsole::println(buffer);
+
+    //char buffer[64];
+    //itoa(buffer, (unsigned long) &_heap_size, 10);
+    //DebugConsole::println(buffer);
+
+    //for(;;){}
 
     DebugConsole::println("Preparing for identity mapping!");
 
-    mapRange(*rootPtr, kHeapHead, kHeapHead + kNumAlloc * 4096, EntryBits::READ_WRITE);
+    //PageController::mapRange(*pageTable, kHeapHead, (uintptr_t) kHeapHead + kNumAlloc * 4096, (u64)EntryBits::READ_WRITE);
+    //DebugConsole::println("1. Done");
+    auto numPages = ((uintptr_t)(&_heap_size))/PageController::PAGE_SIZE;
     DebugConsole::println("1. Done");
-    auto numPages = _heap_size/Kernel::PAGE_SIZE;
+    PageController::mapRange(*pageTable, (uintptr_t)(&_heap_start), ((uintptr_t) &_heap_start) + numPages, (u64)EntryBits::READ_WRITE);
     DebugConsole::println("2. Done");
-    mapRange(*rootPtr, _heap_start, _heap_start + numPages, EntryBits::READ_WRITE);
+    PageController::mapRange(*pageTable, (uintptr_t) &_text_start, (uintptr_t) &_text_end, (u64)EntryBits::READ_EXECUTE);
     DebugConsole::println("3. Done");
-    mapRange(*rootPtr, _text_start, _text_end, EntryBits::READ_EXECUTE);
+    PageController::mapRange(*pageTable, (uintptr_t) &_rodata_start, (uintptr_t) &_rodata_end, (u64)EntryBits::READ_EXECUTE);
     DebugConsole::println("4. Done");
-    mapRange(*rootPtr,  _rodata_start, _rodata_end, EntryBits::READ_EXECUTE);
+    PageController::mapRange(*pageTable, (uintptr_t) &_data_start, (uintptr_t) &_data_end, (u64)EntryBits::READ_WRITE);
     DebugConsole::println("5. Done");
-    mapRange(*rootPtr, _data_start, _data_end, EntryBits::READ_WRITE);
+    PageController::mapRange(*pageTable, (uintptr_t) &_bss_start, (uintptr_t) &_bss_end, (u64)EntryBits::READ_WRITE);
     DebugConsole::println("6. Done");
-    mapRange(*rootPtr, _bss_start, _bss_end, EntryBits::READ_WRITE);
+    PageController::mapRange(*pageTable, (uintptr_t) &_stack_start, (uintptr_t) &_stack_end, (u64)EntryBits::READ_WRITE);
     DebugConsole::println("7. Done");
-    mapRange(*rootPtr, _stack_start, _stack_end, EntryBits::READ_WRITE);
+    PageController::map(*pageTable, 0x10000000,  0x10000000, (u64)EntryBits::READ_WRITE, 0);
     DebugConsole::println("8. Done");
-    Kernel::map(*rootPtr, 0x10000000, 0x10000000, EntryBits::READ_WRITE, 0);
+    PageController::map(*pageTable, 0x02000000, 0x02000000, (u64)EntryBits::READ_WRITE, 0);
     DebugConsole::println("9. Done");
-    Kernel::map(*rootPtr, 0x02000000, 0x02000000, EntryBits::READ_WRITE, 0);
+    PageController::map(*pageTable, 0x0200b000, 0x0200b000, (u64)EntryBits::READ_WRITE, 0);
     DebugConsole::println("10. Done");
-    Kernel::map(*rootPtr, 0x0200b000, 0x0200b000, EntryBits::READ_WRITE, 0);
+    PageController::map(*pageTable, 0x0200c000, 0x0200c000, (u64)EntryBits::READ_WRITE, 0);
     DebugConsole::println("11. Done");
-    Kernel::map(*rootPtr, 0x0200c000, 0x0200c000, EntryBits::READ_WRITE, 0);
+    PageController::map(*pageTable, 0x0c000000, 0x0c000000, (u64)EntryBits::READ_WRITE, 0);
     DebugConsole::println("12. Done");
-    Kernel::map(*rootPtr, 0x0c000000, 0x0c000000, EntryBits::READ_WRITE, 0);
+    PageController::map(*pageTable, 0x0c200000, 0x0c200000, (u64)EntryBits::READ_WRITE, 0);
     DebugConsole::println("13. Done");
-    Kernel::map(*rootPtr, 0x0c200000, 0x0c200000, EntryBits::READ_WRITE, 0);
-    DebugConsole::println("14. Done");
 
-    DebugConsole::println("Identity mapping done!");
-    return (root >> 12 | 8 << 60);
-}
+    pageTable->debugOutput();
 
-extern "C" void kmain(){
-    
+    PageController::debugOutput();
+    //DebugConsole::printLnNumber((uintptr_t) pageTable, 2);
+    //DebugConsole::printLnNumber(satp.ppn, 2);
+    //DebugConsole::println("Printing all entries: ");
+    //for(auto& entry : ((PageTable*)(satp.ppn << 12))->entries){
+    //    if(entry.getValue() != 0){
+    //        DebugConsole::printLnNumber(entry.getValue(), 2);
+    //    }
+    //}
+    //PageController::debugPageWalk(pageTable);
 
-    DebugConsole::println("Welcome to WatermeloneOS (RISC-V)");
-    for(;;){}
+    //DebugConsole::printLnNumber((uintptr_t)&kmain, 16);
+
+    //PageController::mapRange(*pageTable, (uintptr_t) &kmain, ((uintptr_t) &kmain) + 30, (u64)EntryBits::READ_WRITE_EXECUTE);
+
+    return *(u64*)&satp;
 }
