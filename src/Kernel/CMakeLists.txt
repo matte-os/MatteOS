@@ -11,6 +11,7 @@ set(SOURCE
             PageTable.cpp
             PageTableEntry.cpp
             Uart.cpp
+            Trap.cpp
 )
 
 include_directories(${SOURCE_DIRECTORY})

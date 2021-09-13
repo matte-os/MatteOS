@@ -6,6 +6,7 @@
 #include <Kernel/PageTableEntry.hh>
 #include <Kernel/PageTable.hh>
 #include <Kernel/CPU.hh>
+#include <Kernel/TrapFrame.hh>
 
 using Kernel::Uart;
 using Kernel::Page;
@@ -18,6 +19,7 @@ using Kernel::CPU;
 using Kernel::SATP;
 using Kernel::VirtualAddress;
 using Kernel::PhysicalAddress;
+using Kernel::TrapFrame;
 using Utils::DebugConsole;
 
 extern "C" {
@@ -37,21 +39,28 @@ extern "C" {
     char _stack_end;
 }
 
-//void mapRange(PagingTable& root, size_t start, size_t end, __int64 bits){
-//    size_t memAddr = start & !(Kernel::PAGE_SIZE - 1);
-//    size_t numKbPages = (Kernel::alignValue(end, 12) - memAddr) / Kernel::PAGE_SIZE;
-//
-//    for(int i = 0; i < numKbPages; i++){
-//        PageController::map(root, memAddr, memAddr, bits, 0);
-//        memAddr += 1 << 12;
-//    }
-//
-//}
-
 extern "C" void kmain(){
+    u64* mTimeCmp = (u64*) 0x02004000;
+    u64* mTime = (u64*) 0x0200bff8;
+    *mTimeCmp = *mTime + 10000000;
+//
+    //u64* v = (u64*) 0x0;
+    //*v = 0;    
     DebugConsole::println("Welcome to WatermeloneOS (RISC-V)");
-    return;
+
+    int a = 0;
+
+    for(;;){
+        a++;
+    }
 }
+
+extern "C" void kinitHart(size_t hartId){
+    CPU::mscratchWrite((uintptr_t)&CPU::KERNEL_TRAP_FRAME[hartId]);
+    CPU::sscratchWrite(CPU::mscratchRead());
+    CPU::KERNEL_TRAP_FRAME[hartId].hartId = hartId;
+}
+
 //EntryPoint
 extern "C" u64 kinit(){
     Uart uart(0x10000000);
@@ -118,16 +127,12 @@ extern "C" u64 kinit(){
     DebugConsole::println("7. Done");
     PageController::map(*pageTable, 0x10000000,  0x10000000, (u64)EntryBits::READ_WRITE, 0);
     DebugConsole::println("8. Done");
-    PageController::map(*pageTable, 0x02000000, 0x02000000, (u64)EntryBits::READ_WRITE, 0);
+    PageController::mapRange(*pageTable, 0x02000000, 0x0200ffff, (u64)EntryBits::READ_WRITE);
     DebugConsole::println("9. Done");
-    PageController::map(*pageTable, 0x0200b000, 0x0200b000, (u64)EntryBits::READ_WRITE, 0);
+    PageController::mapRange(*pageTable, 0x0c000000, 0x0c002000, (u64)EntryBits::READ_WRITE);
     DebugConsole::println("10. Done");
-    PageController::map(*pageTable, 0x0200c000, 0x0200c000, (u64)EntryBits::READ_WRITE, 0);
+    PageController::mapRange(*pageTable, 0x0c200000, 0x0c208000, (u64)EntryBits::READ_WRITE);
     DebugConsole::println("11. Done");
-    PageController::map(*pageTable, 0x0c000000, 0x0c000000, (u64)EntryBits::READ_WRITE, 0);
-    DebugConsole::println("12. Done");
-    PageController::map(*pageTable, 0x0c200000, 0x0c200000, (u64)EntryBits::READ_WRITE, 0);
-    DebugConsole::println("13. Done");
 
     pageTable->debugOutput();
 
@@ -145,6 +150,15 @@ extern "C" u64 kinit(){
     //DebugConsole::printLnNumber((uintptr_t)&kmain, 16);
 
     //PageController::mapRange(*pageTable, (uintptr_t) &kmain, ((uintptr_t) &kmain) + 30, (u64)EntryBits::READ_WRITE_EXECUTE);
+
+    CPU::mscratchWrite((uintptr_t)&CPU::KERNEL_TRAP_FRAME[0]);
+    CPU::sscratchWrite(CPU::mscratchRead());
+    CPU::KERNEL_TRAP_FRAME[0].satp = satp;
+    CPU::KERNEL_TRAP_FRAME[0].trapStack = (u64*)(PageController::zalloc(1) + PageController::PAGE_SIZE);
+    PageController::mapRange(*pageTable, (uintptr_t)(CPU::KERNEL_TRAP_FRAME[0].trapStack - PageController::PAGE_SIZE), (uintptr_t)(CPU::KERNEL_TRAP_FRAME[0].trapStack), (u64)EntryBits::READ_WRITE);
+    PageController::mapRange(*pageTable, CPU::mscratchRead(), CPU::mscratchRead() + sizeof(TrapFrame), (u64) EntryBits::READ_WRITE);
+    CPU::satpFenceAsid(0);
+
 
     return *(u64*)&satp;
 }
