@@ -12,6 +12,7 @@ set(SOURCE
             PageTableEntry.cpp
             Uart.cpp
             Trap.cpp
+            Plic.cpp
 )
 
 include_directories(${SOURCE_DIRECTORY})

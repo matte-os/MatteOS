@@ -1,7 +1,11 @@
 #include <Kernel/Trap.hh>
+#include <Kernel/Plic.hh>
+#include <Kernel/Uart.hh>
 #include <Utils/DebugConsole.hh>
 
+using Kernel::Plic;
 using Kernel::TrapFrame;
+using Kernel::Uart;
 
 extern "C" size_t trapVector(
     u64 epc,
@@ -9,17 +13,17 @@ extern "C" size_t trapVector(
     u64 cause,
     u64 hart,
     u64 status,
-    TrapFrame* frame)
+    TrapFrame *frame)
 {
     bool async = cause >> 63 & 1 == 1;
 
-    Utils::DebugConsole::printLnNumber(*(u64*)&frame->satp, 16);
+    //Utils::DebugConsole::printLnNumber(*(u64*)&frame->satp, 16);
 
     size_t causeNum = cause & 0xfff;
     size_t returnEpc = epc;
 
-    Utils::DebugConsole::println("Trap");
-    Utils::DebugConsole::printLnNumber(cause, 16);
+    //Utils::DebugConsole::println("Trap");
+    //Utils::DebugConsole::printLnNumber(cause, 16);
 
     if (async)
     {
@@ -39,7 +43,49 @@ extern "C" size_t trapVector(
         }
         case 11:
         {
-            Utils::DebugConsole::println("Machine external interrupt.");
+            //Utils::DebugConsole::println("Machine external interrupt.");
+            auto next = Plic::next();
+            if (next.hasSome())
+            {
+                switch (next.getValue())
+                {
+                //UART
+                case 10:
+                {
+                    Uart uart = Uart(0x10000000);
+                    auto value = uart.get();
+                    if (value.hasSome())
+                    {
+                        switch (value.getValue())
+                        {
+                        case 8:
+                        {
+                            Utils::DebugConsole::print(" ");
+                            break;
+                        }
+                        case 10 | 13:
+                        {
+                            Utils::DebugConsole::println("");
+                            break;
+                        }
+                        default:
+                        {
+                            Utils::DebugConsole::print(value.getValue());
+                            break;
+                        }
+                        }
+                    }
+                    break;
+                }
+
+                default:
+                {
+                    Utils::DebugConsole::println("Non-UART external interrupt");
+                    break;
+                }
+                }
+                Plic::complete(next.getValue());
+            }
             break;
         }
         default:

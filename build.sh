@@ -11,9 +11,5 @@ ninja && qemu-system-riscv64 \
                             -m 128M \
                             -nographic -serial mon:stdio \
                             -bios none \
-                            -kernel dist/riscv/kernel.elf
-                        #    -device virtio-rng-device \
-                        #    -device virtio-gpu-device \
-                        #    -device virtio-net-device \
-                        #    -device virtio-tablet-device \
-                        #    -device virtio-keyboard-device \
+                            -drive if=none,format=raw,file=hdd.dsk,id=foo -device virtio-blk-device,scsi=off,drive=foo -device virtio-rng-device -device virtio-gpu-device -device virtio-net-device -device virtio-tablet-device -device virtio-keyboard-device \
+                            -kernel dist/riscv/kernel.elf 

@@ -16,12 +16,12 @@ namespace Kernel{
         *(ptr + 0) = c;
     }
 
-    Utils::Option<char> get(){
-        u8* ptr = (u8*) 0;
+    Utils::Optional<char> Uart::get(){
+        u8* ptr = (u8*) baseAddress;
         if(((*(ptr + 5)) & 1) == 0){
-            return Utils::Option<char>();
+            return Utils::Optional<char>();
         }else{
-            return Utils::Option<char>(*(ptr + 0));
+            return Utils::Optional<char>(*(ptr + 0));
         }
     }
 };

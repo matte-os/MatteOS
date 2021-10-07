@@ -2,12 +2,12 @@
 
 namespace Utils{
     template<class E>
-    class Option{
+    class Optional{
         bool has;
         E value;
         public:
-            Option();
-            Option(E value);
+            Optional();
+            Optional(E value);
             bool hasSome();
             E getValue();
     };

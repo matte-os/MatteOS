@@ -7,6 +7,7 @@
 #include <Kernel/PageTable.hh>
 #include <Kernel/CPU.hh>
 #include <Kernel/TrapFrame.hh>
+#include <Kernel/Plic.hh>
 
 using Kernel::Uart;
 using Kernel::Page;
@@ -20,6 +21,7 @@ using Kernel::SATP;
 using Kernel::VirtualAddress;
 using Kernel::PhysicalAddress;
 using Kernel::TrapFrame;
+using Kernel::Plic;
 using Utils::DebugConsole;
 
 extern "C" {
@@ -47,6 +49,12 @@ extern "C" void kmain(){
     //u64* v = (u64*) 0x0;
     //*v = 0;    
     DebugConsole::println("Welcome to WatermeloneOS (RISC-V)");
+
+    DebugConsole::println("Setting up PLIC");
+    
+    Plic::setTreshold(0);
+    Plic::enable(10);
+    Plic::setPriority(10, 1);
 
     int a = 0;
 
@@ -129,9 +137,9 @@ extern "C" u64 kinit(){
     DebugConsole::println("8. Done");
     PageController::mapRange(*pageTable, 0x02000000, 0x0200ffff, (u64)EntryBits::READ_WRITE);
     DebugConsole::println("9. Done");
-    PageController::mapRange(*pageTable, 0x0c000000, 0x0c002000, (u64)EntryBits::READ_WRITE);
+    PageController::mapRange(*pageTable, 0x0c000000, 0x0c002001, (u64)EntryBits::READ_WRITE);
     DebugConsole::println("10. Done");
-    PageController::mapRange(*pageTable, 0x0c200000, 0x0c208000, (u64)EntryBits::READ_WRITE);
+    PageController::mapRange(*pageTable, 0x0c200000, 0x0c208001, (u64)EntryBits::READ_WRITE);
     DebugConsole::println("11. Done");
 
     pageTable->debugOutput();
