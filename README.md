@@ -7,8 +7,8 @@ I am really thankful to **Stephen Marz** whose **[osblog](https://osblog.stephen
 ## Features
 1. UART - :heavy_check_mark:
 2. MMU - :heavy_check_mark:
-3. Interrupts and traps - 
-4. External interrupts
+3. Interrupts and traps - :heavy_check_mark:
+4. External interrupts - :heavy_check_mark:
 5. System calls
 6. Processes
 7. Block drivers
