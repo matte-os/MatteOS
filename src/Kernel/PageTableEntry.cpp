@@ -10,6 +10,10 @@ namespace Kernel{
         *(u64*)this = value;
     }
 
+    void PageTableEntry::setBits(u64 bits){
+        setValue(getValue()|bits);
+    }
+
     bool PageTableEntry::isValid(){
         return valid == 1;
     }

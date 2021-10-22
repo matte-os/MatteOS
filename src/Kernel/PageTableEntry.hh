@@ -22,6 +22,7 @@ namespace Kernel{
         //void setRW();
         u64 getValue();
         void setValue(u64);
+        void setBits(u64);
         bool isValid();
     };
 };

@@ -45,6 +45,7 @@ namespace Kernel{
             static void mapRange(PageTable&, size_t, size_t, u64);
             static void map(PageTable&, VirtualAddress, PhysicalAddress, size_t, int);
             static void debugPageWalk(PageTable*);
+            static void allocAndMap();
         private:
             static size_t alignValue(size_t, size_t);
             static void debugPageWalkIdk(PageTable*, int);

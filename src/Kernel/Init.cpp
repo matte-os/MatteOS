@@ -76,49 +76,13 @@ extern "C" u64 kinit(){
     DebugConsole::println("UART initialized!");
     PageController::init((uintptr_t) &_heap_start, (uintptr_t) &_heap_size);
 
-    size_t* ptr = PageController::alloc(5);
-
     //For first page table
     size_t* zPtr = PageController::zalloc(1);
-
-    PageController::debugOutput();
-
-    PageController::dealloc(ptr);
-
-    PageController::debugOutput();
-
     PageTable* pageTable = (PageTable*) zPtr;
-    //DebugConsole::println("Entries finished.");
-    //DebugConsole::println("Tak asi nic");
-    //pageTable->debugOutput();
-    //PageTableEntry& entry = pageTable->entries[0];
-    //entry.valid = 0b1;
-    //entry.ppn0 = 0b110110110;
-    //pageTable->debugOutput();
     SATP satp = CPU::buildSatp(SatpMode::Sv39, 0, (uintptr_t) pageTable);
-    
-    char buffer[64];
-    itoa(buffer, (size_t)SatpMode::Sv39,16);
-    DebugConsole::println(buffer);
-    itoa(buffer, *(u64*)&satp, 16);
-    DebugConsole::println(buffer);
-    
     CPU::writeSatp(*(u64*)&satp);
-    //size_t pageSize = sizeof(PageTableEntry);
-    //char buffer[64];
-    //itoa(buffer, pageSize, 10);
-    //DebugConsole::println(buffer);
-
-    //char buffer[64];
-    //itoa(buffer, (unsigned long) &_heap_size, 10);
-    //DebugConsole::println(buffer);
-
-    //for(;;){}
 
     DebugConsole::println("Preparing for identity mapping!");
-
-    //PageController::mapRange(*pageTable, kHeapHead, (uintptr_t) kHeapHead + kNumAlloc * 4096, (u64)EntryBits::READ_WRITE);
-    //DebugConsole::println("1. Done");
     auto numPages = ((uintptr_t)(&_heap_size))/PageController::PAGE_SIZE;
     DebugConsole::println("1. Done");
     PageController::mapRange(*pageTable, (uintptr_t)(&_heap_start), ((uintptr_t) &_heap_start) + numPages, (u64)EntryBits::READ_WRITE);
@@ -141,23 +105,6 @@ extern "C" u64 kinit(){
     DebugConsole::println("10. Done");
     PageController::mapRange(*pageTable, 0x0c200000, 0x0c208001, (u64)EntryBits::READ_WRITE);
     DebugConsole::println("11. Done");
-
-    pageTable->debugOutput();
-
-    PageController::debugOutput();
-    //DebugConsole::printLnNumber((uintptr_t) pageTable, 2);
-    //DebugConsole::printLnNumber(satp.ppn, 2);
-    //DebugConsole::println("Printing all entries: ");
-    //for(auto& entry : ((PageTable*)(satp.ppn << 12))->entries){
-    //    if(entry.getValue() != 0){
-    //        DebugConsole::printLnNumber(entry.getValue(), 2);
-    //    }
-    //}
-    //PageController::debugPageWalk(pageTable);
-
-    //DebugConsole::printLnNumber((uintptr_t)&kmain, 16);
-
-    //PageController::mapRange(*pageTable, (uintptr_t) &kmain, ((uintptr_t) &kmain) + 30, (u64)EntryBits::READ_WRITE_EXECUTE);
 
     CPU::mscratchWrite((uintptr_t)&CPU::KERNEL_TRAP_FRAME[0]);
     CPU::sscratchWrite(CPU::mscratchRead());

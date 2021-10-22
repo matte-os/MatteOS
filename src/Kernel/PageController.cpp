@@ -125,8 +125,6 @@ namespace Kernel{
         size_t memAddr = start & ~(PAGE_SIZE - 1);
         size_t numKbPages = (alignValue(end, 12) - memAddr) / PAGE_SIZE;
 
-            DebugConsole::println("Seems to do sth: ");
-            DebugConsole::printLnNumber(numKbPages, 10);
         for(int i = 0; i < numKbPages; i++){
             map(root, *(VirtualAddress*) &memAddr, *(PhysicalAddress*) &memAddr, bits, 0);
             memAddr += 1 << 12;
@@ -137,19 +135,10 @@ namespace Kernel{
 
         PageTableEntry* v = &root.entries[vaddr.vpn2];
 
-        //DebugConsole::println("Mapping?");
-        DebugConsole::printLnNumber(vaddr.offset, 2);
-        DebugConsole::printLnNumber(vaddr.vpn0, 2);
-        DebugConsole::printLnNumber(vaddr.vpn1, 2);
-        DebugConsole::printLnNumber(vaddr.vpn2, 2);
-        DebugConsole::printLnNumber(vaddr.reserved, 2);
         for(int i = 1; i >= level; i--){
-            //DebugConsole::print("Is valid: ");
-            //DebugConsole::printLnNumber(v->valid, 2);
             if(!v->isValid()){
                 size_t* page = zalloc(1);
                 PhysicalAddress pageAddress = (uintptr_t)page;
-                DebugConsole::printLnNumber((uintptr_t)page, 2);
                 v->valid = 1;
                 v->ppn0 = pageAddress.ppn0;
                 v->ppn1 = pageAddress.ppn1;
@@ -174,10 +163,7 @@ namespace Kernel{
         v->ppn0 = paddr.ppn0;
         v->ppn1 = paddr.ppn1;
         v->ppn2 = paddr.ppn2;
-        v->read = 1;
-        v->write = 1;
-        v->execute = 1;
-        //DebugConsole::printLnNumber(v->getValue(), 2);
+        v->setBits(bits);
     }
 
     void PageController::debugPageWalk(PageTable* root){
