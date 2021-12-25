@@ -13,6 +13,8 @@ set(SOURCE
             Uart.cpp
             Trap.cpp
             Plic.cpp
+            Process.cpp
+            ProcessController.cpp
 )
 
 include_directories(${SOURCE_DIRECTORY})

@@ -24,7 +24,7 @@ First of all, you have to have CMake, Clang, Ninja and QEMU with RISCV support.
 **Ubuntu & Debian**
 
 ```bash
-sudo apt install cmake clang qemu-system-riscv64
+sudo apt install cmake clang ninja-build qemu-system-riscv64
 ```
 
 _Or you can build QEMU your self_.
