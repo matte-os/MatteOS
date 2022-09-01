@@ -1,13 +1,14 @@
 #include <Utils/DebugConsole.hh>
 #include <Kernel/Uart.hh>
 #include <Utils/Basic.hh>
+#include <Kernel/sbi/sbi.hh>
+#include <stdarg.h>
 
 using Kernel::Uart;
 
 namespace Utils{
     void DebugConsole::print(const char c){
-        Uart uart(0x10000000); 
-        uart.put(c);
+        Kernel::SBI::sbi_console_putchar(c);
     }
 
     void DebugConsole::print(const char * str){
@@ -42,5 +43,12 @@ namespace Utils{
     void DebugConsole::printLnNumber(u64 number, u32 base){
         printNumber(number, base);
         print('\n');
+    }
+
+    void DebugConsole::dbgln(const char * fmt, ...) {
+/*        va_list args;
+        va_start(args, fmt);
+
+        va_end(args);*/
     }
 };

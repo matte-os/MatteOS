@@ -1,8 +1,9 @@
 #pragma once
-#include <Kernel/TrapFrame.hh>
-#include <Kernel/PageTable.hh>
+#include "Kernel/System/TrapFrame.hh"
+#include <Kernel/Memory/PageTable.h>
 #include <Utils/Types.hh>
 namespace Kernel{
+    using Memory::PageTable;
     enum class ProcessStatus{
         RUNNING,
         SLEEPING,

@@ -44,7 +44,7 @@ telling the linker script here that we have one pool of RAM.
 */
 MEMORY
 {
-  ram  (wxa) : ORIGIN = 0x80000000, LENGTH = 128M
+  ram  (wxa) : ORIGIN = 0x86000000, LENGTH = 128M
 }
 
 /*
@@ -64,6 +64,7 @@ additional information.
 However, for our purposes, every section will be loaded from the program
 headers.
 */
+
 PHDRS
 {
   text PT_LOAD;

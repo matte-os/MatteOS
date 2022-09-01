@@ -1,0 +1,206 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "src/Utils/CMakeFiles/Utils.dir/./Assertions.cpp.o"
+		},
+		{
+			"path" : "src/Utils/CMakeFiles/Utils.dir/./Basic.cpp.o"
+		},
+		{
+			"path" : "src/Utils/CMakeFiles/Utils.dir/./DebugConsole.cpp.o"
+		},
+		{
+			"path" : "src/Utils/CMakeFiles/Utils.dir/./Optional.cpp.o"
+		},
+		{
+			"path" : "src/Utils/CMakeFiles/Utils.dir/./cxx.cpp.o"
+		},
+		{
+			"path" : "src/Utils/CMakeFiles/Utils.dir/./Memory.cpp.o"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"add_compile_options",
+			"include_directories"
+		],
+		"files" : 
+		[
+			"src/Utils/CMakeLists.txt",
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 9,
+				"parent" : 0
+			},
+			{
+				"file" : 1
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 18,
+				"parent" : 2
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 8,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g"
+				},
+				{
+					"backtrace" : 3,
+					"fragment" : "-Wno-int-to-pointer-cast"
+				},
+				{
+					"backtrace" : 3,
+					"fragment" : "-fpermissive"
+				},
+				{
+					"backtrace" : 3,
+					"fragment" : "-Wno-conversion"
+				},
+				{
+					"backtrace" : 3,
+					"fragment" : "-Wno-narrowing"
+				},
+				{
+					"backtrace" : 3,
+					"fragment" : "-Wno-everything"
+				},
+				{
+					"backtrace" : 3,
+					"fragment" : "--target=riscv64"
+				},
+				{
+					"backtrace" : 3,
+					"fragment" : "-mabi=lp64"
+				},
+				{
+					"backtrace" : 3,
+					"fragment" : "-march=rv64gc"
+				},
+				{
+					"backtrace" : 3,
+					"fragment" : "-mcmodel=medany"
+				},
+				{
+					"backtrace" : 3,
+					"fragment" : "-c"
+				},
+				{
+					"fragment" : "-std=gnu++20"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 4,
+					"path" : "/home/matejbucek/Programming/OS/RiscVEduOS/src"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					1
+				],
+				"standard" : "20"
+			},
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5
+			]
+		}
+	],
+	"id" : "Utils::@2bf0476c1cf7fa9b5346",
+	"name" : "Utils",
+	"paths" : 
+	{
+		"build" : "src/Utils",
+		"source" : "src/Utils"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Utils/Assertions.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Utils/Basic.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Utils/DebugConsole.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Utils/Optional.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Utils/cxx.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Utils/Memory.cpp",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "OBJECT_LIBRARY"
+}

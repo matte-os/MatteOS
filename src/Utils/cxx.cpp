@@ -7,6 +7,7 @@ extern "C"
 	void __stack_chk_guard_setup();
 	void __attribute__((noreturn)) __stack_chk_fail();
 	void _Unwind_Resume();
+    void __cxa_begin_catch();
 }
 
 void *__dso_handle;	
@@ -42,6 +43,10 @@ void __cxa_finalize(void *)
 
 void __cxa_pure_virtual()
 {
+
+}
+
+void __cxa_begin_catch() {
 
 }
 

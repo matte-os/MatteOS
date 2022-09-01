@@ -1,20 +1,22 @@
 set(ASM_SOURCE  
             Arch/riscv/boot.S
             Arch/riscv/mem.S
-            Arch/riscv/trap.S
+#            Arch/riscv/trap.S
 )
-set(SOURCE  
+set(SOURCE
             Init.cpp
             CPU.cpp
-            Page.cpp
-            PageController.cpp
-            PageTable.cpp
-            PageTableEntry.cpp
+            Memory/MemoryManager.cpp
+            Memory/KernelMemoryAllocator.cpp
+            Memory/Page.cpp
+            Memory/PageTable.cpp
+            Memory/PageTableEntry.cpp
             Uart.cpp
-            Trap.cpp
-            Plic.cpp
+            System/Trap.cpp
+            System/Plic.cpp
             Process.cpp
-            ProcessController.cpp
+#            System/ProcessManager.cpp
+            sbi/sbi.cpp
 )
 
 include_directories(${SOURCE_DIRECTORY})
