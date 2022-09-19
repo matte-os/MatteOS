@@ -45,5 +45,6 @@ namespace Kernel {
                                                  unsigned long start_addr,
                                                  unsigned long size,
                                                  unsigned long asid);
+        static SBIRet sbi_hart_get_status(unsigned long hartid);
     };
 }

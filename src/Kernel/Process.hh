@@ -1,5 +1,5 @@
 #pragma once
-#include "Kernel/System/TrapFrame.hh"
+#include "Kernel/System/TrapFrame.h"
 #include <Kernel/Memory/PageTable.h>
 #include <Utils/Types.hh>
 namespace Kernel{

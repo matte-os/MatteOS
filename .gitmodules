@@ -3,4 +3,4 @@
 	url = git@github.com:riscv-software-src/opensbi.git
 [submodule "toolchain/u-boot"]
 	path = toolchain/u-boot
-	url = git@github.com:riscv-software-src/opensbi.git
+	url = git@github.com:u-boot/u-boot.git

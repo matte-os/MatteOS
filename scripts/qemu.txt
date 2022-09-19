@@ -1,0 +1,5 @@
+qemu-system-riscv64 -nographic -machine virt -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=dist/riscv/kernel.elf,addr=0x86000000
+
+
+cp.l ${fdtcontroladdr} ${fdt_addr_r} 0x10000
+bootm 0x82000000 - ${fdt_addr_r}

@@ -67,14 +67,14 @@ namespace Kernel::Memory {
     void KernelMemoryAllocator::kfree(uintptr_t* ptr) {
         if(ptr != nullptr) {
             auto* alloc = ((AllocHeader*)ptr)-1;
-            if(alloc->isTaken()) DebugConsole::println("It is taken.");
             alloc->setFree();
+            coalesce();
         }
     }
 
     void KernelMemoryAllocator::debug() {
         auto* ptr = head;
-        auto* tail = (AllocHeader*)((u8*) head) + totalSize;
+        auto* tail = (AllocHeader*)(((u8*) head) + totalSize);
         while (ptr < tail) {
             DebugConsole::print("Taken: ");
             DebugConsole::printNumber(ptr->isTaken(), 10);
@@ -84,6 +84,21 @@ namespace Kernel::Memory {
         }
     }
 
+    void KernelMemoryAllocator::coalesce() {
+        auto* ptr = head;
+        auto* tail = (AllocHeader*)(((u8*) head) + totalSize);
+        while (ptr < tail) {
+            auto* next = (AllocHeader*) (((u8*) ptr) + ptr->getSize());
+            if(ptr->getSize() == 0) {
+                break;
+            } else if(next >= tail) {
+                break;
+            } else if(ptr->isFree() && next->isFree()) {
+                ptr->setSize(ptr->getSize() + next->getSize());
+            }
+            ptr = (AllocHeader*) (((u8*) ptr) + ptr->getSize());
+        }
+    }
 }
 
 namespace std { // NOLINT(cert-dcl58-cpp) These declarations must be in ::std and we are not using <new>
@@ -97,6 +112,14 @@ namespace std { // NOLINT(cert-dcl58-cpp) These declarations must be in ::std an
 
     enum class align_val_t : size_t {};
 };
+
+uintptr_t* kmalloc(size_t size) {
+    return Kernel::Memory::KernelMemoryAllocator::the().kmalloc(size);
+}
+
+void kfree(uintptr_t* ptr) {
+    Kernel::Memory::KernelMemoryAllocator::the().kfree(ptr);
+}
 
 void* operator new(size_t size) {
     return Kernel::Memory::KernelMemoryAllocator::the().kmalloc(size);

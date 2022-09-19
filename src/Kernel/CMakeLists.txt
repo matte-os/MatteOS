@@ -8,12 +8,14 @@ set(SOURCE
             CPU.cpp
             Memory/MemoryManager.cpp
             Memory/KernelMemoryAllocator.cpp
+            Memory/MemoryRegion.cpp
             Memory/Page.cpp
             Memory/PageTable.cpp
             Memory/PageTableEntry.cpp
             Uart.cpp
             System/Trap.cpp
             System/Plic.cpp
+            System/System.cpp
             Process.cpp
 #            System/ProcessManager.cpp
             sbi/sbi.cpp

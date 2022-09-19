@@ -1,3 +1,5 @@
+#define KERNEL 1
+
 #include <Kernel/Memory/PageTable.h>
 #include <Kernel/Memory/PageTableEntry.h>
 #include <Kernel/Memory/MemoryManager.h>
@@ -5,6 +7,9 @@
 #include <Kernel/Satp.hh>
 #include <Kernel/CPU.hh>
 #include <Utils/DebugConsole.hh>
+#include <Kernel/Firmware/FDT/fdt.h>
+#include <Kernel/System/System.h>
+#include "Utils/Strings/String.h"
 
 using Kernel::Memory::Page;
 using Kernel::Memory::EntryBits;
@@ -19,6 +24,8 @@ using Kernel::Memory::VirtualAddress;
 using Kernel::Memory::PhysicalAddress;
 using Kernel::TrapFrame;
 using Utils::DebugConsole;
+using Kernel::System::System;
+using Utils::Strings::String;
 
 
 extern "C" {
@@ -40,11 +47,17 @@ char _stack_end;
 
 PageTable* initMemory();
 
-extern "C" void kmain(){
+extern "C" void kmain(int a0, fdt_header* header){
     {
         DebugConsole::println("RiscVOS: v0.0.1, U-Boot + OpenSBI, SPL configuration");
+        //DebugConsole::printLnNumber(__builtin_bswap32(header->magic), 16);
         auto* pageTable = initMemory();
+        System::init();
         KernelMemoryAllocator::the().debug();
+        DebugConsole::println("Tunaj");
+        auto& system = System::the();
+        DebugConsole::printLnNumber((u64) &system, 16);
+        system.parseFDT(header);
         for(;;){}
     }
 }
@@ -83,6 +96,8 @@ PageTable* initMemory() {
     auto satp = Kernel::CPU::buildSatp(Kernel::SatpMode::Sv39, 0, (uintptr_t) pageTable);
     DebugConsole::println("Writing SATP.");
     CPU::writeSatp(*(u64*)&satp);
+    DebugConsole::println("More pls.");
+    DebugConsole::printLnNumber(CPU::readSatp(), 16);
     return pageTable;
 }
 

@@ -32,10 +32,14 @@ namespace Kernel::Memory {
         void kfree(uintptr_t*);
         void debug();
     private:
+        void coalesce();
         KernelMemoryAllocator();
         ~KernelMemoryAllocator();
     };
 }
+
+uintptr_t* kmalloc(size_t);
+void kfree(uintptr_t*);
 
 inline void* operator new(size_t, void* p) { return p; }
 inline void* operator new[](size_t, void* p) { return p; }

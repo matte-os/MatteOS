@@ -35,5 +35,7 @@ namespace Kernel {
         return sbi_ecall(SBI_EXT_RFENCE, 2, hart_mask, hart_mask_base, start_addr, size, asid, 0);
     }
 
-
+    SBIRet SBI::sbi_hart_get_status(unsigned long hartid) {
+        return sbi_ecall(SBI_EXT_HSM, 2, hartid, 0, 0, 0, 0, 0);
+    }
 }

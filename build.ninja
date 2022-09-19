@@ -57,7 +57,7 @@ build cmake_object_order_depends_target_kernel.elf: phony || cmake_object_order_
 #############################################
 # Link the executable dist/riscv/kernel.elf
 
-build dist/riscv/kernel.elf: CXX_EXECUTABLE_LINKER__kernel.2eelf_Debug src/Kernel/CMakeFiles/Kernel.dir/Init.cpp.o src/Kernel/CMakeFiles/Kernel.dir/CPU.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/MemoryManager.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/KernelMemoryAllocator.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/Page.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/PageTable.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/PageTableEntry.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Uart.cpp.o src/Kernel/CMakeFiles/Kernel.dir/System/Trap.cpp.o src/Kernel/CMakeFiles/Kernel.dir/System/Plic.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Process.cpp.o src/Kernel/CMakeFiles/Kernel.dir/sbi/sbi.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Arch/riscv/boot.S.o src/Kernel/CMakeFiles/Kernel.dir/Arch/riscv/mem.S.o src/Utils/CMakeFiles/Utils.dir/Assertions.cpp.o src/Utils/CMakeFiles/Utils.dir/Basic.cpp.o src/Utils/CMakeFiles/Utils.dir/DebugConsole.cpp.o src/Utils/CMakeFiles/Utils.dir/Optional.cpp.o src/Utils/CMakeFiles/Utils.dir/cxx.cpp.o src/Utils/CMakeFiles/Utils.dir/Memory.cpp.o || src/Kernel/Kernel src/Utils/Utils
+build dist/riscv/kernel.elf: CXX_EXECUTABLE_LINKER__kernel.2eelf_Debug src/Kernel/CMakeFiles/Kernel.dir/Init.cpp.o src/Kernel/CMakeFiles/Kernel.dir/CPU.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/MemoryManager.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/KernelMemoryAllocator.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/MemoryRegion.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/Page.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/PageTable.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/PageTableEntry.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Uart.cpp.o src/Kernel/CMakeFiles/Kernel.dir/System/Trap.cpp.o src/Kernel/CMakeFiles/Kernel.dir/System/Plic.cpp.o src/Kernel/CMakeFiles/Kernel.dir/System/System.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Process.cpp.o src/Kernel/CMakeFiles/Kernel.dir/sbi/sbi.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Arch/riscv/boot.S.o src/Kernel/CMakeFiles/Kernel.dir/Arch/riscv/mem.S.o src/Utils/CMakeFiles/Utils.dir/Assertions.cpp.o src/Utils/CMakeFiles/Utils.dir/Basic.cpp.o src/Utils/CMakeFiles/Utils.dir/DebugConsole.cpp.o src/Utils/CMakeFiles/Utils.dir/Optional.cpp.o src/Utils/CMakeFiles/Utils.dir/cxx.cpp.o src/Utils/CMakeFiles/Utils.dir/Memory.cpp.o src/Utils/CMakeFiles/Utils.dir/Arrays/ArrayList.cpp.o src/Utils/CMakeFiles/Utils.dir/Strings/StringImpl.cpp.o src/Utils/CMakeFiles/Utils.dir/Strings/String.cpp.o src/Utils/CMakeFiles/Utils.dir/kmalloc.cpp.o || src/Kernel/Kernel src/Utils/Utils
   FLAGS = -g
   OBJECT_DIR = CMakeFiles/kernel.elf.dir
   POST_BUILD = :
@@ -174,12 +174,40 @@ build src/Utils/CMakeFiles/Utils.dir/Memory.cpp.o: CXX_COMPILER__Utils_Debug /ho
   OBJECT_DIR = src/Utils/CMakeFiles/Utils.dir
   OBJECT_FILE_DIR = src/Utils/CMakeFiles/Utils.dir
 
+build src/Utils/CMakeFiles/Utils.dir/Arrays/ArrayList.cpp.o: CXX_COMPILER__Utils_Debug /home/matejbucek/Programming/OS/RiscVEduOS/src/Utils/Arrays/ArrayList.cpp || cmake_object_order_depends_target_Utils
+  DEP_FILE = src/Utils/CMakeFiles/Utils.dir/Arrays/ArrayList.cpp.o.d
+  FLAGS = -g -Wno-int-to-pointer-cast -fpermissive -Wno-conversion -Wno-narrowing -Wno-everything --target=riscv64 -mabi=lp64 -march=rv64gc -mcmodel=medany -c -std=gnu++20
+  INCLUDES = -I/home/matejbucek/Programming/OS/RiscVEduOS/src
+  OBJECT_DIR = src/Utils/CMakeFiles/Utils.dir
+  OBJECT_FILE_DIR = src/Utils/CMakeFiles/Utils.dir/Arrays
+
+build src/Utils/CMakeFiles/Utils.dir/Strings/StringImpl.cpp.o: CXX_COMPILER__Utils_Debug /home/matejbucek/Programming/OS/RiscVEduOS/src/Utils/Strings/StringImpl.cpp || cmake_object_order_depends_target_Utils
+  DEP_FILE = src/Utils/CMakeFiles/Utils.dir/Strings/StringImpl.cpp.o.d
+  FLAGS = -g -Wno-int-to-pointer-cast -fpermissive -Wno-conversion -Wno-narrowing -Wno-everything --target=riscv64 -mabi=lp64 -march=rv64gc -mcmodel=medany -c -std=gnu++20
+  INCLUDES = -I/home/matejbucek/Programming/OS/RiscVEduOS/src
+  OBJECT_DIR = src/Utils/CMakeFiles/Utils.dir
+  OBJECT_FILE_DIR = src/Utils/CMakeFiles/Utils.dir/Strings
+
+build src/Utils/CMakeFiles/Utils.dir/Strings/String.cpp.o: CXX_COMPILER__Utils_Debug /home/matejbucek/Programming/OS/RiscVEduOS/src/Utils/Strings/String.cpp || cmake_object_order_depends_target_Utils
+  DEP_FILE = src/Utils/CMakeFiles/Utils.dir/Strings/String.cpp.o.d
+  FLAGS = -g -Wno-int-to-pointer-cast -fpermissive -Wno-conversion -Wno-narrowing -Wno-everything --target=riscv64 -mabi=lp64 -march=rv64gc -mcmodel=medany -c -std=gnu++20
+  INCLUDES = -I/home/matejbucek/Programming/OS/RiscVEduOS/src
+  OBJECT_DIR = src/Utils/CMakeFiles/Utils.dir
+  OBJECT_FILE_DIR = src/Utils/CMakeFiles/Utils.dir/Strings
+
+build src/Utils/CMakeFiles/Utils.dir/kmalloc.cpp.o: CXX_COMPILER__Utils_Debug /home/matejbucek/Programming/OS/RiscVEduOS/src/Utils/kmalloc.cpp || cmake_object_order_depends_target_Utils
+  DEP_FILE = src/Utils/CMakeFiles/Utils.dir/kmalloc.cpp.o.d
+  FLAGS = -g -Wno-int-to-pointer-cast -fpermissive -Wno-conversion -Wno-narrowing -Wno-everything --target=riscv64 -mabi=lp64 -march=rv64gc -mcmodel=medany -c -std=gnu++20
+  INCLUDES = -I/home/matejbucek/Programming/OS/RiscVEduOS/src
+  OBJECT_DIR = src/Utils/CMakeFiles/Utils.dir
+  OBJECT_FILE_DIR = src/Utils/CMakeFiles/Utils.dir
+
 
 
 #############################################
 # Object library Utils
 
-build src/Utils/Utils: phony src/Utils/CMakeFiles/Utils.dir/Assertions.cpp.o src/Utils/CMakeFiles/Utils.dir/Basic.cpp.o src/Utils/CMakeFiles/Utils.dir/DebugConsole.cpp.o src/Utils/CMakeFiles/Utils.dir/Optional.cpp.o src/Utils/CMakeFiles/Utils.dir/cxx.cpp.o src/Utils/CMakeFiles/Utils.dir/Memory.cpp.o
+build src/Utils/Utils: phony src/Utils/CMakeFiles/Utils.dir/Assertions.cpp.o src/Utils/CMakeFiles/Utils.dir/Basic.cpp.o src/Utils/CMakeFiles/Utils.dir/DebugConsole.cpp.o src/Utils/CMakeFiles/Utils.dir/Optional.cpp.o src/Utils/CMakeFiles/Utils.dir/cxx.cpp.o src/Utils/CMakeFiles/Utils.dir/Memory.cpp.o src/Utils/CMakeFiles/Utils.dir/Arrays/ArrayList.cpp.o src/Utils/CMakeFiles/Utils.dir/Strings/StringImpl.cpp.o src/Utils/CMakeFiles/Utils.dir/Strings/String.cpp.o src/Utils/CMakeFiles/Utils.dir/kmalloc.cpp.o
 
 
 #############################################
@@ -247,6 +275,13 @@ build src/Kernel/CMakeFiles/Kernel.dir/Memory/KernelMemoryAllocator.cpp.o: CXX_C
   OBJECT_DIR = src/Kernel/CMakeFiles/Kernel.dir
   OBJECT_FILE_DIR = src/Kernel/CMakeFiles/Kernel.dir/Memory
 
+build src/Kernel/CMakeFiles/Kernel.dir/Memory/MemoryRegion.cpp.o: CXX_COMPILER__Kernel_Debug /home/matejbucek/Programming/OS/RiscVEduOS/src/Kernel/Memory/MemoryRegion.cpp || cmake_object_order_depends_target_Kernel
+  DEP_FILE = src/Kernel/CMakeFiles/Kernel.dir/Memory/MemoryRegion.cpp.o.d
+  FLAGS = -g -Wno-int-to-pointer-cast -fpermissive -Wno-conversion -Wno-narrowing -Wno-everything --target=riscv64 -mabi=lp64 -march=rv64gc -mcmodel=medany -c -std=gnu++20
+  INCLUDES = -I/home/matejbucek/Programming/OS/RiscVEduOS/src
+  OBJECT_DIR = src/Kernel/CMakeFiles/Kernel.dir
+  OBJECT_FILE_DIR = src/Kernel/CMakeFiles/Kernel.dir/Memory
+
 build src/Kernel/CMakeFiles/Kernel.dir/Memory/Page.cpp.o: CXX_COMPILER__Kernel_Debug /home/matejbucek/Programming/OS/RiscVEduOS/src/Kernel/Memory/Page.cpp || cmake_object_order_depends_target_Kernel
   DEP_FILE = src/Kernel/CMakeFiles/Kernel.dir/Memory/Page.cpp.o.d
   FLAGS = -g -Wno-int-to-pointer-cast -fpermissive -Wno-conversion -Wno-narrowing -Wno-everything --target=riscv64 -mabi=lp64 -march=rv64gc -mcmodel=medany -c -std=gnu++20
@@ -289,6 +324,13 @@ build src/Kernel/CMakeFiles/Kernel.dir/System/Plic.cpp.o: CXX_COMPILER__Kernel_D
   OBJECT_DIR = src/Kernel/CMakeFiles/Kernel.dir
   OBJECT_FILE_DIR = src/Kernel/CMakeFiles/Kernel.dir/System
 
+build src/Kernel/CMakeFiles/Kernel.dir/System/System.cpp.o: CXX_COMPILER__Kernel_Debug /home/matejbucek/Programming/OS/RiscVEduOS/src/Kernel/System/System.cpp || cmake_object_order_depends_target_Kernel
+  DEP_FILE = src/Kernel/CMakeFiles/Kernel.dir/System/System.cpp.o.d
+  FLAGS = -g -Wno-int-to-pointer-cast -fpermissive -Wno-conversion -Wno-narrowing -Wno-everything --target=riscv64 -mabi=lp64 -march=rv64gc -mcmodel=medany -c -std=gnu++20
+  INCLUDES = -I/home/matejbucek/Programming/OS/RiscVEduOS/src
+  OBJECT_DIR = src/Kernel/CMakeFiles/Kernel.dir
+  OBJECT_FILE_DIR = src/Kernel/CMakeFiles/Kernel.dir/System
+
 build src/Kernel/CMakeFiles/Kernel.dir/Process.cpp.o: CXX_COMPILER__Kernel_Debug /home/matejbucek/Programming/OS/RiscVEduOS/src/Kernel/Process.cpp || cmake_object_order_depends_target_Kernel
   DEP_FILE = src/Kernel/CMakeFiles/Kernel.dir/Process.cpp.o.d
   FLAGS = -g -Wno-int-to-pointer-cast -fpermissive -Wno-conversion -Wno-narrowing -Wno-everything --target=riscv64 -mabi=lp64 -march=rv64gc -mcmodel=medany -c -std=gnu++20
@@ -322,7 +364,7 @@ build src/Kernel/CMakeFiles/Kernel.dir/Arch/riscv/mem.S.o: ASM_COMPILER__Kernel_
 #############################################
 # Object library Kernel
 
-build src/Kernel/Kernel: phony src/Kernel/CMakeFiles/Kernel.dir/Init.cpp.o src/Kernel/CMakeFiles/Kernel.dir/CPU.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/MemoryManager.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/KernelMemoryAllocator.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/Page.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/PageTable.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/PageTableEntry.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Uart.cpp.o src/Kernel/CMakeFiles/Kernel.dir/System/Trap.cpp.o src/Kernel/CMakeFiles/Kernel.dir/System/Plic.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Process.cpp.o src/Kernel/CMakeFiles/Kernel.dir/sbi/sbi.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Arch/riscv/boot.S.o src/Kernel/CMakeFiles/Kernel.dir/Arch/riscv/mem.S.o
+build src/Kernel/Kernel: phony src/Kernel/CMakeFiles/Kernel.dir/Init.cpp.o src/Kernel/CMakeFiles/Kernel.dir/CPU.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/MemoryManager.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/KernelMemoryAllocator.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/MemoryRegion.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/Page.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/PageTable.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Memory/PageTableEntry.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Uart.cpp.o src/Kernel/CMakeFiles/Kernel.dir/System/Trap.cpp.o src/Kernel/CMakeFiles/Kernel.dir/System/Plic.cpp.o src/Kernel/CMakeFiles/Kernel.dir/System/System.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Process.cpp.o src/Kernel/CMakeFiles/Kernel.dir/sbi/sbi.cpp.o src/Kernel/CMakeFiles/Kernel.dir/Arch/riscv/boot.S.o src/Kernel/CMakeFiles/Kernel.dir/Arch/riscv/mem.S.o
 
 
 #############################################

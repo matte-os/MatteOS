@@ -139,7 +139,7 @@ namespace Kernel::Memory {
                 v->ppn2 = pageAddress.ppn2;
             }
 
-            PageTable* table = (PageTable*) ((v->getValue() & ~0x1ff) << 2);
+            auto* table = (PageTable*) ((v->getValue() & ~0x1ff) << 2);
             switch (i)
             {
                 case 0:

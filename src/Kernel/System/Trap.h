@@ -1,6 +1,6 @@
 #pragma once
 
-#include "TrapFrame.hh"
+#include "TrapFrame.h"
 #include "Utils/Types.hh"
 
 using Kernel::TrapFrame;

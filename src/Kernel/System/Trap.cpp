@@ -1,4 +1,4 @@
-#include "Trap.hh"
+#include "Trap.h"
 #include "Kernel/System/Plic.hh"
 #include "Kernel/Uart.hh"
 #include "Utils/DebugConsole.hh"
