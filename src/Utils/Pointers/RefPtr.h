@@ -7,33 +7,34 @@
 
 namespace Utils::Pointers {
     template <typename T> class RefPtr {
-        T* value;
+        T* m_value;
     public:
         RefPtr() : RefPtr(nullptr) {}
 
-        explicit RefPtr(T* ptr) : value(ptr) {
-            if(value) value->ref();
+        explicit RefPtr(T* ptr) : m_value(ptr) {
+            if(m_value) m_value->ref();
         }
 
         ~RefPtr() {
-            if(value)
-                value->unref();
-            value = nullptr;
+            if(m_value)
+                m_value->unref();
+            m_value = nullptr;
         }
 
-        T* getValue() const {
-            return value;
+        T* ptr() const {
+            return m_value;
         }
 
         T* operator->() {
-            return value;
+            return m_value;
         }
 
-        RefPtr<T>& operator=(RefPtr<T> const& ptr){
-            value = ptr.value;
-            if(value)
-                value->ref();
+        RefPtr<T>& operator=(RefPtr<T> const& ptr) {
+            m_value = ptr.m_value;
+            if(m_value)
+                m_value->ref();
             return *this;
         }
     };
+    template <typename T> RefPtr<T> adopt_ref();
 } // Utils

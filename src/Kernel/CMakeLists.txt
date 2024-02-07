@@ -1,7 +1,7 @@
 set(ASM_SOURCE  
             Arch/riscv/boot.S
             Arch/riscv/mem.S
-#            Arch/riscv/trap.S
+            Arch/riscv/trap.S
 )
 set(SOURCE
             Init.cpp
@@ -16,8 +16,9 @@ set(SOURCE
             System/Trap.cpp
             System/Plic.cpp
             System/System.cpp
-            Process.cpp
-#            System/ProcessManager.cpp
+            Process/Process.cpp
+            Process/ProcessManager.cpp
+            Process/Scheduler.cpp
             sbi/sbi.cpp
 )
 

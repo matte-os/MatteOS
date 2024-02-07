@@ -5,10 +5,10 @@
 
 using Kernel::TrapFrame;
 
-//extern "C" size_t trapVector(
-//    size_t epc,
-//    size_t tval,
-//    size_t cause,
-//    size_t hart,
-//    size_t status,
-//    TrapFrame frame);
+extern "C" size_t trap_vector(
+        u64 epc,
+        u64 tval,
+        u64 cause,
+        u64 hart,
+        u64 status,
+        TrapFrame *frame);

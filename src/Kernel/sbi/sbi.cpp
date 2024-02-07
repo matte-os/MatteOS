@@ -38,4 +38,8 @@ namespace Kernel {
     SBIRet SBI::sbi_hart_get_status(unsigned long hartid) {
         return sbi_ecall(SBI_EXT_HSM, 2, hartid, 0, 0, 0, 0, 0);
     }
+
+    void SBI::sbi_set_timer(u64 stime_value) {
+        sbi_ecall(SBI_EXT_0_1_SET_TIMER, 0, stime_value, 0, 0, 0, 0, 0);
+    }
 }

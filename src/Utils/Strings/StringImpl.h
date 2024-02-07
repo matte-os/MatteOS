@@ -15,10 +15,10 @@ namespace Utils::Strings {
     class StringImpl : public RefCounted<StringImpl> {
         friend class String;
     private:
-        char* value;
-        size_t length;
+        char* m_value;
+        size_t m_length;
     public:
-        static StringImpl& emptyString();
+        static StringImpl& empty_string();
         static RefPtr<StringImpl> create(const char*, size_t);
         ~StringImpl();
     protected:

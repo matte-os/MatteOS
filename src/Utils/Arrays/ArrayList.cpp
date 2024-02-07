@@ -4,32 +4,35 @@
 
 #include <Utils/Arrays/ArrayList.h>
 #include <Utils/Memory.hh>
+#include <Kernel/Process/Process.h>
 
 namespace Utils {
 
     template <typename T>
     ArrayList<T>::ArrayList() {
-        array = new T[DEFAULT_SIZE];
-        size = DEFAULT_SIZE;
-        ptr = 0;
+        m_array = new T[DEFAULT_SIZE];
+        m_size = DEFAULT_SIZE;
+        m_ptr = 0;
     }
 
     template <typename T>
     ArrayList<T>::~ArrayList() {
-        delete[] array;
+        DebugConsole::println("ArrayList destroyed!");
+        delete[] m_array;
     }
 
     template <typename T>
     void ArrayList<T>::add(T value) {
-        if(ptr >= size) grow();
-        array[ptr++] = value;
+        if(m_ptr >= m_size) grow();
+        m_array[m_ptr++] = value;
     }
 
     template <typename T>
-    T ArrayList<T>::get(size_t i) {
-        if(size < i) {
-            return array[i];
+    T ArrayList<T>::get(size_t index) {
+        if(m_size > index) {
+            return m_array[index];
         }
+        return {};
     }
 
     template <typename T>
@@ -38,18 +41,21 @@ namespace Utils {
     }
 
     template <typename T>
-    size_t ArrayList<T>::getSize() {
-        return ptr;
+    size_t ArrayList<T>::size() {
+        return m_ptr;
     }
 
     template <typename T>
     void ArrayList<T>::grow() {
-        auto newSize = size * DEFAULT_SIZE;
+        auto newSize = m_size * DEFAULT_SIZE;
         auto* tmpArray = new T[newSize];
-        memcpy((char*)tmpArray, (char*) array, size);
-        delete[] array;
-        array = tmpArray;
-        size = newSize;
+        memcpy((char*)tmpArray, (char*) m_array, m_size);
+        delete[] m_array;
+        m_array = tmpArray;
+        m_size = newSize;
     }
     template class ArrayList<Kernel::Memory::MemoryRegion>;
+    template class ArrayList<Kernel::Process::Process*>;
+    template class ArrayList<Kernel::Process::Thread*>;
+
 }

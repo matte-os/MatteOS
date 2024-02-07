@@ -1,24 +1,34 @@
-#include "Plic.hh"
-#include "Utils/DebugConsole.hh"
+#include <Kernel/System/Plic.h>
+#include <Utils/DebugConsole.hh>
 
-namespace Kernel{
+namespace Kernel::System {
+    static Plic* s_plic;
+
+    Plic &Plic::the() {
+        return *s_plic;
+    }
+
+    void Plic::init(size_t, size_t, size_t, size_t, size_t) {
+        s_plic = new Plic();
+    }
+
     void Plic::enable(u32 id){
         u32* enables = (u32*) PLIC_INT_ENABLE;
         u32 actualId = 1 << id;
         *enables = *enables | actualId;
         Utils::DebugConsole::print("Enabled: ");
-        Utils::DebugConsole::printLnNumber(*enables, 2);
+        Utils::DebugConsole::print_ln_number(*enables, 2);
     }
 
-    void Plic::setPriority(u32 id, u8 priority){
+    void Plic::set_priority(u32 id, u8 priority){
         u32 actualPriority = ((u32)priority) & 7;
         u32* priorityRegister = (u32*) PLIC_PRIORITY;
         *(priorityRegister + id) = actualPriority;
         Utils::DebugConsole::print("Priority: ");
-        Utils::DebugConsole::printLnNumber(*(priorityRegister + 4 * id), 2);
+        Utils::DebugConsole::print_ln_number(*(priorityRegister + 4 * id), 2);
     }
 
-    void Plic::setTreshold(u8 treshold){
+    void Plic::set_treshold(u8 treshold){
         u32 actualTreshold = treshold & 7;
         u32* tresholdRegister = (u32*) PLIC_TRESHOLD;
         *tresholdRegister = actualTreshold;
@@ -39,10 +49,10 @@ namespace Kernel{
         *completeRegister = id;
     }
 
-    bool Plic::isPending(u32 id){
-        u32* pending = (u32*) PLIC_PENDING;
+    bool Plic::isPending(u32 id) {
+        u32 *pending = (u32 *) PLIC_PENDING;
         u32 actualId = 1 << id;
-        u32 pendingIds = *pending; 
+        u32 pendingIds = *pending;
         return actualId & pendingIds != 0;
     }
 };  

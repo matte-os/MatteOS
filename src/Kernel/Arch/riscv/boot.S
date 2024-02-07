@@ -7,6 +7,10 @@ _start:
 	la		gp, _global_pointer
 .option pop
     la		sp, _stack_end
+    la 		a2, _bss_start
+    la		a3, _bss_end
+    bgeu	a2, a3, 2f
+    2:
     j kmain
 
 
@@ -18,15 +22,15 @@ _start:
 #	la		ra, 2f
 #	sret
 
- 2:
+# 2:
 		
 # 	li		t0, (0b01 << 11) | (1 << 7) | (1 << 5)
 # 	csrw	sstatus, t0
-# 			la		t2, m_trap_vector
+# 	la		t2, m_trap_vector
 # 	csrw	stvec, t2
-# 									la		t1, kmain
+# 	la		t1, kmain
 # 	csrw	sepc, t1
-# 							li		t2, 0x888
+# 	li		t2, 0x888
 # 	csrw	sie, t2
 # 	mret
 # 3:

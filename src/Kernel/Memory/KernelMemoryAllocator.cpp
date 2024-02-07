@@ -6,58 +6,58 @@
 #include <Kernel/Memory/MemoryManager.h>
 
 namespace Kernel::Memory {
-    static KernelMemoryAllocator* kernelMemoryAllocator;
+    static KernelMemoryAllocator* s_kernel_memory_allocator;
 
     void KernelMemoryAllocator::init(uintptr_t* page) {
-        kernelMemoryAllocator = new (page) KernelMemoryAllocator;
+        s_kernel_memory_allocator = new (page) KernelMemoryAllocator;
     }
 
     KernelMemoryAllocator& KernelMemoryAllocator::the() {
-        return *kernelMemoryAllocator;
+        return *s_kernel_memory_allocator;
     }
 
     KernelMemoryAllocator::KernelMemoryAllocator() {
-        head = (AllocHeader*) MemoryManager::the().zalloc(ALLOCATION_SIZE);
-        totalSize = ALLOCATION_SIZE * MemoryManager::PAGE_SIZE;
-        taken = 0;
-        head->setFree();
-        head->setSize(totalSize);
+        m_head = (AllocHeader*) MemoryManager::the().zalloc(ALLOCATION_SIZE);
+        m_total_size = ALLOCATION_SIZE * MemoryManager::PAGE_SIZE;
+        m_taken = 0;
+        m_head->set_free();
+        m_head->set_size(m_total_size);
     }
 
     KernelMemoryAllocator::~KernelMemoryAllocator() {
-        MemoryManager::the().dealloc((uintptr_t*) head);
+        MemoryManager::the().dealloc((uintptr_t*) m_head);
     }
 
     uintptr_t* KernelMemoryAllocator::kmalloc(size_t sz) {
-        auto size = MemoryManager::alignValue(sz, 3) + sizeof(AllocHeader);
-        auto* ptr = head;
-        auto* tail = (AllocHeader*)((u8*) head) + totalSize;
+        auto size = MemoryManager::align_value(sz, 3) + sizeof(AllocHeader);
+        auto* ptr = m_head;
+        auto* tail = (AllocHeader*)((u8*) m_head) + m_total_size;
         while(ptr < tail) {
-            if(ptr->isFree() && ptr->getSize() >= size) {
-                auto chunkSize = ptr->getSize();
+            if(ptr->is_free() && ptr->get_size() >= size) {
+                auto chunkSize = ptr->get_size();
                 auto remaining = chunkSize - size;
-                ptr->setTaken();
+                ptr->set_taken();
                 if(remaining > sizeof(AllocHeader)) {
                     auto* next = (AllocHeader*) (((u8*) ptr) + size);
-                    next->setFree();
-                    next->setSize(remaining);
-                    ptr->setSize(size);
+                    next->set_free();
+                    next->set_size(remaining);
+                    ptr->set_size(size);
                 } else {
-                    ptr->setSize(chunkSize);
+                    ptr->set_size(chunkSize);
                 }
                 return (uintptr_t*) ptr + 1;
             } else {
-                ptr = (AllocHeader*) (((u8*) ptr) + ptr->getSize());
+                ptr = (AllocHeader*) (((u8*) ptr) + ptr->get_size());
             }
         }
         return nullptr;
     }
 
     uintptr_t* KernelMemoryAllocator::kzmalloc(size_t sz) {
-        auto size = MemoryManager::alignValue(sz, 3);
+        auto size = MemoryManager::align_value(sz, 3);
         auto mem = kmalloc(size);
 
-        for(int i = 0; i < size; i++) {
+        for(size_t i = 0; i < size; i++) {
             *(((u8*)mem) + 1) = 0;
         }
 
@@ -67,36 +67,36 @@ namespace Kernel::Memory {
     void KernelMemoryAllocator::kfree(uintptr_t* ptr) {
         if(ptr != nullptr) {
             auto* alloc = ((AllocHeader*)ptr)-1;
-            alloc->setFree();
+            alloc->set_free();
             coalesce();
         }
     }
 
     void KernelMemoryAllocator::debug() {
-        auto* ptr = head;
-        auto* tail = (AllocHeader*)(((u8*) head) + totalSize);
+        auto* ptr = m_head;
+        auto* tail = (AllocHeader*)(((u8*) m_head) + m_total_size);
         while (ptr < tail) {
             DebugConsole::print("Taken: ");
-            DebugConsole::printNumber(ptr->isTaken(), 10);
+            DebugConsole::print_number(ptr->is_taken(), 10);
             DebugConsole::print(", Size: ");
-            DebugConsole::printLnNumber(ptr->getSize(), 10);
-            ptr = (AllocHeader*) (((u8*) ptr) + ptr->getSize());
+            DebugConsole::print_ln_number(ptr->get_size(), 10);
+            ptr = (AllocHeader*) (((u8*) ptr) + ptr->get_size());
         }
     }
 
     void KernelMemoryAllocator::coalesce() {
-        auto* ptr = head;
-        auto* tail = (AllocHeader*)(((u8*) head) + totalSize);
+        auto* ptr = m_head;
+        auto* tail = (AllocHeader*)(((u8*) m_head) + m_total_size);
         while (ptr < tail) {
-            auto* next = (AllocHeader*) (((u8*) ptr) + ptr->getSize());
-            if(ptr->getSize() == 0) {
+            auto* next = (AllocHeader*) (((u8*) ptr) + ptr->get_size());
+            if(ptr->get_size() == 0) {
                 break;
             } else if(next >= tail) {
                 break;
-            } else if(ptr->isFree() && next->isFree()) {
-                ptr->setSize(ptr->getSize() + next->getSize());
+            } else if(ptr->is_free() && next->is_free()) {
+                ptr->set_size(ptr->get_size() + next->get_size());
             }
-            ptr = (AllocHeader*) (((u8*) ptr) + ptr->getSize());
+            ptr = (AllocHeader*) (((u8*) ptr) + ptr->get_size());
         }
     }
 }

@@ -1,13 +1,13 @@
-#include "Trap.h"
-#include "Kernel/System/Plic.hh"
-#include "Kernel/Uart.hh"
-#include "Utils/DebugConsole.hh"
+#include <Kernel/System/Trap.h>
+#include <Kernel/System/Plic.h>
+#include <Kernel/Uart.hh>
+#include <Utils/DebugConsole.hh>
 
-using Kernel::Plic;
+using Kernel::System::Plic;
 using Kernel::TrapFrame;
 using Kernel::Uart;
 
-extern "C" size_t trapVector(
+extern "C" size_t trap_vector(
     u64 epc,
     u64 tval,
     u64 cause,
@@ -15,7 +15,7 @@ extern "C" size_t trapVector(
     u64 status,
     TrapFrame *frame)
 {
-    bool async = cause >> 63 & 1 == 1;
+    bool async = (cause >> 63 & 1) == 1;
 
     //Utils::DebugConsole::printLnNumber(*(u64*)&frame->satp, 16);
 
@@ -25,8 +25,7 @@ extern "C" size_t trapVector(
     //Utils::DebugConsole::println("Trap");
     //Utils::DebugConsole::printLnNumber(cause, 16);
 
-    if (async)
-    {
+    if (async) {
         switch (causeNum)
         {
         case 3:
@@ -36,6 +35,7 @@ extern "C" size_t trapVector(
         }
         case 7:
         {
+            //FIXME: We should use the System::set_timer function instead.
             u64 *mTimeCmp = (u64 *)0x02004000;
             u64 *mTime = (u64 *)0x0200bff8;
             *mTimeCmp = *mTime + 10000000;
@@ -44,19 +44,19 @@ extern "C" size_t trapVector(
         case 11:
         {
             //Utils::DebugConsole::println("Machine external interrupt.");
-            auto next = Plic::next();
-            if (next.hasSome())
+            auto next = Plic::the().next();
+            if (next.has_some())
             {
-                switch (next.getValue())
+                switch (next.get_value())
                 {
                 //UART
                 case 10:
                 {
                     Uart uart = Uart(0x10000000);
                     auto value = uart.get();
-                    if (value.hasSome())
+                    if (value.has_some())
                     {
-                        switch (value.getValue())
+                        switch (value.get_value())
                         {
                         case 8:
                         {
@@ -70,7 +70,7 @@ extern "C" size_t trapVector(
                         }
                         default:
                         {
-                            Utils::DebugConsole::print(value.getValue());
+                            Utils::DebugConsole::print(value.get_value());
                             break;
                         }
                         }
@@ -84,7 +84,7 @@ extern "C" size_t trapVector(
                     break;
                 }
                 }
-                Plic::complete(next.getValue());
+                Plic::the().complete(next.get_value());
             }
             break;
         }

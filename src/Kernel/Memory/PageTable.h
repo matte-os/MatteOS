@@ -7,12 +7,12 @@ using Utils::DebugConsole;
 
 namespace Kernel::Memory {
     struct PageTable{
-        PageTableEntry entries[512];
+        PageTableEntry m_entries[512];
 
         PageTable(){
             //entries = (PageTableEntry*)this;
         }
 
-        void debugOutput();
+        void debug_output();
     };
 };

@@ -4,17 +4,19 @@
 
 #pragma once
 
+#include <Utils/DebugConsole.hh>
+
 namespace Utils::Pointers {
     class RefCountedBase{
     public:
-        unsigned int mutable refCount = 0;
+        unsigned int mutable m_ref_count = 0;
     public:
         void ref() const {
-            ++refCount;
+            ++m_ref_count;
         }
 
         unsigned int deref() const {
-            return --refCount;
+            return --m_ref_count;
         }
     protected:
         RefCountedBase() = default;

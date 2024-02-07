@@ -2,7 +2,7 @@
 
 #include <Utils/Types.hh>
 #include <Kernel/Satp.hh>
-#include "Kernel/System/TrapFrame.h"
+#include <Kernel/System/TrapFrame.h>
 
 namespace Kernel{
     enum class SatpMode : u8{
@@ -15,14 +15,17 @@ namespace Kernel{
     public:
         static TrapFrame KERNEL_TRAP_FRAME[8];
         static void halt();
-        static SATP buildSatp(SatpMode, u64, u64);
-        static u64 readSatp();
-        static void writeSatp(u64);
-        static void mscratchWrite(u64);
-        static u64 mscratchRead();
-        static void sscratchWrite(u64);
-        static u64 sscratchRead();
-        static void satpFence(u64, u64);
-        static void satpFenceAsid(u64);
+        static SATP build_satp(SatpMode, u64, u64);
+        static SATP read_satp();
+        static void write_satp(u64);
+        static void mscratch_write(u64);
+        static u64 mscratch_read();
+        static void sscratch_write(u64);
+        static u64 sscratch_read();
+        static void satp_fence(u64, u64);
+        static void satp_fence_asid(u64);
+        static void write_sstatus(u64);
+        static void write_stvec(void (*trap_vector)());
+        static void write_sie(u64 sie);
     };
 };

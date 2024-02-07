@@ -9,7 +9,9 @@
 #include <Utils/DebugConsole.hh>
 #include <Kernel/Firmware/FDT/fdt.h>
 #include <Kernel/System/System.h>
-#include "Utils/Strings/String.h"
+#include <Utils/Strings/String.h>
+#include <Kernel/Process/ProcessManager.h>
+#include <Kernel/Process/Scheduler.h>
 
 using Kernel::Memory::Page;
 using Kernel::Memory::EntryBits;
@@ -26,6 +28,8 @@ using Kernel::TrapFrame;
 using Utils::DebugConsole;
 using Kernel::System::System;
 using Utils::Strings::String;
+using Kernel::Process::ProcessManager;
+using Kernel::Process::Scheduler;
 
 
 extern "C" {
@@ -45,68 +49,89 @@ char _stack_start;
 char _stack_end;
 }
 
-PageTable* initMemory();
+PageTable* init_memory();
+void sizeof_test();
 
 extern "C" void kmain(int a0, fdt_header* header){
-    {
-        DebugConsole::println("RiscVOS: v0.0.1, U-Boot + OpenSBI, SPL configuration");
-        //DebugConsole::printLnNumber(__builtin_bswap32(header->magic), 16);
-        auto* pageTable = initMemory();
-        System::init();
-        KernelMemoryAllocator::the().debug();
-        DebugConsole::println("Tunaj");
-        auto& system = System::the();
-        DebugConsole::printLnNumber((u64) &system, 16);
-        system.parseFDT(header);
-        for(;;){}
-    }
+    DebugConsole::println("RiscVOS: v0.0.1, U-Boot + OpenSBI, SPL configuration");
+    auto* page_table = init_memory();
+    System::init();
+    KernelMemoryAllocator::the().debug();
+    auto& system = System::the();
+    system.parse_fdt(header);
+    sizeof_test();
+    ProcessManager::init(page_table);
+    ProcessManager::the().create_dummy_process();
+    system.setup_interrupts(0);
+    system.set_default_trap_vector();
+    Scheduler::init();
+    DebugConsole::println("Initialization completed");
+    Scheduler::the().start_scheduling();
 }
 
-PageTable* initMemory() {
+void sizeof_test() {
+    DebugConsole::print("Size of size_t: ");
+    DebugConsole::print_ln_number(sizeof(size_t) * 8, 10);
+    DebugConsole::print("Size of u64: ");
+    DebugConsole::print_ln_number(sizeof(u64) * 8, 10);
+    DebugConsole::print("Size of u32: ");
+    DebugConsole::print_ln_number(sizeof(u32) * 8, 10);
+    DebugConsole::print("Size of u8: ");
+    DebugConsole::print_ln_number(sizeof(u8) * 8, 10);
+    DebugConsole::print("Size of uintptr_t: ");
+    DebugConsole::print_ln_number(sizeof(uintptr_t) * 8, 10);
+}
+
+PageTable* init_memory() {
     DebugConsole::println("Initializing memory.");
     MemoryManager::init((uintptr_t) &_heap_start, (uintptr_t) &_heap_size);
     auto& memoryManager = MemoryManager::the();
     auto* pageTable = (PageTable*) memoryManager.alloc(1);
-    memoryManager.debugOutput();
+    memoryManager.debug_output();
 
-    auto numPages = ((uintptr_t)(&_heap_size))/MemoryManager::PAGE_SIZE;
     DebugConsole::println("MemoryManager: Mapping the heap.");
-    memoryManager.mapRange(*pageTable, (uintptr_t)(&_heap_start), ((uintptr_t) &_heap_start) + numPages, (u64)EntryBits::READ_WRITE);
+    memoryManager.map_range(*pageTable, (uintptr_t) (&_heap_start), ((uintptr_t) ((u64)&_heap_start + (u64)&_heap_size)),
+                            (u64) EntryBits::READ_WRITE);
     DebugConsole::println("MemoryManager: Mapping the text section.");
-    memoryManager.mapRange(*pageTable, (uintptr_t) &_text_start, (uintptr_t) &_text_end, (u64)EntryBits::READ_EXECUTE);
+    memoryManager.map_range(*pageTable, (uintptr_t) &_text_start, (uintptr_t) &_text_end, (u64) EntryBits::READ_EXECUTE);
     DebugConsole::println("MemoryManager: Mapping the rodata section.");
-    memoryManager.mapRange(*pageTable, (uintptr_t) &_rodata_start, (uintptr_t) &_rodata_end, (u64)EntryBits::READ_EXECUTE);
+    memoryManager.map_range(*pageTable, (uintptr_t) &_rodata_start, (uintptr_t) &_rodata_end,
+                            (u64) EntryBits::READ_EXECUTE);
     DebugConsole::println("MemoryManager: Mapping the data section.");
-    memoryManager.mapRange(*pageTable, (uintptr_t) &_data_start, (uintptr_t) &_data_end, (u64)EntryBits::READ_WRITE);
+    memoryManager.map_range(*pageTable, (uintptr_t) &_data_start, (uintptr_t) &_data_end, (u64) EntryBits::READ_WRITE);
     DebugConsole::println("MemoryManager: Mapping the bss section.");
-    memoryManager.mapRange(*pageTable, (uintptr_t) &_bss_start, (uintptr_t) &_bss_end, (u64)EntryBits::READ_WRITE);
+    memoryManager.map_range(*pageTable, (uintptr_t) &_bss_start, (uintptr_t) &_bss_end, (u64) EntryBits::READ_WRITE);
     DebugConsole::println("MemoryManager: Mapping the stack.");
-    memoryManager.mapRange(*pageTable, (uintptr_t) &_stack_start, (uintptr_t) &_stack_end, (u64)EntryBits::READ_WRITE);
+    memoryManager.map_range(*pageTable, (uintptr_t) &_stack_start, (uintptr_t) &_stack_end, (u64) EntryBits::READ_WRITE);
     DebugConsole::println("MemoryManager: Mapping the UART.");
     memoryManager.map(*pageTable, 0x10000000,  0x10000000, (u64)EntryBits::READ_WRITE, 0);
     DebugConsole::println("MemoryManager: Mapping the CLINT.");
-    memoryManager.mapRange(*pageTable, 0x02000000, 0x0200ffff, (u64)EntryBits::READ_WRITE);
+    memoryManager.map_range(*pageTable, 0x02000000, 0x0200ffff, (u64) EntryBits::READ_WRITE);
     DebugConsole::println("MemoryManager: Mapping the PLIC.");
-    memoryManager.mapRange(*pageTable, 0x0c000000, 0x0c002001, (u64)EntryBits::READ_WRITE);
-    memoryManager.mapRange(*pageTable, 0x0c200000, 0x0c208001, (u64)EntryBits::READ_WRITE);
+    memoryManager.map_range(*pageTable, 0x0c000000, 0x0c002001, (u64) EntryBits::READ_WRITE);
+    memoryManager.map_range(*pageTable, 0x0c200000, 0x0c208001, (u64) EntryBits::READ_WRITE);
+
+    //FIXME: This should be mapped exactly for the size of the FDT blob.
+    DebugConsole::println("MemoryManager: Mapping the FDT.");
+    memoryManager.map_range(*pageTable, 0x8c000000, 0x8c006937, (u64) EntryBits::READ_WRITE);
+
     DebugConsole::println("MemoryManager: Initial mapping done.");
     KernelMemoryAllocator::init(memoryManager.zalloc(1));
 
     DebugConsole::println("Setting up SATP.");
-    auto satp = Kernel::CPU::buildSatp(Kernel::SatpMode::Sv39, 0, (uintptr_t) pageTable);
+    auto satp = Kernel::CPU::build_satp(Kernel::SatpMode::Sv39, 0, (uintptr_t) pageTable);
     DebugConsole::println("Writing SATP.");
-    CPU::writeSatp(*(u64*)&satp);
+    CPU::write_satp(*(u64 *) &satp);
     DebugConsole::println("More pls.");
-    DebugConsole::printLnNumber(CPU::readSatp(), 16);
     return pageTable;
 }
 
 
 
-void initTraps() {
+void init_traps() {
 
 }
 
-void initProcesses() {
+void init_processes() {
 
 }

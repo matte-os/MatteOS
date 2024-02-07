@@ -46,5 +46,6 @@ namespace Kernel {
                                                  unsigned long size,
                                                  unsigned long asid);
         static SBIRet sbi_hart_get_status(unsigned long hartid);
+        static void sbi_set_timer(u64 stime_value);
     };
 }

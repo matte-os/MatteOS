@@ -9,15 +9,15 @@ using Utils::Pointers::RefPtr;
 namespace Utils::Strings {
     class String {
     private:
-        RefPtr<StringImpl> value;
+        RefPtr<StringImpl> m_value;
     public:
         String() : String("") {}
         String(const char *);
         ~String() = default;
         size_t length() {
-            return value->length;
+            return m_value->m_length;
         }
-        static u64 calculateSize(const char*);
+        static u64 calculate_size(const char*);
         void operator+=(char* value);
         void operator+=(String& other);
         String operator=(const char* value);

@@ -17,13 +17,13 @@ namespace Utils
     }
 
     template <class E>
-    bool Optional<E>::hasSome()
+    bool Optional<E>::has_some()
     {
         return has;
     }
 
     template <class E>
-    E Optional<E>::getValue()
+    E Optional<E>::get_value()
     {
         return value;
     }

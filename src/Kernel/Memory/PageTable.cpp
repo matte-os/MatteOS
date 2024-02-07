@@ -3,11 +3,11 @@
 #include <Utils/Basic.hh>
 
 namespace Kernel::Memory {
-    void PageTable::debugOutput(){
+    void PageTable::debug_output(){
         char buffer[64];
         for(int i = 0; i < 520; i++){
-            PageTableEntry& entry = this->entries[i];
-            u64 value = entry.getValue();
+            PageTableEntry& entry = this->m_entries[i];
+            u64 value = entry.get_value();
             if(value != 0){
                 itoa(buffer, i, 10);
                 DebugConsole::print("The value of ");

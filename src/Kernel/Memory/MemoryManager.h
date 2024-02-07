@@ -33,15 +33,15 @@ namespace Kernel::Memory {
     class MemoryManager {
         friend class KernelMemoryAllocator;
     public:
-        size_t heapStart;
-        size_t heapSize;
-        Page* firstPage;
-        size_t numberOfPages;
-        size_t allocStart;
+        size_t m_heap_start;
+        size_t m_heap_size;
+        Page* m_first_page;
+        size_t m_number_of_pages;
+        size_t m_alloc_start;
     private:
         MemoryManager();
 
-        static size_t alignValue(size_t, size_t);
+        static size_t align_value(size_t value, size_t order);
     public:
         static MemoryManager& the();
         static MemoryManager* ptr();
@@ -49,10 +49,9 @@ namespace Kernel::Memory {
         uintptr_t* alloc(size_t);
         uintptr_t* zalloc(size_t);
         void dealloc(uintptr_t*);
-        void mapRange(PageTable&, size_t, size_t, u64);
+        void map_range(PageTable &root, size_t start, size_t end, u64 bits);
         void map(PageTable&, VirtualAddress, PhysicalAddress, size_t, int);
-        void debugOutput();
-        void debugPageWalk(PageTable*);
+        void debug_output();
 
         ~MemoryManager();
 

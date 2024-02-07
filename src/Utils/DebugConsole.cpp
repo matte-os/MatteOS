@@ -34,14 +34,14 @@ namespace Utils{
         }
     }
 
-    void DebugConsole::printNumber(u64 number, u32 base){
+    void DebugConsole::print_number(u64 number, u32 base){
         char buffer[64];
         itoa(buffer, number, base);
         print(buffer);
     }
 
-    void DebugConsole::printLnNumber(u64 number, u32 base){
-        printNumber(number, base);
+    void DebugConsole::print_ln_number(u64 number, u32 base){
+        print_number(number, base);
         print('\n');
     }
 

@@ -20,12 +20,30 @@ namespace Utils
             return p;
         }
 
-        void *memmvo(char *dst, char *src, int base, int until, int to)
+        void memmvo(char *dst, char *src, int base, int until, int to)
         {
             for (int i = base; i < until; i++)
             {
                 dst[to + (i - base)] = src[i];
             }
         }
+
+    int strcmp(const char *X, const char *Y)
+    {
+        while (*X)
+        {
+            // if characters differ, or end of the second string is reached
+            if (*X != *Y) {
+                break;
+            }
+
+            // move to the next pair of characters
+            X++;
+            Y++;
+        }
+
+        // return the ASCII difference after converting `char*` to `unsigned char*`
+        return *(const unsigned char*)X - *(const unsigned char*)Y;
+    }
     }
 };

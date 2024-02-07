@@ -6,39 +6,39 @@
 #include <Utils/Basic.hh>
 
 namespace Kernel::Memory {
-    static MemoryManager* memoryManager;
+    static MemoryManager* s_memory_manager;
 
     MemoryManager& MemoryManager::the() {
-        return *memoryManager;
+        return *s_memory_manager;
     }
 
     MemoryManager *MemoryManager::ptr() {
-        return memoryManager;
+        return s_memory_manager;
     }
 
     void MemoryManager::init(size_t heapStart, size_t heapSize) {
         size_t numberOfPages = heapSize/PAGE_SIZE;
-        size_t allocStart = alignValue(heapStart + (numberOfPages * sizeof(Page)), PAGE_ORDER);
+        size_t allocStart = align_value(heapStart + (numberOfPages * sizeof(Page)), PAGE_ORDER);
         //The first page is allocated for the MemoryManager to live.
-        memoryManager = (MemoryManager*)(allocStart);
-        memoryManager->heapStart = heapStart;
-        memoryManager->heapSize = heapSize;
-        memoryManager->firstPage = (Page*) heapStart;
-        memoryManager->firstPage[0].setStatus(PageStatus::LAST);
-        memoryManager->numberOfPages = numberOfPages;
-        for(int i = 1; i < numberOfPages; i++){
-            memoryManager->firstPage[i].clear();
+        s_memory_manager = (MemoryManager*)(allocStart);
+        s_memory_manager->m_heap_start = heapStart;
+        s_memory_manager->m_heap_size = heapSize;
+        s_memory_manager->m_first_page = (Page*) heapStart;
+        s_memory_manager->m_first_page[0].set_status(PageStatus::LAST);
+        s_memory_manager->m_number_of_pages = numberOfPages;
+        for(size_t i = 1; i < numberOfPages; i++){
+            s_memory_manager->m_first_page[i].clear();
         }
-        memoryManager->allocStart = allocStart;
+        s_memory_manager->m_alloc_start = allocStart;
     }
 
     uintptr_t* MemoryManager::alloc(size_t pages){
-        for(int i = 0; i < numberOfPages; i++){
+        for(size_t i = 0; i < m_number_of_pages; i++){
             bool found = false;
-            if(firstPage[i].isFree()){
+            if(m_first_page[i].is_free()){
                 found = true;
-                for(int j = i; j < i + pages; j++){
-                    if(!firstPage[j].isFree()){
+                for(size_t j = i; j < i + pages; j++){
+                    if(!m_first_page[j].is_free()){
                         found = false;
                         break;
                     }
@@ -46,15 +46,13 @@ namespace Kernel::Memory {
             }
 
             if(found){
-                for(int k = i; k < i + pages - 1; k++){
-                    firstPage[k].setStatus(PageStatus::TAKEN);
+                for(size_t k = i; k < i + pages - 1; k++){
+                    m_first_page[k].set_status(PageStatus::TAKEN);
                 }
-
-                firstPage[i + pages - 1].setStatus(PageStatus::LAST);
-                return (size_t*)(allocStart + PAGE_SIZE * i);
+                m_first_page[i + pages - 1].set_status(PageStatus::LAST);
+                return (size_t*)(m_alloc_start + PAGE_SIZE * i);
             }
         }
-
         return nullptr;
     }
 
@@ -64,13 +62,11 @@ namespace Kernel::Memory {
         if(allocated == nullptr){
             return nullptr;
         }
-
-        int size = (PAGE_SIZE * pages) / 8;
+        size_t size = (PAGE_SIZE * pages) / 8;
         u64* bigPtr = (u64*) allocated;
-        for(int i = 0; i < size; i++){
+        for(size_t i = 0; i < size; i++){
             (*(bigPtr + i)) = 0;
         }
-
         return allocated;
     }
 
@@ -79,10 +75,10 @@ namespace Kernel::Memory {
             return;
         }
 
-        uintptr_t addr = heapStart + ((uintptr_t) ptr - allocStart) / PAGE_SIZE;
+        uintptr_t addr = m_heap_start + ((uintptr_t) ptr - m_alloc_start) / PAGE_SIZE;
         Page* page = (Page*) addr;
 
-        while(page->isTaken()){
+        while(page->is_taken()){
             page->clear();
             page++;
         }
@@ -90,18 +86,18 @@ namespace Kernel::Memory {
         page->clear();
     }
 
-    void MemoryManager::debugOutput(){
+    void MemoryManager::debug_output(){
         char buffer[64];
 
         DebugConsole::println("PageController: Debugging sequence started!");
 
         DebugConsole::print("Total number of pages: ");
-        itoa(buffer, numberOfPages, 10);
+        itoa(buffer, m_number_of_pages, 10);
         DebugConsole::println(buffer);
 
         int allocated = 0;
-        for(int i = 0; i < numberOfPages; i++){
-            if(!firstPage[i].isFree()){
+        for(size_t i = 0; i < m_number_of_pages; i++){
+            if(!m_first_page[i].is_free()){
                 allocated++;
             }
         }
@@ -111,15 +107,15 @@ namespace Kernel::Memory {
         DebugConsole::println(buffer);
 
         DebugConsole::print("Free: ");
-        itoa(buffer, numberOfPages - allocated, 10);
+        itoa(buffer, m_number_of_pages - allocated, 10);
         DebugConsole::println(buffer);
     }
 
-    void MemoryManager::mapRange(PageTable& root, size_t start, size_t end, u64 bits){
+    void MemoryManager::map_range(PageTable& root, size_t start, size_t end, u64 bits){
         size_t memAddr = start & ~(PAGE_SIZE - 1);
-        size_t numKbPages = (alignValue(end, 12) - memAddr) / PAGE_SIZE;
+        size_t numKbPages = (align_value(end, 12) - memAddr) / PAGE_SIZE;
 
-        for(int i = 0; i < numKbPages; i++){
+        for(size_t i = 0; i < numKbPages; i++){
             map(root, *(VirtualAddress*) &memAddr, *(PhysicalAddress*) &memAddr, bits, 0);
             memAddr += 1 << 12;
         }
@@ -127,10 +123,10 @@ namespace Kernel::Memory {
 
     void MemoryManager::map(PageTable& root, VirtualAddress vaddr, PhysicalAddress paddr, size_t bits, int level){
 
-        PageTableEntry* v = &root.entries[vaddr.vpn2];
+        PageTableEntry* v = &root.m_entries[vaddr.vpn2];
 
         for(int i = 1; i >= level; i--){
-            if(!v->isValid()){
+            if(!v->is_valid()){
                 size_t* page = zalloc(1);
                 PhysicalAddress pageAddress = (uintptr_t)page;
                 v->valid = 1;
@@ -139,16 +135,8 @@ namespace Kernel::Memory {
                 v->ppn2 = pageAddress.ppn2;
             }
 
-            auto* table = (PageTable*) ((v->getValue() & ~0x1ff) << 2);
-            switch (i)
-            {
-                case 0:
-                    v = &table->entries[vaddr.vpn0];
-                    break;
-                case 1:
-                    v = &table->entries[vaddr.vpn1];
-                    break;
-            }
+            auto* table = (PageTable*) ((v->get_value() & ~0x1ff) << 2);
+            v = &table->m_entries[(i == 0)? vaddr.vpn0 : vaddr.vpn1];
         }
 
         v->accessed = 1;
@@ -157,10 +145,10 @@ namespace Kernel::Memory {
         v->ppn0 = paddr.ppn0;
         v->ppn1 = paddr.ppn1;
         v->ppn2 = paddr.ppn2;
-        v->setBits(bits);
+        v->set_bits(bits);
     }
 
-    size_t MemoryManager::alignValue(size_t value, size_t order){
+    size_t MemoryManager::align_value(size_t value, size_t order){
         size_t o = (1 << order) - 1;
         return (value + o) & ~o;
     }

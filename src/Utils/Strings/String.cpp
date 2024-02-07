@@ -3,10 +3,10 @@
 namespace Utils::Strings {
 
     String::String(const char * value) {
-        this->value = StringImpl::create(value, calculateSize(value));
+        this->m_value = StringImpl::create(value, calculate_size(value));
     }
 
-    u64 String::calculateSize(const char * cstring) {
+    u64 String::calculate_size(const char * cstring) {
         u64 i = 0;
         while(*(cstring + i) != '\0') i++;
         return i;

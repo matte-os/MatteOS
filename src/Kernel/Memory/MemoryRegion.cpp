@@ -6,17 +6,17 @@
 
 namespace Kernel::Memory {
     MemoryRegion::MemoryRegion(MemoryRegionType type, u64 address, u64 size, bool addr = false) {
-        this->type = type;
-        this->address = address;
+        this->m_type = type;
+        this->m_address = address;
         if(!addr) {
-            this->size = size;
+            this->m_size = size;
         } else {
-            this->size = size - address;
+            this->m_size = size - address;
         }
     }
 
     MemoryRegion::~MemoryRegion() {}
-    u64 MemoryRegion::getSize() { return size; }
-    u64 MemoryRegion::getAddress() { return address; }
-    MemoryRegionType MemoryRegion::getType() { return type; }
+    u64 MemoryRegion::get_size() { return m_size; }
+    u64 MemoryRegion::get_address() { return m_address; }
+    MemoryRegionType MemoryRegion::get_type() { return m_type; }
 }

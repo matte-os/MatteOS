@@ -11,19 +11,19 @@ namespace Kernel::Memory {
         u64 size:   63;
         u64 taken:  1;
     public:
-        bool isTaken() { return taken == 1; }
-        bool isFree() { return !isTaken(); }
-        void setTaken() { taken = 1; }
-        void setFree() { taken = 0; }
-        u64 getSize() { return size; }
-        void setSize(u64 size) { this->size = size; }
+        bool is_taken() { return taken == 1; }
+        bool is_free() { return !is_taken(); }
+        void set_taken() { taken = 1; }
+        void set_free() { taken = 0; }
+        u64 get_size() { return size; }
+        void set_size(u64 size) { this->size = size; }
     };
     class KernelMemoryAllocator {
     private:
         static const u64 ALLOCATION_SIZE = 64;
-        AllocHeader* head;
-        u64 totalSize;
-        u64 taken;
+        AllocHeader* m_head;
+        u64 m_total_size;
+        u64 m_taken;
     public:
         static void init(uintptr_t*);
         static KernelMemoryAllocator& the();

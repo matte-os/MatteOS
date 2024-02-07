@@ -9,27 +9,27 @@
 
 namespace Utils::Strings {
 
-    static StringImpl* emptyStringPtr = nullptr;
+    static StringImpl* s_empty_string = nullptr;
 
-    StringImpl& StringImpl::emptyString() {
-        if(!emptyStringPtr) {
-            emptyStringPtr = new StringImpl();
-            emptyStringPtr->length = 0;
+    StringImpl& StringImpl::empty_string() {
+        if(!s_empty_string) {
+            s_empty_string = new StringImpl();
+            s_empty_string->m_length = 0;
         }
-        return *emptyStringPtr;
+        return *s_empty_string;
     }
 
     RefPtr<StringImpl> StringImpl::create(const char * cstring, size_t t_length) {
         auto* ptr = new StringImpl;
-        ptr->value = new char[t_length];
-        memcpy(ptr->value, cstring, t_length);
-        ptr->length = t_length;
+        ptr->m_value = new char[t_length];
+        memcpy(ptr->m_value, cstring, t_length);
+        ptr->m_length = t_length;
         return RefPtr<StringImpl>(ptr);
     }
 
     StringImpl::~StringImpl() {
-        if(length != 0) {
-            delete[] value;
+        if(m_length != 0) {
+            delete[] m_value;
         }
     }
 }

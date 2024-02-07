@@ -21,3 +21,12 @@ struct fdt_reserve_entry {
     u64 address;
     u64 size;
 };
+
+enum class FDTNodeType {
+    FDT_BEGIN_NODE = 0x00000001,
+    FDT_END_NODE = 0x00000002,
+    FDT_PROP = 0x00000003,
+    FDT_NOP = 0x00000004,
+    FDT_END = 0x00000009
+};
+

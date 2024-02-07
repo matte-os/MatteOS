@@ -3,30 +3,30 @@
 namespace Kernel::Memory
 {
     Page::Page(){
-        status = PageStatus::FREE;
+        m_status = PageStatus::FREE;
     }
 
     Page::~Page(){
 
     }
 
-    bool Page::isFree(){
-        return status == PageStatus::FREE; 
+    bool Page::is_free(){
+        return m_status == PageStatus::FREE;
     }
 
-    bool Page::isTaken(){
-        return status == PageStatus::TAKEN;
+    bool Page::is_taken(){
+        return m_status == PageStatus::TAKEN;
     }
 
-    bool Page::isLast(){
-        return status == PageStatus::LAST;
+    bool Page::is_last(){
+        return m_status == PageStatus::LAST;
     }
 
     void Page::clear(){
-        status = PageStatus::FREE;
+        m_status = PageStatus::FREE;
     }
 
-    void Page::setStatus(PageStatus status){
-        this->status = status;
+    void Page::set_status(PageStatus status){
+        this->m_status = status;
     }
 };

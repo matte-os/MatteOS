@@ -8,7 +8,7 @@ namespace Utils{
         public:
             Optional();
             Optional(E value);
-            bool hasSome();
-            E getValue();
+            bool has_some();
+            E get_value();
     };
 };

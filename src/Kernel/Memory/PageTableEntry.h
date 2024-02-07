@@ -20,9 +20,9 @@ namespace Kernel::Memory {
 
         //void setRWE();
         //void setRW();
-        u64 getValue();
-        void setValue(u64);
-        void setBits(u64);
-        bool isValid();
+        u64 get_value();
+        void set_value(u64 value);
+        void set_bits(u64 bits);
+        bool is_valid();
     };
 };

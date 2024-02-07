@@ -38,9 +38,9 @@ m_trap_test:
 m_trap_vector:
 	# All registers are volatile here, we need to save them
 	# before we do anything.
-	csrrw	t6, mscratch, t6
+	csrrw	t6, sscratch, t6
 	# csrrw will atomically swap t6 into mscratch and the old
-	# value of mscratch into t6. This is nice because we just
+	# m_value of mscratch into t6. This is nice because we just
 	# switched values and didn't destroy anything -- all atomically!
 	# in cpu.rs we have a structure of:
 	#  32 gp regs		0
@@ -59,32 +59,32 @@ m_trap_vector:
 	# Save the actual t6 register, which we swapped into
 	# mscratch
 	mv		t5, t6
-	csrr	t6, mscratch
+	csrr	t6, sscratch
 	save_gp 31, t5
 
 	# Restore the kernel trap frame into mscratch
-	csrw	mscratch, t5
+	csrw	sscratch, t5
 
 	# Get ready to go into Rust (trap.rs)
 	# We don't want to write into the user's stack or whomever
 	# messed with us here.
-	csrr	a0, mepc
-	csrr	a1, mtval
-	csrr	a2, mcause
-	csrr	a3, mhartid
-	csrr	a4, mstatus
+	csrr	a0, sepc
+	csrr	a1, stval
+	csrr	a2, scause
+	csrr	a3, 0x0
+	csrr	a4, sstatus
 	mv		a5, t5
 	ld		sp, 520(a5)
-	call	trapVector
+	call	trap_vector
 
 	# When we get here, we've returned from m_trap, restore registers
 	# and return.
 	# m_trap will return the return address via a0.
 
-	csrw	mepc, a0
+	csrw	sepc, a0
 
 	# Now load the trap frame back into t6
-	csrr	t6, mscratch
+	csrr	t6, sscratch
 
 	# Restore all GP registers
 	.set	i, 1
@@ -94,10 +94,56 @@ m_trap_vector:
 	.endr
 
 	# Since we ran this loop 31 times starting with i = 1,
-	# the last one loaded t6 back to its original value.
+	# the last one loaded t6 back to its original m_value.
 
-	mret
+	sret
 
+.global switch_to_user
+switch_to_user:
+    # a0 - Frame address
+	# a1 - Program counter
+	# a2 - SATP Register
+    csrw    sscratch, a0
+
+	# Load program counter
+	ld		a1, 520(a0)
+	# Load satp
+	ld		a2, 512(a0)
+	# Load processor mode
+	ld		a3, 552(a0)
+	# Pid
+	# ld		a4, 544(a0)
+
+	# 1 << 7 is MPIE
+	# Since user mode is 00, we don't need to set anything
+	# in MPP (bits 12:11)
+	li		t0, 1 << 7 | 1 << 5 | 1 << 13
+	# Combine enable bits with mode bits.
+	slli	a3, a3, 11
+	or		t0, t0, a3
+	csrw	sstatus, t0
+	csrw	sepc, a1
+	csrw	satp, a2
+	li		t1, 0xaaa
+	csrw	sie, t1
+	la		t2, m_trap_vector
+	csrw	stvec, t2
+	# A0 is the context frame, so we need to reload it back
+	# and mret so we can start running the program.
+	mv	t6, a0
+	.set	i, 0
+	.rept	32
+		load_fp %i
+		.set i, i+1
+	.endr
+1:
+	.set	i, 1
+	.rept	31
+		load_gp %i, t6
+		.set	i, i+1
+	.endr
+
+    sret
 
 .global make_syscall
 make_syscall:

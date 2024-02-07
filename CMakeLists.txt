@@ -6,7 +6,7 @@ enable_language(C CXX ASM)
 set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_CXX_COMPILER clang++)
-set(CMAKE_ASM_COMPILER clang++)
+set(CMAKE_ASM_COMPILER riscv64-unknown-linux-gnu-gcc)
 set(CMAKE_LINKER riscv64-unknown-linux-gnu-ld)
 set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/src/linker.ld)
 set(CMAKE_CXX_STANDARD 20)
@@ -15,11 +15,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/dist/riscv)
 set(TARGET kernel)
 
 
-add_compile_options(-Wno-int-to-pointer-cast -fpermissive -Wno-conversion -Wno-narrowing -Wno-everything --target=riscv64 -mabi=lp64 -march=rv64gc -mcmodel=medany -c)
+#add_compile_options(-Wno-int-to-pointer-cast -fpermissive -Wno-conversion -Wno-narrowing -Wno-everything --target=riscv64 -mabi=lp64d -march=rv64gc -mcmodel=medany -c -Wall -Wextra)
+
+set(CMAKE_CXX_FLAGS "-Wno-int-to-pointer-cast -fpermissive -Wno-conversion -Wno-narrowing -Wno-everything --target=riscv64 -mabi=lp64d -march=rv64gc -mcmodel=medany -g -O0 -c -Wall -Wextra")
+set(CMAKE_ASM_FLAGS "-Wno-int-to-pointer-cast -fpermissive -Wno-conversion -Wno-narrowing -Wno-everything -mabi=lp64d -march=rv64gc -mcmodel=medany -g -O0 -c -Wall -Wextra")
 
 #include_directories(${CMAKE_SOURCE_DIR}/lib/opensbi/install/usr/include)
 add_subdirectory(src)
-set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_LINKER} -n -g -T ${LINKER_SCRIPT} <LINK_LIBRARIES> <OBJECTS> -o ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TARGET}.elf ")
+set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_LINKER} -n -g -T ${LINKER_SCRIPT} <LINK_LIBRARIES> <OBJECTS> -lgcc -L/opt/riscv/lib/gcc/riscv64-unknown-linux-gnu/12.2.0/ -lsupc++ -L/opt/riscv/riscv64-unknown-linux-gnu/lib/ -o ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TARGET}.elf ")
 #set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_LINKER} -n -T ${LINKER_SCRIPT} <LINK_LIBRARIES> <OBJECTS> -lplatsbi -Llib/opensbi/install/usr/lib64/lp64/opensbi/generic/lib/ -o ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TARGET}.elf ")
 
 

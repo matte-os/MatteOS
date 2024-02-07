@@ -9,14 +9,14 @@ namespace Kernel::Memory {
     };
 
     class Page{
-        PageStatus status;
+        PageStatus m_status;
         public:
             Page();
             ~Page();
-            bool isLast();
-            bool isTaken();
-            bool isFree();
+            bool is_last();
+            bool is_taken();
+            bool is_free();
             void clear();
-            void setStatus(PageStatus);
+            void set_status(PageStatus status);
     };
 };

@@ -12,16 +12,16 @@ namespace Kernel::Memory {
     };
     class MemoryRegion {
     private:
-        MemoryRegionType type;
-        u64 address;
-        u64 size;
+        MemoryRegionType m_type;
+        u64 m_address;
+        u64 m_size;
     public:
         MemoryRegion(){};
         MemoryRegion(MemoryRegionType, u64, u64, bool);
         ~MemoryRegion();
-        MemoryRegionType getType();
-        u64 getAddress();
-        u64 getSize();
+        MemoryRegionType get_type();
+        u64 get_address();
+        u64 get_size();
     };
 }
 
