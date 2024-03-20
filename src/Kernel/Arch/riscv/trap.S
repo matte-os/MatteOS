@@ -25,7 +25,7 @@
 .endm
 
 
-.section .text
+.section .text.context_switching
 .global m_trap_test
 m_trap_test:
         ret
@@ -71,7 +71,7 @@ m_trap_vector:
 	csrr	a0, sepc
 	csrr	a1, stval
 	csrr	a2, scause
-	csrr	a3, 0x0
+	li	a3, 0x0
 	csrr	a4, sstatus
 	mv		a5, t5
 	ld		sp, 520(a5)
@@ -100,31 +100,24 @@ m_trap_vector:
 
 .global switch_to_user
 switch_to_user:
-    # a0 - Frame address
+  # a0 - Frame address
 	# a1 - Program counter
-	# a2 - SATP Register
-    csrw    sscratch, a0
-
+  # a2 - SATP
 	# Load program counter
-	ld		a1, 520(a0)
-	# Load satp
-	ld		a2, 512(a0)
-	# Load processor mode
-	ld		a3, 552(a0)
-	# Pid
-	# ld		a4, 544(a0)
-
+	ld		a1, 512(a0)
+  ld    a2, 520(a0)
+  csrr  a3, satp
+  sd    a3, 520(a0)
+  csrw  sscratch, a2
+  
 	# 1 << 7 is MPIE
 	# Since user mode is 00, we don't need to set anything
 	# in MPP (bits 12:11)
-	li		t0, 1 << 7 | 1 << 5 | 1 << 13
-	# Combine enable bits with mode bits.
-	slli	a3, a3, 11
-	or		t0, t0, a3
+	li		t0, 1 << 5 | 1 << 13 | 1 << 18 
 	csrw	sstatus, t0
+  la    a1, dummy_process_main
 	csrw	sepc, a1
-	csrw	satp, a2
-	li		t1, 0xaaa
+	li		t1, 1 << 1 | 1 << 5 | 1 << 9
 	csrw	sie, t1
 	la		t2, m_trap_vector
 	csrw	stvec, t2
@@ -136,16 +129,13 @@ switch_to_user:
 		load_fp %i
 		.set i, i+1
 	.endr
-1:
+
 	.set	i, 1
 	.rept	31
 		load_gp %i, t6
 		.set	i, i+1
 	.endr
-
-    sret
-
-.global make_syscall
-make_syscall:
-	ecall
-	ret
+  csrrw t6, sscratch, t6
+  csrw satp, t6
+  csrrw t6, sscratch, t6
+  sret

@@ -121,12 +121,27 @@ SECTIONS
 	  .text.init, this would've matched here. The assembler and linker can place
 	  things in "special" text sections, so we match any we might come across here.
 	*/
-    *(.text.init) *(.text .text.*)
+    
+    *(.text.init) 
 	/*
 	  Again, with PROVIDE, we're providing a readable symbol called _text_end, which is
 	  set to the memory address AFTER .text.init, .text, and .text.*'s have been added.
 	*/
+    
+    *(.text)
     _text_end = .;
+
+    . = ALIGN(4096);
+    _context_switching_start = .;
+    *(.text.context_switching)
+    _context_switching_end = .;
+    . = ALIGN(4096);
+    _text_special_start = .;
+    *(.text.*)
+    _text_special_end = .;
+
+
+
 	/*
 	  The portion after the right brace is in an odd format. However, this is telling the
 	  linker what memory portion to put it in. We labeled our RAM, ram, with the constraints

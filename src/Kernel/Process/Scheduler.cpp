@@ -22,7 +22,8 @@ namespace Kernel::Process {
         auto& process_manager = ProcessManager::the();
         //Someone has the lock, probably kernel.
         //We could probably use RAII to reduce the code.
-        if(!process_manager.get_process_list_lock().try_lock()) {
+        auto& lock = process_manager.get_process_list_lock();
+        if(!lock.try_lock()) {
             return nullptr;
         }
 
@@ -39,7 +40,7 @@ namespace Kernel::Process {
 
             }
         }
-        process_manager.get_process_list_lock().unlock();
+        lock.unlock();
         return first;
     }
 

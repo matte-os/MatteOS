@@ -32,15 +32,13 @@ namespace Kernel::Process {
         size_t m_pid;
         size_t m_gid;
         Thread* m_thread;
-        uintptr_t* m_program_counter;
         PageTable* m_page_table;
         ProcessState m_state;
     public:
         explicit Process(size_t pid,
                          Thread* thread,
-                         uintptr_t* program_counter,
                          PageTable* page_table,
-                         ProcessState state) : m_pid(pid), m_gid(m_pid), m_thread(thread), m_program_counter(program_counter), m_page_table(page_table),
+                         ProcessState state) : m_pid(pid), m_gid(m_pid), m_thread(thread), m_page_table(page_table),
                                                m_state(state) {}
         virtual ~Process() = default;
         [[nodiscard]] ProcessState get_state() const { return m_state; }
@@ -56,9 +54,8 @@ namespace Kernel::Process {
     public:
         explicit KernelProcess(size_t pid,
                                const RefPtr<Array<Thread*>>& threads,
-                               uintptr_t* program_counter,
                                PageTable* page_table,
-                               ProcessState state) : Process(pid, nullptr, program_counter, page_table, state) { m_threads = threads; }
+                               ProcessState state) : Process(pid, nullptr, page_table, state) { m_threads = threads; }
         [[nodiscard]] RefPtr<Array<Thread*>> get_threads() const { return m_threads; }
     };
 

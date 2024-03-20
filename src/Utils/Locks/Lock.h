@@ -4,35 +4,32 @@
 
 #pragma once
 
+#include "Utils/DebugConsole.hh"
 namespace Utils::Locks {
-    enum class LockState {
+    enum class LockState: u8 {
         UNLOCKED = 0,
         LOCKED = 1
     };
 
-    class Lock {
+    class SpinLock {
     protected:
         LockState m_state;
     public:
-        Lock() : m_state(LockState::UNLOCKED) {}
-        virtual ~Lock() = default;
-        virtual void use() = 0;
-        virtual void unlock() {
-            asm volatile("amoswap.d.rl zero, zero, (%0)" :: "r"(m_state));
+        SpinLock() : m_state(LockState::UNLOCKED) {}
+        void unlock() {
+            DebugConsole::println("Is about unlocking!");
+            DebugConsole::print_ln_number((int)m_state, 16);
+            asm volatile("amoswap.d.rl zero, zero, (%0)" :: "r"(&m_state));
+            DebugConsole::println("Unlocked");
         }
         bool try_lock() {
             LockState st;
             asm volatile("amoswap.d.aq %0, %1, (%2)" : "=r"(m_state) : "r"(1), "r"(this));
             return st == LockState::UNLOCKED;
         }
-    };
-
-    class SpinLock : public Lock {
-    public:
-        void use() override {
-            while(!try_lock());
+        ~SpinLock() {
+          DebugConsole::println("Destroing the lock");
         }
-        ~SpinLock() = default;
     };
 
     //class Mutex : public Lock {
