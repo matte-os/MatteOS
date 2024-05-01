@@ -2,9 +2,11 @@
 
 I am writing this operating system for own educational purposes.
 
-I am really thankful to **Stephen Marz** whose **[osblog](https://osblog.stephenmarz.com/)** is great help and inspiration.
+I am really thankful to **Stephen Marz** whose **[osblog](https://osblog.stephenmarz.com/)** is great help and
+inspiration.
 
 ## Features
+
 1. UART - :heavy_check_mark:
 2. MMU - :heavy_check_mark:
 3. Interrupts and traps - :heavy_check_mark:
@@ -27,31 +29,46 @@ First of all, you have to have CMake, Clang, Ninja and QEMU with RISCV support.
 sudo apt install cmake clang ninja-build qemu-system-riscv64
 ```
 
-_Or you can build QEMU your self_.
+_U-Boot dependencies_
+```bash
+sudo apt-get install bc bison build-essential coccinelle \
+device-tree-compiler dfu-util efitools flex gdisk graphviz imagemagick \
+liblz4-tool libgnutls28-dev libguestfs-tools libncurses-dev \
+libpython3-dev libsdl2-dev libssl-dev lz4 lzma lzma-alone openssl \
+pkg-config python3 python3-asteval python3-coverage python3-filelock \
+python3-pkg-resources python3-pycryptodome python3-pyelftools \
+python3-pytest python3-pytest-xdist python3-sphinxcontrib.apidoc \
+python3-sphinx-rtd-theme python3-subunit python3-testtools \
+python3-virtualenv swig uuid-dev
+```
 
 _Tested on QEMU v5.2.0. I had problems with running on v6.1.0 (Unreasonable interrupts: Illegal instruction)_
 
 ### Build
 
 To make the building process of the OS easier, we have a build script `scripts/build.py` that will install
-RISC-V toolchain, clang and all other dependencies. 
+RISC-V toolchain, clang and all other dependencies.
 
 To check if you have all prerequisites installed, you can run the following command:
+
 ```bash
 scripts/build.py check
 ```
 
 You can list all targets with:
+
 ```bash
 scripts/build.py -l
 ```
 
 Initial build should be done using the build script like so:
+
 ```bash
 scripts/build.py
 ```
 
 For building just the kernel, you can use the following command:
+
 ```bash
 ninja
 ```
@@ -59,17 +76,21 @@ ninja
 ### Running
 
 To run the OS, you can use the following command:
+
 ```bash
 scripts/build.py run
 ```
+
 This command will ensure that the kernel image is built
 and everything is prepared for running the OS.
 
 After booting to U-Boot, you can run the kernel with the following command:
+
 ```txt
 cp.l ${fdtcontroladdr} ${fdt_addr_r} 0x10000
 bootm 0x82000000 - ${fdt_addr_r}
 ```
+
 This command will load the flattened device tree to the address specified by the U-Boot
 environment variable `fdt_addr_r` and then boot the kernel.
 

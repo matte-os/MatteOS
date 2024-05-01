@@ -73,3 +73,7 @@ toolchain/python3.10/**
 toolchain/python3.10-build/**
 
 venv/**
+
+hdd.dsk
+
+.idea/**

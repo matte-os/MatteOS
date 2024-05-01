@@ -68,6 +68,7 @@ targets = [
     if [ ! -d 'toolchain/riscv' ]; then
     tar -xvf toolchain/riscv.tar.gz -C toolchain
     fi
+    export PATH=$PATH:$(realpath toolchain/riscv/bin)
     """, "Download and extract RISC-V GNU toolchain"),
     Target("clang", [], """
     if [ ! -f 'toolchain/clang.tar.xz' ]; then
@@ -77,6 +78,7 @@ targets = [
     mkdir -p toolchain/clang
     tar -xvf toolchain/clang.tar.xz -C toolchain/clang/ --strip-components=1
     fi
+    export PATH=$PATH:$(realpath toolchain/clang/bin)
     """, "Download and extract Clang"),
     Target("python3.10", [], """
     if [ ! -f 'toolchain/python3.10.tar.xz' ]; then
@@ -118,6 +120,9 @@ targets = [
     Target("image", ["kernel"], """
     scripts/build_image.sh
     """, "Build the image"),
+    Target("disk", [], """
+    qemu-img create -f raw dist/riscv/disk.img 1G
+    """, "Create a 1G disk image"),
     Target("run", ["image"], """
     qemu-system-riscv64 -cpu rv64 -nographic -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=dist/riscv/uImage,addr=0x82000000,force-raw=on -s -d guest_errors
     """, "Run the image"),
