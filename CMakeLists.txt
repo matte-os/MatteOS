@@ -22,7 +22,7 @@ set(CMAKE_ASM_FLAGS "-Wno-int-to-pointer-cast -fpermissive -Wno-conversion -Wno-
 
 #include_directories(${CMAKE_SOURCE_DIR}/lib/opensbi/install/usr/include)
 add_subdirectory(src)
-set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_LINKER} -n -g -T ${LINKER_SCRIPT} <LINK_LIBRARIES> <OBJECTS> -lgcc -L/opt/riscv/lib/gcc/riscv64-unknown-linux-gnu/13.2.0/ -lsupc++ -L/opt/riscv/riscv64-unknown-linux-gnu/lib/ -o ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TARGET}.elf ")
+set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_LINKER} -n -g -T ${LINKER_SCRIPT} <LINK_LIBRARIES> <OBJECTS> -lgcc -Ltoolchain/riscv/lib/gcc/riscv64-unknown-linux-gnu/13.2.0/ -lsupc++ -Ltoolchain/riscv/riscv64-unknown-linux-gnu/lib/ -o ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TARGET}.elf ")
 #set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_LINKER} -n -T ${LINKER_SCRIPT} <LINK_LIBRARIES> <OBJECTS> -lplatsbi -Llib/opensbi/install/usr/lib64/lp64/opensbi/generic/lib/ -o ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TARGET}.elf ")
 
 

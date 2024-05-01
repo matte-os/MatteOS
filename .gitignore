@@ -62,3 +62,14 @@ _deps
 # Visual Studio files
 /.vs/
 /out/
+
+# Toolchain
+toolchain/*.tar.gz
+toolchain/*.zip
+toolchain/*.tar.xz
+toolchain/riscv/**
+toolchain/clang/**
+toolchain/python3.10/**
+toolchain/python3.10-build/**
+
+venv/**
