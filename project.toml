@@ -1,0 +1,143 @@
+name = "RiscV OS"
+version = "0.1"
+
+[targets]
+[targets.clean]
+action = """
+    ninja clean
+    cd toolchain/opensbi && make clean
+    cd toolchain/u-boot && make clean
+"""
+description = "Clean the project"
+
+[targets.fresh]
+action = """
+    rm -rf toolchain/clang
+    rm -rf toolchain/riscv
+"""
+dependencies = ["clean"]
+description = "Clean the project, OpenSBI, Cross Compiler."
+
+[targets.riscv-gnu-toolchain]
+action = """
+if [ ! -f 'toolchain/riscv.tar.gz' ]; then
+    wget -c https://github.com/riscv-collab/riscv-gnu-toolchain/releases/download/2024.04.12/riscv64-glibc-ubuntu-22.04-gcc-nightly-2024.04.12-nightly.tar.gz -O toolchain/riscv.tar.gz
+fi
+if [ ! -d 'toolchain/riscv' ]; then
+    tar -xvf toolchain/riscv.tar.gz -C toolchain
+fi
+export PATH=$PATH:$(realpath toolchain/riscv/bin)
+"""
+description = "Download and extract RISC-V GNU Toolchain"
+
+[targets.clang]
+action = """
+if [ ! -f 'toolchain/clang.tar.xz' ]; then
+    wget -c https://github.com/llvm/llvm-project/releases/download/llvmorg-17.0.1/clang+llvm-17.0.1-aarch64-linux-gnu.tar.xz -O toolchain/clang.tar.xz
+fi
+if [ ! -d 'toolchain/clang' ]; then
+    mkdir -p toolchain/clang
+    tar -xvf toolchain/clang.tar.xz -C toolchain/clang/ --strip-components=1
+fi
+export PATH=$PATH:$(realpath toolchain/clang/bin)
+"""
+description = "Download and extract Clang"
+
+[targets.python3-10]
+action = """
+if [ ! -f 'toolchain/python3.10.tar.xz' ]; then
+    wget -c https://www.python.org/ftp/python/3.10.0/Python-3.10.0.tar.xz -O toolchain/python3.10.tar.xz
+fi
+if [ ! -d 'toolchain/python3.10-build' ]; then
+    mkdir -p toolchain/python3.10-build
+    tar -xvf toolchain/python3.10.tar.xz -C toolchain/python3.10-build/ --strip-components=1
+fi
+cd toolchain/python3.10-build
+if [ ! -d '../python3.10' ]; then
+    ./configure --prefix=$(realpath "$(pwd)/../python3.10") --enable-optimizations --enable-shared
+fi
+if [ ! -f '../python3.10/lib/libpython3.10.so' ]; then
+    make -j$(nproc) all
+    make install
+fi
+"""
+description = "Download and extract Python 3.10, that is needed by GDB"
+
+[targets.toolchain]
+dependencies = ["riscv-gnu-toolchain", "clang", "python3-10"]
+description = "Download and extract toolchains"
+
+[targets.opensbi]
+dependencies = ["toolchain"]
+action = """
+scripts/build_opensbi.sh
+"""
+description = "Build OpenSBI"
+
+[targets.uboot]
+dependencies = ["toolchain"]
+action = """
+scripts/build_uboot.sh
+"""
+description = "Build U-Boot"
+
+[targets.kernel]
+dependencies = ["toolchain", "opensbi", "uboot"]
+action = """
+cmake -GNinja .
+ninja
+"""
+description = "Build the kernel"
+
+[targets.image]
+dependencies = ["kernel"]
+action = """
+scripts/build_image.sh
+"""
+description = "Build the image"
+
+[targets.disk]
+action = """
+qemu-img create -f raw dist/riscv/disk.img 1G
+"""
+description = "Create a 1G disk image"
+
+[targets.run]
+dependencies = ["image"]
+action = """
+qemu-system-riscv64 -cpu rv64 -nographic -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=dist/riscv/uImage,addr=0x82000000,force-raw=on -s -d guest_errors
+"""
+description = "Run the image"
+
+[targets.dir]
+action = """
+ls
+"""
+description = "List files in the current directory"
+
+[targets.all]
+dependencies = ["image"]
+description = "Build everything"
+
+[targets.check]
+action = """
+echo 'This script is going to check for needed libraries and tools: '
+"""
+description = "Check for needed libraries and tools"
+
+[targets.debug]
+dependencies = ["image"]
+action = """
+qemu-system-riscv64 -cpu rv64 -nographic -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=dist/riscv/uImage,addr=0x82000000,force-raw=on -s -S -d guest_errors
+"""
+description = "Run QEMU in debug mode"
+
+[targets.debug-client]
+dependencies = ["riscv-gnu-toolchain", "python3-10"]
+action = """
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:toolchain/python3.10/lib/
+export PYTHONHOME=$(realpath "toolchain/python3.10")
+export PYTHONPATH=$PYTHONHOME/lib/python3.10
+toolchain/riscv/bin/riscv64-unknown-linux-gnu-gdb -ex 'target remote localhost:1234' dist/riscv/kernel.elf
+"""
+description = "Run GDB in debug mode"

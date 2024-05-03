@@ -1,22 +1,25 @@
 #!/usr/bin/env python3
 import os
+import signal
 import sys
 import argparse
+import tomllib
 
 
 class Target:
-    __slots__ = ("name", "dependencies", "action", "description")
+    __slots__ = ("name", "dependencies", "action", "description", "rc")
 
-    def __init__(self, name: str, dependencies: [str], action: str = None, description: str = ""):
+    def __init__(self, name: str, dependencies: [str], action: str = None, description: str = "", rc: int = 0):
         self.name = name
         self.dependencies = dependencies
         self.action = action
         self.description = description
+        self.rc = rc
 
     def run(self) -> int:
         if self.action is None:
             return 0
-        return os.system(self.action)
+        return os.system(self.action) >> 8
 
     def __str__(self):
         return f"Target(name: {self.name}, description: {self.description}, dependencies: [{', '.join(self.dependencies)}])"
@@ -54,103 +57,66 @@ class Build:
         if debug:
             print('Debug: Targets to run:', [str(t) for t in targets_to_run])
 
+        successfully_run = 0
+
         for t in list(dict.fromkeys(targets_to_run)):
             if debug:
                 print('Debug: Running target', str(t))
-            t.run()
+            if t.run() == t.rc:
+                successfully_run += 1
+        print(f"{len(targets_to_run)} targets run, {successfully_run} successfully run, {len(targets_to_run) - successfully_run} failed")
 
 
-targets = [
-    Target("riscv-gnu-toolchain", [], """
-    if [ ! -f 'toolchain/riscv.tar.gz' ]; then
-    wget -c https://github.com/riscv-collab/riscv-gnu-toolchain/releases/download/2024.04.12/riscv64-glibc-ubuntu-22.04-gcc-nightly-2024.04.12-nightly.tar.gz -O toolchain/riscv.tar.gz
-    fi
-    if [ ! -d 'toolchain/riscv' ]; then
-    tar -xvf toolchain/riscv.tar.gz -C toolchain
-    fi
-    export PATH=$PATH:$(realpath toolchain/riscv/bin)
-    """, "Download and extract RISC-V GNU toolchain"),
-    Target("clang", [], """
-    if [ ! -f 'toolchain/clang.tar.xz' ]; then
-    wget -c https://github.com/llvm/llvm-project/releases/download/llvmorg-17.0.1/clang+llvm-17.0.1-aarch64-linux-gnu.tar.xz -O toolchain/clang.tar.xz
-    fi
-    if [ ! -d 'toolchain/clang' ]; then
-    mkdir -p toolchain/clang
-    tar -xvf toolchain/clang.tar.xz -C toolchain/clang/ --strip-components=1
-    fi
-    export PATH=$PATH:$(realpath toolchain/clang/bin)
-    """, "Download and extract Clang"),
-    Target("python3.10", [], """
-    if [ ! -f 'toolchain/python3.10.tar.xz' ]; then
-    wget -c https://www.python.org/ftp/python/3.10.0/Python-3.10.0.tar.xz -O toolchain/python3.10.tar.xz
-    fi
-    if [ ! -d 'toolchain/python3.10-build' ]; then
-    mkdir -p toolchain/python3.10-build
-    tar -xvf toolchain/python3.10.tar.xz -C toolchain/python3.10-build/ --strip-components=1
-    fi
-    cd toolchain/python3.10-build
-    if [ ! -d '../python3.10' ]; then
-    ./configure --prefix=$(realpath "$(pwd)/../python3.10") --enable-optimizations --enable-shared
-    fi
-    if [ ! -f '../python3.10/lib/libpython3.10.so' ]; then
-    make -j$(nproc) all
-    make install
-    fi
-    """, "Download and extract Python 3.10, that is needed by GDB"),
-    Target("toolchain", ["riscv-gnu-toolchain", "clang", "python3.10"], description="Download and extract toolchains"),
-    Target("clean", [], """
-    ninja clean
-    cd toolchain/opensbi && make clean
-    cd toolchain/u-boot && make clean
-    """, "Clean the build directory"),
-    Target("fresh", ["clean"], """
-    rm -rf toolchain/clang
-    rm -rf toolchain/riscv
-    """, "Clean the build directory and remove toolchains"),
-    Target("opensbi", ["toolchain"], """
-    scripts/build_opensbi.sh
-    """, "Build OpenSBI"),
-    Target("uboot", ["toolchain"], """
-    scripts/build_uboot.sh
-    """, "Build U-Boot"),
-    Target("kernel", ["toolchain", "opensbi", "uboot"], """
-    cmake -GNinja .
-    ninja
-    """, "Build the kernel"),
-    Target("image", ["kernel"], """
-    scripts/build_image.sh
-    """, "Build the image"),
-    Target("disk", [], """
-    qemu-img create -f raw dist/riscv/disk.img 1G
-    """, "Create a 1G disk image"),
-    Target("run", ["image"], """
-    qemu-system-riscv64 -cpu rv64 -nographic -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=dist/riscv/uImage,addr=0x82000000,force-raw=on -s -d guest_errors
-    """, "Run the image"),
-    Target("dir", [], "ls", "List files in the current directory"),
-    Target("all", ["image"], description="Build everything"),
-    Target("check", [], """
-    echo 'This script is going to check for needed libraries and tools: '
-    """, "Check for needed libraries and tools"),
-    Target("debug", [], """
-    qemu-system-riscv64 -cpu rv64 -nographic -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=dist/riscv/uImage,addr=0x82000000,force-raw=on -s -S -d guest_errors
-    """, "Run qemu in debug mode"),
-    Target("debug-client", ["riscv-gnu-toolchain", "python3.10"], """
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:toolchain/python3.10/lib/
-    export PYTHONHOME=$(realpath "toolchain/python3.10")
-    export PYTHONPATH=$PYTHONHOME/lib/python3.10
-    toolchain/riscv/bin/riscv64-unknown-linux-gnu-gdb -ex 'target remote localhost:1234' dist/riscv/kernel.elf
-    """, "Run gdb in debug mode")
-]
+def targets_from_toml(toml: dict) -> [Target]:
+    project_targets = []
+    for target_name, target in toml["targets"].items():
+        name = target_name
+        dependencies = target.get("dependencies", [])
+        action = target.get("action", None)
+        description = target.get("description", "")
+        rc = target.get("rc", 0)
+        project_targets.append(Target(name, dependencies, action, description, rc))
+    return project_targets
+
+
+def sigint_handler(sig, frame):
+    sys.exit(1)
+
 
 if __name__ == "__main__":
-    build = Build(targets)
+    signal.signal(signal.SIGINT, sigint_handler)
 
     parser = argparse.ArgumentParser(description="RISC-V OS Build system")
     parser.add_argument("-d", "--debug", help="Enable debug mode", action="store_true")
     parser.add_argument("-l", "--list", help="List all available targets", action="store_true")
+    parser.add_argument("-p", "--project", help="Project to build", type=str, default="project.toml")
+    parser.add_argument("-v", "--version", action="store_true", help="Prints the project version and exits")
     parser.add_argument("targets", type=str, nargs="*", help="Targets to build")
 
     args = parser.parse_args()
+
+    if not os.path.exists(args.project):
+        print("Project file not found")
+        sys.exit(1)
+
+    targets = []
+    with open(args.project, "rb") as f:
+        try:
+            project = tomllib.load(f)
+            targets = targets_from_toml(project)
+        except tomllib.TOMLDecodeError as e:
+            print("Error decoding project file:", e)
+            sys.exit(1)
+
+    if args.version:
+        print(f"{project.get("name", "NAME NOT SPECIFIED")}: {project.get("version", "No version found")}")
+        sys.exit(0)
+
+    if len(targets) == 0:
+        print("No targets found in project file")
+        sys.exit(1)
+
+    build = Build(targets)
 
     if args.list:
         print("Available targets:")
