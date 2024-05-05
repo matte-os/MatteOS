@@ -22,7 +22,7 @@ class Target:
         return os.system(self.action) >> 8
 
     def __str__(self):
-        return f"Target(name: {self.name}, description: {self.description}, dependencies: [{', '.join(self.dependencies)}])"
+        return f"Target(name: {self.name}, description: {self.description}, dependencies: [{', '.join(self.dependencies)}], expected_rc: {self.rc})"
 
 
 class Build:

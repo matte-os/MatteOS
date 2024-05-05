@@ -32,6 +32,7 @@ description = "Download and extract RISC-V GNU Toolchain"
 
 [targets.clang]
 action = """
+exit 0
 if [ ! -f 'toolchain/clang.tar.xz' ]; then
     wget -c https://github.com/llvm/llvm-project/releases/download/llvmorg-17.0.1/clang+llvm-17.0.1-aarch64-linux-gnu.tar.xz -O toolchain/clang.tar.xz
 fi
