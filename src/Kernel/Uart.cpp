@@ -1,4 +1,4 @@
-#include <Kernel/Uart.hh>
+#include <Kernel/Uart.h>
 namespace Kernel{
     Uart::Uart(size_t baseAddress){
         this->baseAddress = baseAddress;

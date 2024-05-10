@@ -5,6 +5,8 @@ import sys
 import argparse
 import tomllib
 
+project_name = "Build"
+
 
 class Target:
     __slots__ = ("name", "dependencies", "action", "description", "rc")
@@ -50,21 +52,24 @@ class Build:
         for t in cli_targets:
             target = self.get_target(t)
             if target is None:
-                print("Target %s not found" % t)
+                print(f"{project_name}: Target %s not found" % t)
                 sys.exit(1)
             targets_to_run.extend(self.build_dependency_graph(target))
 
         if debug:
-            print('Debug: Targets to run:', [str(t) for t in targets_to_run])
+            print(f'{project_name}: Targets to run:', [str(t) for t in targets_to_run])
 
         successfully_run = 0
 
         for t in list(dict.fromkeys(targets_to_run)):
             if debug:
-                print('Debug: Running target', str(t))
+                print(f'{project_name}: Running target', str(t))
             if t.run() == t.rc:
                 successfully_run += 1
-        print(f"{len(targets_to_run)} targets run, {successfully_run} successfully run, {len(targets_to_run) - successfully_run} failed")
+            else:
+                print(f"{project_name}: The build failed on the target {t.name} with rc {t.rc}")
+                sys.exit(1)
+        print(f"{project_name}: Successfully run {successfully_run} targets")
 
 
 def targets_from_toml(toml: dict) -> [Target]:
@@ -96,7 +101,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if not os.path.exists(args.project):
-        print("Project file not found")
+        print(f"{project_name}: Project file not found")
         sys.exit(1)
 
     targets = []
@@ -105,7 +110,7 @@ if __name__ == "__main__":
             project = tomllib.load(f)
             targets = targets_from_toml(project)
         except tomllib.TOMLDecodeError as e:
-            print("Error decoding project file:", e)
+            print(f"{project_name}: Error decoding project file:", e)
             sys.exit(1)
 
     if args.version:
@@ -113,7 +118,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     if len(targets) == 0:
-        print("No targets found in project file")
+        print(f"{project_name}: No targets found in project file")
         sys.exit(1)
 
     build = Build(targets)

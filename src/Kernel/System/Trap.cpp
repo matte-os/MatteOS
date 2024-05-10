@@ -1,6 +1,6 @@
-#include <Kernel/System/Trap.h>
 #include <Kernel/System/Plic.h>
-#include <Kernel/Uart.hh>
+#include <Kernel/System/Trap.h>
+#include <Kernel/Uart.h>
 #include <Utils/DebugConsole.hh>
 
 using Kernel::System::Plic;
@@ -8,19 +8,18 @@ using Kernel::TrapFrame;
 using Kernel::Uart;
 
 extern "C" size_t trap_vector(
-    u64 epc,
-    u64 tval,
-    u64 cause,
-    u64 hart,
-    u64 status,
-    TrapFrame *frame)
+    u64 sepc,
+    u64 stval,
+    u64 scause,
+    u64 cpu_id,
+    u64 sstatus)
 {
-    bool async = (cause >> 63 & 1) == 1;
+    bool async = (scause >> 63 & 1) == 1;
 
     //Utils::DebugConsole::printLnNumber(*(u64*)&frame->satp, 16);
 
-    size_t causeNum = cause & 0xfff;
-    size_t returnEpc = epc;
+    size_t causeNum = scause & 0xfff;
+    size_t returnEpc = sepc;
 
     //Utils::DebugConsole::println("Trap");
     //Utils::DebugConsole::printLnNumber(cause, 16);

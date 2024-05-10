@@ -1,6 +1,6 @@
 #define KERNEL 1
 
-#include <Kernel/CPU.hh>
+#include <Kernel/CPU.h>
 #include <Kernel/Firmware/FDT/fdt.h>
 #include <Kernel/Memory/KernelMemoryAllocator.h>
 #include <Kernel/Memory/MemoryManager.h>
@@ -8,7 +8,7 @@
 #include <Kernel/Memory/PageTableEntry.h>
 #include <Kernel/Process/ProcessManager.h>
 #include <Kernel/Process/Scheduler.h>
-#include <Kernel/Satp.hh>
+#include <Kernel/Satp.h>
 #include <Kernel/System/System.h>
 #include <Utils/DebugConsole.hh>
 #include <Utils/Strings/String.h>
@@ -66,8 +66,8 @@ extern "C" void kmain([[maybe_unused]] int a0, fdt_header *header) {
   DebugConsole::println("Tejd");
   ProcessManager::init(page_table);
   auto* dummy_root = ProcessManager::the().create_dummy_process(reinterpret_cast<uintptr_t>(&_text_start), reinterpret_cast<uintptr_t>(&_text_end));
-  MemoryManager::the().map_range(*dummy_root, (uintptr_t)&_context_switching_start, (uintptr_t)&_context_switching_end, (u64)Kernel::Memory::EntryBits::READ_EXECUTE);
-  system.setup_interrupts(0);
+  MemoryManager::the().identity_map_range(*dummy_root, (uintptr_t)&_context_switching_start, (uintptr_t)&_context_switching_end, (u64)Kernel::Memory::EntryBits::READ_EXECUTE);
+  system.setup_interrupts();
   system.set_default_trap_vector();
   Scheduler::init();
   DebugConsole::println("Initialization completed");
@@ -95,42 +95,42 @@ PageTable *init_memory() {
   memoryManager.debug_output();
 
   DebugConsole::println("MemoryManager: Mapping the heap.");
-  memoryManager.map_range(*pageTable, (uintptr_t)(&_heap_start),
+  memoryManager.identity_map_range(*pageTable, (uintptr_t)(&_heap_start),
                           ((uintptr_t)((u64)&_heap_start + (u64)&_heap_size)),
                           (u64)EntryBits::READ_WRITE);
   DebugConsole::println("MemoryManager: Mapping the text section.");
-  memoryManager.map_range(*pageTable, (uintptr_t)&_text_start,
+  memoryManager.identity_map_range(*pageTable, (uintptr_t)&_text_start,
                           (uintptr_t)&_text_end, (u64)EntryBits::READ_EXECUTE);
   DebugConsole::println("MemoryManager: Mapping the rodata section.");
-  memoryManager.map_range(*pageTable, (uintptr_t)&_rodata_start,
+  memoryManager.identity_map_range(*pageTable, (uintptr_t)&_rodata_start,
                           (uintptr_t)&_rodata_end,
                           (u64)EntryBits::READ_EXECUTE);
   DebugConsole::println("MemoryManager: Mapping the data section.");
-  memoryManager.map_range(*pageTable, (uintptr_t)&_data_start,
+  memoryManager.identity_map_range(*pageTable, (uintptr_t)&_data_start,
                           (uintptr_t)&_data_end, (u64)EntryBits::READ_WRITE);
   DebugConsole::println("MemoryManager: Mapping the bss section.");
-  memoryManager.map_range(*pageTable, (uintptr_t)&_bss_start,
+  memoryManager.identity_map_range(*pageTable, (uintptr_t)&_bss_start,
                           (uintptr_t)&_bss_end, (u64)EntryBits::READ_WRITE);
   DebugConsole::println("MemoryManager: Mapping the stack.");
-  memoryManager.map_range(*pageTable, (uintptr_t)&_stack_start,
+  memoryManager.identity_map_range(*pageTable, (uintptr_t)&_stack_start,
                           (uintptr_t)&_stack_end, (u64)EntryBits::READ_WRITE);
   DebugConsole::println("MemoryManager: Mapping the UART.");
   memoryManager.map(*pageTable, 0x10000000, 0x10000000,
                     (u64)EntryBits::READ_WRITE, 0);
   DebugConsole::println("MemoryManager: Mapping the CLINT.");
-  memoryManager.map_range(*pageTable, 0x02000000, 0x0200ffff,
+  memoryManager.identity_map_range(*pageTable, 0x02000000, 0x0200ffff,
                           (u64)EntryBits::READ_WRITE);
   DebugConsole::println("MemoryManager: Mapping the PLIC.");
-  memoryManager.map_range(*pageTable, 0x0c000000, 0x0c002001,
+  memoryManager.identity_map_range(*pageTable, 0x0c000000, 0x0c002001,
                           (u64)EntryBits::READ_WRITE);
-  memoryManager.map_range(*pageTable, 0x0c200000, 0x0c208001,
+  memoryManager.identity_map_range(*pageTable, 0x0c200000, 0x0c208001,
                           (u64)EntryBits::READ_WRITE);
-  memoryManager.map_range(*pageTable, (uintptr_t)&_context_switching_start, (uintptr_t)&_context_switching_end, (u64)EntryBits::READ_EXECUTE);
-  memoryManager.map_range(*pageTable, (uintptr_t)&_text_special_start, (uintptr_t)&_text_special_end, (u64)EntryBits::READ_EXECUTE);
+  memoryManager.identity_map_range(*pageTable, (uintptr_t)&_context_switching_start, (uintptr_t)&_context_switching_end, (u64)EntryBits::READ_EXECUTE);
+  memoryManager.identity_map_range(*pageTable, (uintptr_t)&_text_special_start, (uintptr_t)&_text_special_end, (u64)EntryBits::READ_EXECUTE);
 
   // FIXME: This should be mapped exactly for the size of the FDT blob.
   DebugConsole::println("MemoryManager: Mapping the FDT.");
-  memoryManager.map_range(*pageTable, 0x8c000000, 0x8c006937,
+  memoryManager.identity_map_range(*pageTable, 0x8c000000, 0x8c006937,
                           (u64)EntryBits::READ_WRITE);
 
   DebugConsole::println("MemoryManager: Initial mapping done.");

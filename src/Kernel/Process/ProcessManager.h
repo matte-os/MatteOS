@@ -17,7 +17,8 @@ private:
   static const size_t START_ADDRESS = 0x20000000;
   static const size_t STACK_ADDRESS = 0xf0000000;
   static const size_t STACK_PAGES = 2;
-  static const size_t SPECIAL_ADDRESS = 0x10000000; 
+  static const size_t THREAD_FRAME_ADDRESS = 0x10000000;
+  static const size_t KERNEL_FRAME_ADDRESS = 0x10001000;
   RefPtr<LinkedQueue<Process *>> m_processes;
   SpinLock m_process_list_lock;
   KernelProcess *m_kernel_process;

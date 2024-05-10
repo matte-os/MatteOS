@@ -2,11 +2,11 @@
 // Created by matejbucek on 1.9.22.
 //
 
-#include <Kernel/System/System.h>
-#include <Kernel/sbi/sbi.hh>
-#include <Kernel/System/Trap.h>
-#include <Kernel/CPU.hh>
+#include <Kernel/CPU.h>
 #include <Kernel/Process/ProcessManager.h>
+#include <Kernel/System/System.h>
+#include <Kernel/System/Trap.h>
+#include <Kernel/sbi/sbi.hh>
 #include <Utils/Basic.hh>
 #include <Utils/DebugConsole.hh>
 
@@ -87,10 +87,7 @@ namespace Kernel::System {
         set_trap_vector(m_trap_vector);
     }
 
-    void System::setup_interrupts(size_t hart_id) {
-        auto& kernel_process = Process::ProcessManager::the().get_kernel_process();
-        auto thread = kernel_process.get_threads()->get(hart_id);
-        CPU::sscratch_write((uintptr_t) thread->get_trap_frame());
+    void System::setup_interrupts() {
         set_default_trap_vector();
     }
 

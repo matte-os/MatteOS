@@ -39,42 +39,46 @@ m_trap_vector:
 	# All registers are volatile here, we need to save them
 	# before we do anything.
 	csrrw	t6, sscratch, t6
-	# csrrw will atomically swap t6 into mscratch and the old
-	# m_value of mscratch into t6. This is nice because we just
-	# switched values and didn't destroy anything -- all atomically!
-	# in cpu.rs we have a structure of:
-	#  32 gp regs		0
-	#  32 fp regs		256
-	#  SATP register	512
-	#  Trap stack       520
-	#  CPU HARTID		528
-	# We use t6 as the temporary register because it is the very
-	# bottom register (x31)
+	# Put the trap frame into t6
+	li t6, 0x10000000
+    # Save all GP registers
+    # This also svaesthe SP, GP etc. as their are a part of the GP registers
 	.set 	i, 1
 	.rept	30
 		save_gp	%i
 		.set	i, i+1
 	.endr
 
+	# TODO: Save all FP registers
+
+
 	# Save the actual t6 register, which we swapped into
-	# mscratch
-	mv		t5, t6
-	csrr	t6, sscratch
+	# sscratch
+	csrr a0, sscratch
+	mv t5, t6
+	mv t6, a0
 	save_gp 31, t5
+	mv t6, t5
 
-	# Restore the kernel trap frame into mscratch
-	csrw	sscratch, t5
+    # Save the userland SATP
+    csrr t5, satp
+    csrw sscratch, t5
 
-	# Get ready to go into Rust (trap.rs)
-	# We don't want to write into the user's stack or whomever
-	# messed with us here.
+    # Load the kernel trap frame
+    li t6, 0x10001000
+    # Load the stack pointer
+    ld sp, 16(t6)
+    # Load the kernel cpu_id
+    ld a3, 536(t6)
+    # Load the kernel SATP
+    ld t5, 520(t6)
+    csrw satp, t5
+
+    # Now we can work in th kernelsapce:
 	csrr	a0, sepc
 	csrr	a1, stval
 	csrr	a2, scause
-	li	a3, 0x0
 	csrr	a4, sstatus
-	mv		a5, t5
-	ld		sp, 520(a5)
 	call	trap_vector
 
 	# When we get here, we've returned from m_trap, restore registers
@@ -104,7 +108,7 @@ switch_to_user:
 	# a1 - Program counter
   # a2 - SATP
 	# Load program counter
-	ld		a1, 512(a0)
+  ld	a1, 512(a0)
   ld    a2, 520(a0)
   csrr  a3, satp
   sd    a3, 520(a0)

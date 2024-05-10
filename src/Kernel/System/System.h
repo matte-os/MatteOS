@@ -57,7 +57,7 @@ namespace Kernel::System {
         void set_timer(u64 time) const { SBI::sbi_set_timer(time); };
         void set_default_trap_vector();
         //NOTE: This function is called by individual harts to initialize the kernel process for them.
-        void setup_interrupts(size_t hart_id);
+        void setup_interrupts();
         [[noreturn]] void switch_to_user_mode(TrapFrame* frame_to_apply);
     private:
         System();

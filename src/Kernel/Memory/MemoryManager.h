@@ -49,7 +49,8 @@ namespace Kernel::Memory {
         uintptr_t* alloc(size_t);
         uintptr_t* zalloc(size_t);
         void dealloc(uintptr_t*);
-        void map_range(PageTable &root, size_t start, size_t end, u64 bits);
+        void identity_map_range(PageTable &root, size_t start, size_t end, u64 bits);
+        void map_range(PageTable &root, size_t virtual_start, size_t virtual_end, size_t physical_start, u64 bits);
         void map(PageTable&, VirtualAddress, PhysicalAddress, size_t, int);
         void debug_output();
 

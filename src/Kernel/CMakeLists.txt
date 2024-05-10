@@ -19,7 +19,7 @@ set(SOURCE
             Process/Process.cpp
             Process/ProcessManager.cpp
             Process/Scheduler.cpp
-            sbi/sbi.cpp
+        Sbi/sbi.cpp
 )
 
 include_directories(${SOURCE_DIRECTORY})

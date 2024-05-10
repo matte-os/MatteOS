@@ -4,3 +4,6 @@
 [submodule "toolchain/u-boot"]
 	path = toolchain/u-boot
 	url = git@github.com:u-boot/u-boot.git
+[submodule "toolchain/doxygen-awesome-css"]
+	path = toolchain/doxygen-awesome-css
+	url = https://github.com/jothepro/doxygen-awesome-css.git

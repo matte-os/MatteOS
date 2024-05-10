@@ -1,4 +1,4 @@
-#include <Kernel/CPU.hh>
+#include <Kernel/CPU.h>
 
 namespace Kernel {
 TrapFrame CPU::KERNEL_TRAP_FRAME[8] = {};

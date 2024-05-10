@@ -32,15 +32,15 @@ description = "Download and extract RISC-V GNU Toolchain"
 
 [targets.clang]
 action = """
-exit 0
-if [ ! -f 'toolchain/clang.tar.xz' ]; then
-    wget -c https://github.com/llvm/llvm-project/releases/download/llvmorg-17.0.1/clang+llvm-17.0.1-aarch64-linux-gnu.tar.xz -O toolchain/clang.tar.xz
+if ! which clang++ 2>/dev/null 1>&2; then
+echo "Missing clang++"
+exit 1
 fi
-if [ ! -d 'toolchain/clang' ]; then
-    mkdir -p toolchain/clang
-    tar -xvf toolchain/clang.tar.xz -C toolchain/clang/ --strip-components=1
+
+if ! clang++ --target=riscv64 -mcpu=help 2>/dev/null 1>&2; then
+echo "Your current clang++ doesn't support the riscv64 arch."
+exit 1
 fi
-export PATH=$PATH:$(realpath toolchain/clang/bin)
 """
 description = "Download and extract Clang"
 
@@ -99,14 +99,14 @@ description = "Build the image"
 
 [targets.disk]
 action = """
-qemu-img create -f raw dist/riscv/disk.img 1G
+qemu-img create -f raw build/dist/riscv/disk.img 1G
 """
 description = "Create a 1G disk image"
 
 [targets.run]
 dependencies = ["image"]
 action = """
-qemu-system-riscv64 -cpu rv64 -nographic -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=dist/riscv/uImage,addr=0x82000000,force-raw=on -s -d guest_errors
+qemu-system-riscv64 -cpu rv64 -nographic -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=build/dist/riscv/uImage,addr=0x82000000,force-raw=on -s -d guest_errors
 """
 description = "Run the image"
 
@@ -129,7 +129,7 @@ description = "Check for needed libraries and tools"
 [targets.debug]
 dependencies = ["image"]
 action = """
-qemu-system-riscv64 -cpu rv64 -nographic -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=dist/riscv/uImage,addr=0x82000000,force-raw=on -s -S -d guest_errors
+qemu-system-riscv64 -cpu rv64 -nographic -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=build/dist/riscv/uImage,addr=0x82000000,force-raw=on -s -S -d guest_errors
 """
 description = "Run QEMU in debug mode"
 
@@ -139,6 +139,23 @@ action = """
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:toolchain/python3.10/lib/
 export PYTHONHOME=$(realpath "toolchain/python3.10")
 export PYTHONPATH=$PYTHONHOME/lib/python3.10
-toolchain/riscv/bin/riscv64-unknown-linux-gnu-gdb -ex 'target remote localhost:1234' dist/riscv/kernel.elf
+toolchain/riscv/bin/riscv64-unknown-linux-gnu-gdb -ex 'target remote localhost:1234' build/dist/riscv/kernel.elf
 """
 description = "Run GDB in debug mode"
+
+[targets.doxygen]
+action = """
+doxygen Doxyfile
+"""
+description = "Generate doxygen documentation"
+
+[targets.documentation]
+action = """
+cd docs/latex
+make
+"""
+description = "Generate latex documentation"
+
+[targets.docs]
+dependencies = ["doxygen", "documentation"]
+description = "Generate all documentations"

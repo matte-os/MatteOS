@@ -1,7 +1,7 @@
-#include <Utils/DebugConsole.hh>
-#include <Kernel/Uart.hh>
-#include <Utils/Basic.hh>
+#include <Kernel/Uart.h>
 #include <Kernel/sbi/sbi.hh>
+#include <Utils/Basic.hh>
+#include <Utils/DebugConsole.hh>
 #include <stdarg.h>
 
 using Kernel::Uart;

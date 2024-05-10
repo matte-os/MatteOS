@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Utils/Types.hh>
-#include <Kernel/Satp.hh>
+#include <Kernel/Satp.h>
 #include <Kernel/System/TrapFrame.h>
+#include <Utils/Types.hh>
 
 namespace Kernel{
     enum class SatpMode : u8{
