@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include <Utils/Types.hh>
+#include <Utils/Types.h>
 struct fdt_header {
     u32 magic;
     u32 totalsize;

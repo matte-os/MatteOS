@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include <Utils/Types.hh>
 #include <Kernel/Memory/Page.h>
 #include <Kernel/Memory/PageTable.h>
-#include <Kernel/Memory/VirtualAddress.h>
 #include <Kernel/Memory/PhysicalAddress.h>
+#include <Kernel/Memory/VirtualAddress.h>
+#include <Utils/Types.h>
 
 namespace Kernel::Memory {
     enum class EntryBits : u64{

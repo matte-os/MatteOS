@@ -3,7 +3,7 @@
 //
 
 #include <Kernel/Memory/MemoryManager.h>
-#include <Utils/Basic.hh>
+#include <Utils/Basic.h>
 
 namespace Kernel::Memory {
   static MemoryManager* s_memory_manager;

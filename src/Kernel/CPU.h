@@ -2,7 +2,7 @@
 
 #include <Kernel/Satp.h>
 #include <Kernel/System/TrapFrame.h>
-#include <Utils/Types.hh>
+#include <Utils/Types.h>
 
 namespace Kernel{
     enum class SatpMode : u8{

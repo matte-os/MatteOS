@@ -1,6 +1,6 @@
 #pragma once
-#include <Utils/Types.hh>
-#include <Utils/Optional.hh>
+#include <Utils/Optional.h>
+#include <Utils/Types.h>
 
 namespace Kernel{
     class Uart {

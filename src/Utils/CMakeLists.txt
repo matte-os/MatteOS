@@ -4,8 +4,7 @@ set(SOURCE  Assertions.cpp
             Optional.cpp
             cxx.cpp
             Memory.cpp
-            Arrays/ArrayList.cpp
-            Strings/StringImpl.cpp
+            Strings/StringValue.cpp
             Strings/String.cpp
             kmalloc.cpp
     )

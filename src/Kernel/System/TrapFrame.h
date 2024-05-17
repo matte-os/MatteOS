@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Kernel/Satp.h"
-#include "Utils/Types.hh"
+#include "Utils/Types.h"
 
 namespace Kernel {
   struct TrapFrame {

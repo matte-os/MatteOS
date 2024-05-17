@@ -1,24 +1,60 @@
 #!/usr/bin/env python3
+
+##
+# @file build.py
+# @brief A simple build system
+#
+# @author Matěj Bucek (matejbucek)
+
+
 import os
 import signal
 import sys
 import argparse
 import tomllib
+from typing import Any
 
 project_name = "Build"
 
 
+##
+# @brief A class representing a target in the build system
+#
 class Target:
-    __slots__ = ("name", "dependencies", "action", "description", "rc")
+    __slots__ = ("name", "dependencies", "action", "description", "rc", "check_for_file")
 
-    def __init__(self, name: str, dependencies: [str], action: str = None, description: str = "", rc: int = 0):
+    ##
+    # @brief Constructor
+    # @param name The name of the target
+    # @param dependencies A list of dependencies
+    # @param action The action to run
+    # @param description A description of the target
+    # @param rc The expected return code
+    # @param check_for_file A file to check for existence which determines if the target should run
+    def __init__(self, name: str, dependencies: [str], action: str = None, description: str = "", rc: int = 0,
+                 check_for_file: str = None):
+        ## @brief The name of the target
         self.name = name
+        ## @brief A list of dependencies
         self.dependencies = dependencies
+        ## @brief The action to run
         self.action = action
+        ## @brief A description of the target
         self.description = description
+        ## @brief The expected return code
         self.rc = rc
+        ## @brief A file to check for existence which determines if the target should run
+        self.check_for_file = check_for_file
 
+    ##
+    # @brief Run the target
+    # @return The return code of the target
+    #
     def run(self) -> int:
+        if self.check_for_file is not None:
+            if os.path.exists(self.check_for_file):
+                return self.rc
+
         if self.action is None:
             return 0
         return os.system(self.action) >> 8
@@ -27,17 +63,36 @@ class Target:
         return f"Target(name: {self.name}, description: {self.description}, dependencies: [{', '.join(self.dependencies)}], expected_rc: {self.rc})"
 
 
+##
+# @brief A class representing the build system
+#
 class Build:
     __slots__ = "targets"
 
+    ##
+    # @brief Constructor
+    # @param target_list A list of targets
+    #
     def __init__(self, target_list: [Target]):
+        ## @brief The list of targets
         self.targets = target_list
 
-    def get_target(self, target: str) -> Target:
+    ##
+    # @brief Get a target by name
+    # @param target The name of the target
+    # @return The target
+    #
+    def get_target(self, target: str) -> Any | None:
         for t in self.targets:
             if t.name == target:
                 return t
+        return None
 
+    ##
+    # @brief Build a dependency graph
+    # @param target The target to build the graph from dependencies without duplicates
+    # @return The dependency graph
+    #
     def build_dependency_graph(self, target: Target) -> [Target]:
         graph = []
 
@@ -47,6 +102,11 @@ class Build:
         graph.append(target)
         return list(dict.fromkeys(graph))
 
+    ##
+    # @brief Run the build system
+    # @param cli_targets The targets to run
+    # @param debug Enable debug mode
+    #
     def run(self, cli_targets: [str], debug: bool = False):
         targets_to_run = []
         for t in cli_targets:
@@ -72,6 +132,9 @@ class Build:
         print(f"{project_name}: Successfully run {successfully_run} targets")
 
 
+##
+# @brief A function to parse targets from a TOML file
+#
 def targets_from_toml(toml: dict) -> [Target]:
     project_targets = []
     for target_name, target in toml["targets"].items():
@@ -80,10 +143,14 @@ def targets_from_toml(toml: dict) -> [Target]:
         action = target.get("action", None)
         description = target.get("description", "")
         rc = target.get("rc", 0)
-        project_targets.append(Target(name, dependencies, action, description, rc))
+        check_for_file = target.get("check_for_file", None)
+        project_targets.append(Target(name, dependencies, action, description, rc, check_for_file))
     return project_targets
 
 
+##
+# @brief A function to handle SIGINT
+#
 def sigint_handler(sig, frame):
     sys.exit(1)
 

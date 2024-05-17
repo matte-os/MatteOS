@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <Utils/DebugConsole.hh>
-
 namespace Utils::Pointers {
     class RefCountedBase{
     public:

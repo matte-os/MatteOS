@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Kernel/System/TrapFrame.h>
-#include <Utils/Types.hh>
+#include <Utils/Types.h>
 
 namespace Kernel::Process {
     class Thread {

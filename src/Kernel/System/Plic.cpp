@@ -1,5 +1,5 @@
 #include <Kernel/System/Plic.h>
-#include <Utils/DebugConsole.hh>
+#include <Utils/DebugConsole.h>
 
 namespace Kernel::System {
     static Plic* s_plic;

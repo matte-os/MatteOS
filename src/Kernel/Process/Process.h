@@ -14,7 +14,7 @@
 #include <Utils/Arrays/Array.h>
 #include <Utils/Arrays/ArrayList.h>
 #include <Utils/Pointers/RefPtr.h>
-#include <Utils/Types.hh>
+#include <Utils/Types.h>
 
 using Kernel::Memory::MemoryManager;
 using Kernel::Memory::MemoryRegion;

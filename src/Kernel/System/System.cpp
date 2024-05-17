@@ -6,9 +6,8 @@
 #include <Kernel/Process/ProcessManager.h>
 #include <Kernel/System/System.h>
 #include <Kernel/System/Trap.h>
-#include <Kernel/sbi/sbi.hh>
-#include <Utils/Basic.hh>
-#include <Utils/DebugConsole.hh>
+#include <Kernel/Sbi/sbi.h>
+#include <Utils/DebugConsole.h>
 
 extern "C" void m_trap_vector();
 extern "C" void switch_to_user(TrapFrame* trap_frame);

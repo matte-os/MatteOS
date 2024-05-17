@@ -10,7 +10,7 @@
 #include <Kernel/Process/Scheduler.h>
 #include <Kernel/Satp.h>
 #include <Kernel/System/System.h>
-#include <Utils/DebugConsole.hh>
+#include <Utils/DebugConsole.h>
 #include <Utils/Strings/String.h>
 
 using Kernel::CPU;
@@ -71,6 +71,7 @@ extern "C" void kmain([[maybe_unused]] int a0, fdt_header *header) {
   system.set_default_trap_vector();
   Scheduler::init();
   DebugConsole::println("Initialization completed");
+  DebugConsole::printf("Testing the printf function: {}\n", 42);
   Scheduler::the().start_scheduling();
 }
 

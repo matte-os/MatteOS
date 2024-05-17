@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Utils/Types.hh>
+#include <Utils/Types.h>
 
 namespace Kernel::Memory {
     struct PhysicalAddress

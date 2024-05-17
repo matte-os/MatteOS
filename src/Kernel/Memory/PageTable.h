@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Kernel/Memory/PageTableEntry.h>
-#include <Utils/DebugConsole.hh>
+#include <Utils/DebugConsole.h>
 
 using Utils::DebugConsole;
 

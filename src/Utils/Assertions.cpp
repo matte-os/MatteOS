@@ -1,6 +1,6 @@
 #include <Kernel/CPU.h>
-#include <Utils/Assertions.hh>
-#include <Utils/DebugConsole.hh>
+#include <Utils/Assertions.h>
+#include <Utils/DebugConsole.h>
 
 using Kernel::CPU;
 

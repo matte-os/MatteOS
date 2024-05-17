@@ -1,6 +1,6 @@
 #include <Kernel/Memory/PageTable.h>
 #include <Kernel/Memory/PageTableEntry.h>
-#include <Utils/Basic.hh>
+#include <Utils/Basic.h>
 
 namespace Kernel::Memory {
     void PageTable::debug_output(){

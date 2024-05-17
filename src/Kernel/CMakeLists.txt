@@ -16,9 +16,11 @@ set(SOURCE
             System/Trap.cpp
             System/Plic.cpp
             System/System.cpp
-            Process/Process.cpp
-            Process/ProcessManager.cpp
-            Process/Scheduler.cpp
+            System/SyscallManager.cpp
+            System/Timer.cpp
+        Process/Process.cpp
+        Process/ProcessManager.cpp
+        Process/Scheduler.cpp
         Sbi/sbi.cpp
 )
 

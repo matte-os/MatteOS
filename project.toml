@@ -74,6 +74,7 @@ action = """
 scripts/build_opensbi.sh
 """
 description = "Build OpenSBI"
+check_for_file = "toolchain/opensbi/install/usr/share/opensbi/lp64/generic/firmware/fw_dynamic.bin"
 
 [targets.uboot]
 dependencies = ["toolchain"]
@@ -81,6 +82,7 @@ action = """
 scripts/build_uboot.sh
 """
 description = "Build U-Boot"
+check_for_file = "toolchain/u-boot/u-boot.itb"
 
 [targets.kernel]
 dependencies = ["toolchain", "opensbi", "uboot"]
@@ -104,7 +106,7 @@ qemu-img create -f raw build/dist/riscv/disk.img 1G
 description = "Create a 1G disk image"
 
 [targets.run]
-dependencies = ["image"]
+dependencies = ["image", "print-boot-info"]
 action = """
 qemu-system-riscv64 -cpu rv64 -nographic -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=build/dist/riscv/uImage,addr=0x82000000,force-raw=on -s -d guest_errors
 """
@@ -127,7 +129,7 @@ echo 'This script is going to check for needed libraries and tools: '
 description = "Check for needed libraries and tools"
 
 [targets.debug]
-dependencies = ["image"]
+dependencies = ["image", "print-boot-info"]
 action = """
 qemu-system-riscv64 -cpu rv64 -nographic -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=build/dist/riscv/uImage,addr=0x82000000,force-raw=on -s -S -d guest_errors
 """
@@ -159,3 +161,13 @@ description = "Generate latex documentation"
 [targets.docs]
 dependencies = ["doxygen", "documentation"]
 description = "Generate all documentations"
+
+[targets.print-boot-info]
+action = """
+echo '===================================================================='
+echo 'In U-Boot, you can use the following commands to boot the kernel:'
+echo 'cp.l ${fdtcontroladdr} ${fdt_addr_r} 0x10000
+bootm 0x82000000 - ${fdt_addr_r}'
+echo '===================================================================='
+"""
+description = "Print boot information"
