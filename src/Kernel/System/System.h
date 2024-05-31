@@ -11,10 +11,12 @@
 #include <Utils/Arrays/ArrayList.h>
 #include <Utils/Pointers/RefPtr.h>
 #include <Utils/Types.h>
+#include <Kernel/Firmware/FDT/FDTParser.h>
 
 using Kernel::Memory::MemoryRegion;
 using Utils::ArrayList;
 using Utils::Pointers::RefPtr;
+using Kernel::Firmware::FDT::FDTParser;
 
 namespace Kernel::System {
   struct SStatus {
@@ -48,11 +50,13 @@ namespace Kernel::System {
     size_t m_number_of_harts;
     RefPtr<ArrayList<MemoryRegion>> m_memory_regions;
     u64* m_mtime;
+    FDTParser* m_fdt_parser{};
+
 
   public:
     static void init();
     static System& the();
-    void parse_fdt(fdt_header* header);
+    void parse_fdt(FDTHeader* header);
     [[nodiscard]] size_t get_number_of_harts() const;
     [[nodiscard]] u64 get_mtime() const { return *m_mtime; }
     void set_default_trap_vector();

@@ -25,10 +25,10 @@ using Utils::Pointers::RefPtr;
 
 namespace Kernel::Process {
   enum class ProcessState : u8 {
-    RUNNING,
-    SLEEPING,
-    WAITING,
-    DEAD
+    Running,
+    Sleeping,
+    Waiting,
+    Dead
   };
 
   class Process {

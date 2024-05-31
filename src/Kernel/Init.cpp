@@ -55,12 +55,16 @@ char _text_special_end;
 PageTable *init_memory();
 void sizeof_test();
 
-extern "C" void kmain([[maybe_unused]] int a0, fdt_header *header) {
+extern "C" void kmain([[maybe_unused]] int a0, FDTHeader*header) {
   DebugConsole::println("RiscVOS: v0.0.1, U-Boot + OpenSBI, SPL configuration");
   auto *page_table = init_memory();
   System::init();
   KernelMemoryAllocator::the().debug();
   auto &system = System::the();
+  // FIXME: This should be mapped exactly for the size of the FDT blob.
+  DebugConsole::println("MemoryManager: Mapping the FDT.");
+  MemoryManager::the().identity_map_range(*page_table, 0x8c000000, 0x8c000000 + *header->totalsize,
+                                   (u64)EntryBits::READ_WRITE);
   system.parse_fdt(header);
   sizeof_test();
   DebugConsole::println("Tejd");
@@ -129,11 +133,6 @@ PageTable *init_memory() {
   memoryManager.identity_map_range(*pageTable, (uintptr_t)&_context_switching_start, (uintptr_t)&_context_switching_end, (u64)EntryBits::READ_EXECUTE);
   memoryManager.identity_map_range(*pageTable, (uintptr_t)&_text_special_start, (uintptr_t)&_text_special_end, (u64)EntryBits::READ_EXECUTE);
 
-  // FIXME: This should be mapped exactly for the size of the FDT blob.
-  DebugConsole::println("MemoryManager: Mapping the FDT.");
-  memoryManager.identity_map_range(*pageTable, 0x8c000000, 0x8c006937,
-                          (u64)EntryBits::READ_WRITE);
-
   DebugConsole::println("MemoryManager: Initial mapping done.");
   KernelMemoryAllocator::init(memoryManager.zalloc(1));
 
@@ -145,7 +144,3 @@ PageTable *init_memory() {
   DebugConsole::println("More pls.");
   return pageTable;
 }
-
-void init_traps() {}
-
-void init_processes() {}

@@ -32,7 +32,7 @@ namespace Kernel::Process {
     auto* first = process_list->first();
 
     switch(first->get_state()) {
-      case ProcessState::RUNNING: {
+      case ProcessState::Running: {
         //next_trap_frame = first->get_threads()->get(0)->get_trap_frame();
       }; break;
       //FIXME: We should implement SLEEPING threads.

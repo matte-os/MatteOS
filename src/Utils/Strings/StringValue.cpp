@@ -21,8 +21,9 @@ namespace Utils::Strings {
 
     RefPtr<StringValue> StringValue::create(const char * cstring, size_t t_length) {
         auto* ptr = new StringValue;
-        ptr->m_value = new char[t_length];
+        ptr->m_value = new char[t_length + 1];
         memcpy(ptr->m_value, cstring, t_length);
+        ptr->m_value[t_length] = '\0';
         ptr->m_length = t_length;
         return RefPtr<StringValue>(ptr);
     }

@@ -3,30 +3,56 @@
 //
 
 #pragma once
+#include <Utils/Arrays/ArrayList.h>
+#include <Utils/Endian.h>
+#include <Utils/Strings/String.h>
 #include <Utils/Types.h>
-struct fdt_header {
-    u32 magic;
-    u32 totalsize;
-    u32 off_dt_struct;
-    u32 off_dt_strings;
-    u32 off_mem_rsvmap;
-    u32 version;
-    u32 last_comp_version;
-    u32 boot_cpuid_phys;
-    u32 size_dt_strings;
-    u32 size_dt_struct;
+
+using Utils::ArrayList;
+using Utils::Endian;
+using Utils::Endianness;
+using Utils::Strings::String;
+
+struct FDTHeader {
+  Endian<u32, Endianness::Big> magic;
+  Endian<u32, Endianness::Big> totalsize;
+  Endian<u32, Endianness::Big> off_dt_struct;
+  Endian<u32, Endianness::Big> off_dt_strings;
+  Endian<u32, Endianness::Big> off_mem_rsvmap;
+  Endian<u32, Endianness::Big> version;
+  Endian<u32, Endianness::Big> last_comp_version;
+  Endian<u32, Endianness::Big> boot_cpuid_phys;
+  Endian<u32, Endianness::Big> size_dt_strings;
+  Endian<u32, Endianness::Big> size_dt_struct;
 };
 
-struct fdt_reserve_entry {
-    u64 address;
-    u64 size;
+struct FDTReserveEntry {
+  Endian<u64, Endianness::Big> address;
+  Endian<u64, Endianness::Big> size;
 };
 
-enum class FDTNodeType {
-    FDT_BEGIN_NODE = 0x00000001,
-    FDT_END_NODE = 0x00000002,
-    FDT_PROP = 0x00000003,
-    FDT_NOP = 0x00000004,
-    FDT_END = 0x00000009
+struct FDTProp {
+  Endian<u32, Endianness::Big> len;
+  Endian<u32, Endianness::Big> name_offset;
 };
 
+struct FDTProperty {
+  String name;
+  String value;
+};
+
+struct FDTNode {
+  String name;
+  ArrayList<FDTProperty> properties;
+  ArrayList<FDTNode*> children;
+};
+
+
+
+enum class FDTNodeType : u32 {
+  FDT_BEGIN_NODE = 0x00000001,
+  FDT_END_NODE = 0x00000002,
+  FDT_PROP = 0x00000003,
+  FDT_NOP = 0x00000004,
+  FDT_END = 0x00000009
+};

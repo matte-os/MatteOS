@@ -8,6 +8,7 @@ using Utils::Pointers::RefPtr;
 
 namespace Utils::Strings {
   class StringView;
+
   class String {
     friend class StringView;
 
@@ -19,10 +20,12 @@ namespace Utils::Strings {
     String(const String& other) : m_value(StringValue::create(other.m_value->value(), other.m_value->length())) {}
     String(String&& other) noexcept : m_value(move(other.m_value)) {}
     explicit String(const char*);
+    explicit String(const char* src, size_t length);
     ~String() = default;
     size_t length() {
       return m_value->length();
     }
+    [[nodiscard]] const char* to_cstring() const { return m_value->value(); }
     static u64 calculate_size(const char*);
     String& operator=(const String& other) = default;
     String& operator=(String&& other) noexcept = default;

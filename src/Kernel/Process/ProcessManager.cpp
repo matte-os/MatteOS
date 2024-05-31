@@ -38,7 +38,7 @@ namespace Kernel::Process {
   KernelProcess&
   ProcessManager::initialize_kernel_process(PageTable* kernel_root_table) {
     m_kernel_process =
-            new KernelProcess(0, kernel_root_table, ProcessState::RUNNING);
+            new KernelProcess(0, kernel_root_table, ProcessState::Running);
     return *m_kernel_process;
   }
 
@@ -81,7 +81,7 @@ namespace Kernel::Process {
                                    (size_t) Memory::EntryBits::USER_READ_WRITE);
     m_processes->add(new Process(m_pid_counter++, thread,
                                  m_kernel_process->get_page_table(),
-                                 ProcessState::RUNNING));
+                                 ProcessState::Running));
     return root;
   }
 

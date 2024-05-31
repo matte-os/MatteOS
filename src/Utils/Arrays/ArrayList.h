@@ -10,6 +10,8 @@
 #include <Utils/Memory.h>
 #include <Utils/Pointers/RefCounted.h>
 #include <Utils/Types.h>
+#include <Utils/DebugConsole.h>
+#include <Utils/kmalloc.h>
 
 namespace Utils {
   /**
@@ -30,7 +32,7 @@ namespace Utils {
      * @brief Constructs a new ArrayList object.
      */
     ArrayList() {
-      m_array = new T[DEFAULT_SIZE];
+      m_array = kmalloc<T>(sizeof(T) * DEFAULT_SIZE);
       m_size = DEFAULT_SIZE;
       m_ptr = 0;
     }
@@ -40,7 +42,10 @@ namespace Utils {
      */
     ~ArrayList() {
       DebugConsole::println("ArrayList destroyed!");
-      delete[] m_array;
+      for(size_t i = 0; i < m_ptr; i++) {
+        m_array[i].~T();
+      }
+      kfree(m_array);
     }
 
     /**
@@ -109,9 +114,9 @@ namespace Utils {
      */
     void grow() {
       auto newSize = m_size * DEFAULT_SIZE;
-      auto* tmpArray = new T[newSize];
+      auto* tmpArray = kmalloc<T>(newSize);
       memcpy((char*) tmpArray, (char*) m_array, m_size);
-      delete[] m_array;
+      kfree(m_array);
       m_array = tmpArray;
       m_size = newSize;
     }

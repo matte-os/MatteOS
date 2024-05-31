@@ -10,4 +10,7 @@ namespace Utils::Strings {
     while(*(cstring + i) != '\0') i++;
     return i;
   }
+  String::String(const char* src, size_t length) {
+    this->m_value = StringValue::create(src, length);
+  }
 };// namespace Utils::Strings
