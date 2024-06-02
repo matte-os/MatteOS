@@ -75,7 +75,7 @@ extern "C" void kmain([[maybe_unused]] int a0, FDTHeader*header) {
   system.set_default_trap_vector();
   Scheduler::init();
   DebugConsole::println("Initialization completed");
-  DebugConsole::printf("Testing the printf function: {}\n", 42);
+  //DebugConsole::printf("Testing the printf function: {}\n", 42);
   Scheduler::the().start_scheduling();
 }
 

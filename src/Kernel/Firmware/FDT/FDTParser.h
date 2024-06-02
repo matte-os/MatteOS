@@ -2,10 +2,47 @@
 
 #include <Kernel/Firmware/FDT/fdt.h>
 #include <Utils/Arrays/ArrayList.h>
+#include <Utils/DebugConsole.h>
 
 using Utils::ArrayList;
+using Utils::DebugConsole;
 
 namespace Kernel::Firmware::FDT {
+  struct FDTProperty {
+    String name;
+    String value;
+
+    void print() const {
+      DebugConsole::print(name.to_cstring());
+      DebugConsole::print(": ");
+      DebugConsole::print(value.to_cstring());
+      DebugConsole::print("\n");
+    }
+  };
+
+  struct FDTNode {
+    String name;
+    ArrayList<FDTProperty> properties;
+    ArrayList<FDTNode*> children;
+
+    void print() {
+      DebugConsole::print(name.to_cstring());
+      DebugConsole::print("\n");
+      DebugConsole::print("Number of properties: ");
+      DebugConsole::print_ln_number(properties.size(), 10);
+      for(size_t i = 0; i < properties.size(); i++) {
+        properties.get(i).print();
+      }
+
+      DebugConsole::print("Number of children: ");
+      DebugConsole::print_ln_number(children.size(), 10);
+      for(size_t i = 0; i < children.size(); i++) {
+        children.get(i)->print();
+      }
+      DebugConsole::println("Children end");
+    }
+  };
+
   class FDTParser {
   private:
     FDTHeader* m_header;

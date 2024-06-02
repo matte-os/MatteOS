@@ -7,10 +7,10 @@
 
 #pragma once
 #include <Kernel/Memory/MemoryRegion.h>
+#include <Utils/DebugConsole.h>
 #include <Utils/Memory.h>
 #include <Utils/Pointers/RefCounted.h>
 #include <Utils/Types.h>
-#include <Utils/DebugConsole.h>
 #include <Utils/kmalloc.h>
 
 namespace Utils {
@@ -32,6 +32,7 @@ namespace Utils {
      * @brief Constructs a new ArrayList object.
      */
     ArrayList() {
+      DebugConsole::println("ArrayList created!");
       m_array = kmalloc<T>(sizeof(T) * DEFAULT_SIZE);
       m_size = DEFAULT_SIZE;
       m_ptr = 0;
@@ -54,8 +55,15 @@ namespace Utils {
      * @param value Element to be added.
      */
     void add(T value) {
+      DebugConsole::println("Adding element to the array!");
       if(m_ptr >= m_size) grow();
-      m_array[m_ptr++] = value;
+      DebugConsole::print("The size of the array is: ");
+      DebugConsole::print_ln_number(m_size, 10);
+      DebugConsole::print("The pointer is: ");
+      DebugConsole::print_ln_number(reinterpret_cast<u64>(&m_array[m_ptr]), 16);
+      //Zero-initialize the memory
+      memset((char*) &m_array[m_ptr], 0, sizeof(T));
+      new(&m_array[m_ptr++]) T(value);
     }
 
     /**
@@ -75,11 +83,13 @@ namespace Utils {
      * @param index Index of the element.
      * @return T Element at the index.
      */
-    T get(size_t index) {
+    T& get(size_t index) {
       if(m_size > index) {
         return m_array[index];
       }
-      return {};
+
+      DebugConsole::println("Index out of bounds!");
+      return m_array[0];
     }
 
     /**
@@ -87,7 +97,7 @@ namespace Utils {
      *
      * @param index Index of the element.
      */
-     //TODO: Implement remove method
+    //TODO: Implement remove method
     void remove(size_t index) {
     }
     //T operator[](size_t i) { return get(i); };
@@ -113,10 +123,19 @@ namespace Utils {
      * @brief Grows the array.
      */
     void grow() {
-      auto newSize = m_size * DEFAULT_SIZE;
-      auto* tmpArray = kmalloc<T>(newSize);
-      memcpy((char*) tmpArray, (char*) m_array, m_size);
+      DebugConsole::println("Growing array!");
+      auto newSize = m_size * 2;
+      DebugConsole::print("Old size: ");
+      DebugConsole::print_ln_number(m_size, 10);
+      DebugConsole::print("New size: ");
+      DebugConsole::print_ln_number(newSize, 10);
+      auto* tmpArray = kmalloc<T>(newSize * sizeof(T));
+      memcpy((char*) tmpArray, (char*) m_array, m_ptr * sizeof(T));
       kfree(m_array);
+      DebugConsole::print("Old pointer: ");
+      DebugConsole::print_ln_number(reinterpret_cast<u64>(m_array), 16);
+      DebugConsole::print("New pointer: ");
+      DebugConsole::print_ln_number(reinterpret_cast<u64>(tmpArray), 16);
       m_array = tmpArray;
       m_size = newSize;
     }

@@ -42,10 +42,11 @@ namespace Utils {
     print('\n');
   }
 
+  /*
   void DebugConsole::dbgln(const char* fmt, ...) {
-    /*        va_list args;
+            va_list args;
         va_start(args, fmt);
 
-        va_end(args);*/
-  }
+        va_end(args);
+  } */
 };// namespace Utils

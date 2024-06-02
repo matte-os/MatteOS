@@ -22,10 +22,8 @@ namespace Utils::Pointers {
       if(m_value) m_value->ref();
     }
 
-    RefPtr(RefPtr<T> const&& other) noexcept {
-      if(m_value) m_value->deref();
-      m_value = other.m_value;
-      if(m_value) m_value->ref();
+    RefPtr(RefPtr<T>&& other) noexcept : m_value(other.m_value) {
+      other.m_value = nullptr;
     }
 
     ~RefPtr() {
@@ -43,9 +41,23 @@ namespace Utils::Pointers {
     }
 
     RefPtr<T>& operator=(RefPtr<T> const& ptr) {
+      if(this == &ptr)
+        return *this;
+      if(m_value)
+        m_value->unref();
       m_value = ptr.m_value;
       if(m_value)
         m_value->ref();
+      return *this;
+    }
+
+    RefPtr<T>& operator=(RefPtr<T>&& ptr) noexcept {
+      if(this == &ptr)
+        return *this;
+      if(m_value)
+        m_value->unref();
+      m_value = ptr.m_value;
+      ptr.m_value = nullptr;
       return *this;
     }
   };

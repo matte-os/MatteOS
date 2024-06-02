@@ -29,6 +29,11 @@ namespace Kernel::Memory {
   }
 
   uintptr_t* KernelMemoryAllocator::kmalloc(size_t sz) {
+    if(sz == 0) {
+      DebugConsole::println("Warning: kmalloc called with size 0");
+      return nullptr;
+    }
+    debug();
     auto size = MemoryManager::align_value(sz, 3) + sizeof(AllocHeader);
     auto* ptr = m_head;
     auto* tail = (AllocHeader*) ((u8*) m_head) + m_total_size;
@@ -43,6 +48,13 @@ namespace Kernel::Memory {
           next->set_size(remaining);
           ptr->set_size(size);
         } else {
+          DebugConsole::println("Warning: AllocHeader is too small to split");
+          DebugConsole::print("Remaining: ");
+          DebugConsole::print_ln_number(remaining, 10);
+          DebugConsole::print("Size: ");
+          DebugConsole::print_ln_number(sizeof(AllocHeader), 10);
+          DebugConsole::print("ChunkSize: ");
+          DebugConsole::print_ln_number(chunkSize, 10);
           ptr->set_size(chunkSize);
         }
         return (uintptr_t*) ptr + 1;
@@ -75,13 +87,30 @@ namespace Kernel::Memory {
   void KernelMemoryAllocator::debug() {
     auto* ptr = m_head;
     auto* tail = (AllocHeader*) (((u8*) m_head) + m_total_size);
+    AllocHeader* prev = nullptr;
+
+    u64 taken = 0;
+    u64 free = 0;
     while(ptr < tail) {
-      DebugConsole::print("Taken: ");
-      DebugConsole::print_number(ptr->is_taken(), 10);
-      DebugConsole::print(", Size: ");
-      DebugConsole::print_ln_number(ptr->get_size(), 10);
+      if(ptr->is_taken()) {
+        taken += ptr->get_size();
+      } else {
+        if(ptr->get_size() > 1000000) {
+          DebugConsole::print("Abnormal free block size: ");
+          DebugConsole::print_ln_number(ptr->get_size(), 10);
+        }
+        free += ptr->get_size();
+      }
+      prev = ptr;
       ptr = (AllocHeader*) (((u8*) ptr) + ptr->get_size());
     }
+
+    DebugConsole::print("Taken: ");
+    DebugConsole::print_ln_number(taken, 10);
+    DebugConsole::print("Free Counted: ");
+    DebugConsole::print_ln_number(free, 10);
+    DebugConsole::print("Free: ");
+    DebugConsole::print_ln_number(m_total_size - taken, 10);
   }
 
   void KernelMemoryAllocator::coalesce() {
@@ -89,12 +118,14 @@ namespace Kernel::Memory {
     auto* tail = (AllocHeader*) (((u8*) m_head) + m_total_size);
     while(ptr < tail) {
       auto* next = (AllocHeader*) (((u8*) ptr) + ptr->get_size());
-      if(ptr->get_size() == 0) {
-        break;
-      } else if(next >= tail) {
+      if(next >= tail || ptr->get_size() == 0) {
         break;
       } else if(ptr->is_free() && next->is_free()) {
         ptr->set_size(ptr->get_size() + next->get_size());
+        if(ptr->get_size() > 1000000) {
+          DebugConsole::print("Abnormal coalesced block size: ");
+          DebugConsole::print_ln_number(ptr->get_size(), 10);
+        }
       }
       ptr = (AllocHeader*) (((u8*) ptr) + ptr->get_size());
     }

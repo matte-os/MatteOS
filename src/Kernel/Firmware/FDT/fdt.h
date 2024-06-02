@@ -36,19 +36,6 @@ struct FDTProp {
   Endian<u32, Endianness::Big> name_offset;
 };
 
-struct FDTProperty {
-  String name;
-  String value;
-};
-
-struct FDTNode {
-  String name;
-  ArrayList<FDTProperty> properties;
-  ArrayList<FDTNode*> children;
-};
-
-
-
 enum class FDTNodeType : u32 {
   FDT_BEGIN_NODE = 0x00000001,
   FDT_END_NODE = 0x00000002,

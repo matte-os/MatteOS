@@ -7,8 +7,10 @@
 #include <Utils/Pointers/RefCounted.h>
 #include <Utils/Pointers/RefPtr.h>
 #include <Utils/Types.h>
+#include <Utils/DebugConsole.h>
 
 using Utils::Pointers::RefPtr;
+using Utils::DebugConsole;
 
 namespace Utils::Strings {
   class StringValue : public RefCounted<StringValue> {

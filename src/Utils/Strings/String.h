@@ -3,8 +3,10 @@
 #include <Utils/Pointers/RefPtr.h>
 #include <Utils/Strings/StringValue.h>
 #include <Utils/Utility.h>
+#include <Utils/DebugConsole.h>
 
 using Utils::Pointers::RefPtr;
+using Utils::DebugConsole;
 
 namespace Utils::Strings {
   class StringView;
@@ -27,8 +29,8 @@ namespace Utils::Strings {
     }
     [[nodiscard]] const char* to_cstring() const { return m_value->value(); }
     static u64 calculate_size(const char*);
-    String& operator=(const String& other) = default;
-    String& operator=(String&& other) noexcept = default;
+    String& operator=(const String& other);
+    String& operator=(String&& other) noexcept;
   };
 
   class StringView {

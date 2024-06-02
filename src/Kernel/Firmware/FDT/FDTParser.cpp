@@ -1,7 +1,11 @@
 #include <Kernel/Firmware/FDT/FDTParser.h>
 #include <Utils/DebugConsole.h>
+#include <Utils/Utility.h>
 
 using Utils::DebugConsole;
+using Kernel::Firmware::FDT::FDTNode;
+using Kernel::Firmware::FDT::FDTProperty;
+using Utils::move;
 
 void Kernel::Firmware::FDT::FDTParser::parse_reserve_entries() {
   DebugConsole::println("Parsing reserve entries");
@@ -26,14 +30,14 @@ void Kernel::Firmware::FDT::FDTParser::parse_nodes() {
     DebugConsole::println("Failed to parse root node");
     return;
   }
-  DebugConsole::print("Node: ");
-  DebugConsole::println(node->name.to_cstring());
-  for(size_t i = 0; i < node->properties.size(); i++) {
-    DebugConsole::print("  Prop: ");
-    DebugConsole::print(node->properties.get(i).name.to_cstring());
-    DebugConsole::print(" = ");
-    DebugConsole::println(node->properties.get(i).value.to_cstring());
+
+  for(size_t i = 0; i < node->children.size(); i++) {
+    DebugConsole::print("Child PTR ");
+    DebugConsole::print_ln_number(reinterpret_cast<u64>(node->children.get(i)), 16);
   }
+
+  node->print();
+
   m_root_node = node;
   DebugConsole::println("Finished parsing nodes");
 }
@@ -98,8 +102,9 @@ FDTNode* Kernel::Firmware::FDT::FDTParser::parse_node(u32** offset) {
       case ParserState::Prop: {
         auto* prop = reinterpret_cast<FDTProp*>(current_offset);
         current_offset = reinterpret_cast<u32*>(reinterpret_cast<char*>(current_offset) + sizeof(FDTProp));
+        auto name = String(reinterpret_cast<char*>(m_header) + static_cast<u64>(*m_header->off_dt_strings) + static_cast<u64>(*prop->name_offset));
         auto value = String(reinterpret_cast<char*>(current_offset), *prop->len);
-        current_node->properties.add({String(reinterpret_cast<char*>(m_header) + static_cast<u64>(*m_header->off_dt_strings) + static_cast<u64>(*prop->name_offset)), value});
+        current_node->properties.add({move(name), move(value)});
         current_offset = reinterpret_cast<u32*>(reinterpret_cast<char*>(current_offset) + *prop->len);
         current_offset = reinterpret_cast<u32*>(aling_to(4, reinterpret_cast<uintptr_t>(current_offset)));
         skip_increment = true;
