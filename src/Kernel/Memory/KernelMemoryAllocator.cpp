@@ -33,7 +33,6 @@ namespace Kernel::Memory {
       DebugConsole::println("Warning: kmalloc called with size 0");
       return nullptr;
     }
-    debug();
     auto size = MemoryManager::align_value(sz, 3) + sizeof(AllocHeader);
     auto* ptr = m_head;
     auto* tail = (AllocHeader*) ((u8*) m_head) + m_total_size;
@@ -48,13 +47,6 @@ namespace Kernel::Memory {
           next->set_size(remaining);
           ptr->set_size(size);
         } else {
-          DebugConsole::println("Warning: AllocHeader is too small to split");
-          DebugConsole::print("Remaining: ");
-          DebugConsole::print_ln_number(remaining, 10);
-          DebugConsole::print("Size: ");
-          DebugConsole::print_ln_number(sizeof(AllocHeader), 10);
-          DebugConsole::print("ChunkSize: ");
-          DebugConsole::print_ln_number(chunkSize, 10);
           ptr->set_size(chunkSize);
         }
         return (uintptr_t*) ptr + 1;

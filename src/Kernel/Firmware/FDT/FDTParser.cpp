@@ -31,11 +31,6 @@ void Kernel::Firmware::FDT::FDTParser::parse_nodes() {
     return;
   }
 
-  for(size_t i = 0; i < node->children.size(); i++) {
-    DebugConsole::print("Child PTR ");
-    DebugConsole::print_ln_number(reinterpret_cast<u64>(node->children.get(i)), 16);
-  }
-
   node->print();
 
   m_root_node = node;

@@ -19,6 +19,58 @@ namespace Utils::Strings {
     return *s_empty_string;
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   RefPtr<StringValue> StringValue::create(const char* cstring, size_t t_length) {
     auto* ptr = new StringValue;
     ptr->m_value = new char[t_length + 1];

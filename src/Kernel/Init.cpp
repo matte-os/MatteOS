@@ -136,11 +136,10 @@ PageTable *init_memory() {
   DebugConsole::println("MemoryManager: Initial mapping done.");
   KernelMemoryAllocator::init(memoryManager.zalloc(1));
 
-  DebugConsole::println("Setting up SATP.");
+  DebugConsole::println("System: Setting up SATP.");
   auto satp =
       Kernel::CPU::build_satp(Kernel::SatpMode::Sv39, 0, (uintptr_t)pageTable);
-  DebugConsole::println("Writing SATP.");
+  DebugConsole::println("System: Writing SATP.");
   CPU::write_satp(*(u64 *)&satp);
-  DebugConsole::println("More pls.");
   return pageTable;
 }
