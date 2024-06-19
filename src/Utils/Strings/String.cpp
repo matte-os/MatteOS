@@ -49,6 +49,23 @@ namespace Utils::Strings {
   bool String::equals_ignore_case(const StringView& other) const {
     return equals_ignore_case(other.value());
   }
+  String String::repeat(const char* string, size_t count) {
+    if(count == 0) return {};
+
+    size_t length = calculate_size(string) * count;
+    char* buffer = new char[length + 1];
+
+    for(size_t i = 0; i < count; i++) {
+      for(size_t j = 0; j < length; j++) {
+        buffer[i * length + j] = string[j];
+      }
+    }
+    buffer[length] = '\0';
+    return adopt(buffer);
+  }
+  String String::repeat(size_t count) const {
+    return String::repeat(m_value->value(), count);
+  }
   char to_lower(char c) {
     if(c >= 'A' && c <= 'Z') return c + 32;
     return c;

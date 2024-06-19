@@ -19,58 +19,6 @@ namespace Utils::Strings {
     return *s_empty_string;
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   RefPtr<StringValue> StringValue::create(const char* cstring, size_t t_length) {
     auto* ptr = new StringValue;
     ptr->m_value = new char[t_length + 1];
@@ -84,5 +32,12 @@ namespace Utils::Strings {
     if(m_length != 0) {
       delete[] m_value;
     }
+  }
+
+  RefPtr<StringValue> StringValue::adopt(char* cstring, size_t length) {
+    auto ptr = RefPtr<StringValue>(new StringValue);
+    ptr->m_value = cstring;
+    ptr->m_length = length;
+    return ptr;
   }
 }// namespace Utils::Strings

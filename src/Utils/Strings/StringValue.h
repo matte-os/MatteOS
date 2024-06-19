@@ -21,6 +21,7 @@ namespace Utils::Strings {
   public:
     static StringValue& empty_string();
     static RefPtr<StringValue> create(const char*, size_t);
+    static RefPtr<StringValue> adopt(char*, size_t);
     const char* value() const { return m_value; }
     size_t length() const { return m_length; }
     ~StringValue();

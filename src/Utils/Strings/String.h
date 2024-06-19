@@ -16,6 +16,7 @@ namespace Utils::Strings {
 
   private:
     RefPtr<StringValue> m_value;
+    explicit String(RefPtr<StringValue> value) : m_value(move(value)) {}
 
   public:
     String() : String("") {}
@@ -43,6 +44,12 @@ namespace Utils::Strings {
     bool operator!=(const String& other) const { return !equals(other); }
     bool operator!=(const char* other) const { return !equals(other); }
     bool operator!=(const StringView& other) const { return !(*this == other); }
+    static String repeat(const char* string, size_t count);
+    [[nodiscard]] String repeat(size_t count) const;
+    static String adopt(char* cstring) {
+      auto value = StringValue::adopt(cstring, calculate_size(cstring));
+      return String(move(value));
+    }
   };
 
   class StringView {

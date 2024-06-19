@@ -23,5 +23,17 @@ set(CMAKE_ASM_FLAGS "-Wno-int-to-pointer-cast -fpermissive -Wno-conversion -Wno-
 add_subdirectory(src)
 set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_LINKER} -n -g -T ${LINKER_SCRIPT} <LINK_LIBRARIES> <OBJECTS> -lgcc -Ltoolchain/riscv/lib/gcc/riscv64-unknown-linux-gnu/13.2.0/ -lsupc++ -Ltoolchain/riscv/riscv64-unknown-linux-gnu/lib/ -o ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TARGET}.elf ")
 
-
 add_executable(${TARGET}.elf $<TARGET_OBJECTS:Kernel> $<TARGET_OBJECTS:Utils>)
+
+function(get_all_sources target destination)
+    get_target_property(sources ${target} CXX_SOURCES)
+    set(${destination} ${sources} PARENT_SCOPE)
+endfunction()
+
+get_all_sources(Kernel KernelSources)
+get_all_sources(Utils UtilsSources)
+
+add_custom_target(
+        format
+        COMMAND clang-format -i -style=file ${KernelSources} ${UtilsSources}
+)
