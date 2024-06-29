@@ -24,6 +24,7 @@ namespace Utils::Strings {
     static RefPtr<StringValue> adopt(char*, size_t);
     const char* value() const { return m_value; }
     size_t length() const { return m_length; }
+    char operator[](int index) const { return m_value[index]; }
     ~StringValue();
 
   protected:

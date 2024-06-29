@@ -4,9 +4,8 @@
 
 #pragma once
 
-/*
+#include <Utils/DebugConsole.h>
 #include <Utils/Types.h>
-#include <typeinfo>
 
 namespace Utils {
   template<typename T, typename U>
@@ -19,17 +18,13 @@ namespace Utils {
     const bool value = true;
   };
 
-  template<typename T>
-  T&& move(T& value) {
-    return static_cast<T&&>(value);
-  }
-
   template<typename T, typename... Types>
   struct VariantHelper {
-    static const size_t size = sizeof(T) > VariantHelper<Types...>::size? sizeof(T) : VariantHelper<Types...>::size;
+    static const size_t size = sizeof(T) > VariantHelper<Types...>::size ? sizeof(T) : VariantHelper<Types...>::size;
     inline static void destroy(size_t type_id, char* data) {
-      if(type_id == typeid(T).hash_code()) {
-        reinterpret_cast<T*>(data)->~T();
+      if(type_id == TypeID<T>::get()) {
+        using Type = typename remove_reference<T>::type;
+        reinterpret_cast<Type*>(data)->~Type();
       }
     }
   };
@@ -48,32 +43,44 @@ namespace Utils {
   class Variant {
   private:
     typedef VariantHelper<Types...> m_helper;
-    size_t m_type_id;
-    bool m_has_value;
+    size_t m_type_id{};
+    bool m_has_value{};
     VariantData<m_helper::size> m_data;
 
     static inline size_t invalid_type() {
-      return typeid(void).hash_code();
+      return TypeID<void>::get();
     }
+
   public:
     Variant() : m_type_id(invalid_type()), m_has_value(false) {}
     Variant(Variant<Types...>& other) {
-
     }
-    Variant(Variant<Types...>&& other) {
-
+    Variant(Variant<Types...>&& other)  noexcept {
     }
     template<typename T>
     T& as() {
       if(!m_has_value) {
-        throw std::runtime_error("No value is set!");
+        DebugConsole::println("No value set!");
       }
 
-      if(typeid(T).hash_code() != m_type_id) {
-        throw std::runtime_error("The variant contains a value of different type!");
+      if(TypeID<T>::get() != m_type_id) {
+        DebugConsole::println("Invalid type! Expected: ");
       }
 
       return *reinterpret_cast<T*>(m_data.data);
+    }
+
+    template<typename T>
+    const T& as() const {
+      if(!m_has_value) {
+        DebugConsole::println("No value set!");
+      }
+
+      if(TypeID<T>::get() != m_type_id) {
+        DebugConsole::println("Invalid type! Expected: ");
+      }
+
+      return *reinterpret_cast<const T*>(m_data.data);
     }
 
     template<typename T>
@@ -83,7 +90,7 @@ namespace Utils {
       }
 
       new(m_data.data) T(move(value));
-      m_type_id = typeid(T).hash_code();
+      m_type_id = TypeID<T>::get();
       m_has_value = true;
     }
 
@@ -94,7 +101,7 @@ namespace Utils {
       }
 
       new(m_data.data) T(value);
-      m_type_id = typeid(T).hash_code();
+      m_type_id = TypeID<T>::get();
       m_has_value = true;
     }
 
@@ -106,39 +113,15 @@ namespace Utils {
       m_type_id = invalid_type();
       m_has_value = false;
     }
-  };
 
-  struct Test {
-    Test() {
-      std::cout << "Test constructed" << std::endl;
+    [[nodiscard]] bool has_value() const {
+      return m_has_value;
     }
 
-    Test(Test&& other) {
-      std::cout << "Move constructor used" << std::endl;
-    }
-
-    Test(Test& other) {
-      std::cout << "Copy constructor used" << std::endl;
-    }
-
-    ~Test() {
-      std::cout << "Test destructed" << std::endl;
+    template<typename T>
+    [[nodiscard]] bool is() const {
+      return m_type_id == TypeID<T>::get();
     }
   };
-
-  int main() {
-    Variant<std::string, int, float, Test> variant;
-    variant.set(std::string("Ahoj"));
-    std::cout << variant.as<std::string>() << std::endl;
-    variant.set<int>(5);
-    std::cout << variant.as<int>() << std::endl;
-    variant.set<float>(5.4);
-    std::cout << variant.as<float>() << std::endl;
-    variant.set<Test>({});
-    auto& nvm = variant.as<Test>();
-    Test t;
-    variant.set<Test>(t);
-  }
 
 }// namespace Utils
-*/

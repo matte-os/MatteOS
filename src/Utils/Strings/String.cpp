@@ -1,3 +1,4 @@
+#include "Utils/Arrays/ArrayList.h"
 #include <Utils/Strings/String.h>
 
 namespace Utils::Strings {
@@ -65,6 +66,22 @@ namespace Utils::Strings {
   }
   String String::repeat(size_t count) const {
     return String::repeat(m_value->value(), count);
+  }
+  ArrayList<String> String::split(const String& separator) {
+    ArrayList<String> result;
+    size_t last_index = 0;
+    for(size_t i = 0; i < m_value->length(); i++) {
+      if(m_value->value()[i] == separator[0]) {
+        for(size_t j = i + 1; j < m_value->length() && separator.length(); j++) {
+          if(m_value->value()[j] != separator[j - i]) break;
+          if(j - i == separator.length() - 1) {
+            result.add(String(m_value->value() + last_index, i - last_index));
+            last_index = j + 1;
+          }
+        }
+      }
+    }
+    return result;
   }
   char to_lower(char c) {
     if(c >= 'A' && c <= 'Z') return c + 32;

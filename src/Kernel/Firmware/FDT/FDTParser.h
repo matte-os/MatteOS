@@ -3,9 +3,11 @@
 #include <Kernel/Firmware/FDT/fdt.h>
 #include <Utils/Arrays/ArrayList.h>
 #include <Utils/DebugConsole.h>
+#include <Utils/Errors/ErrorOr.h>
 
 using Utils::ArrayList;
 using Utils::DebugConsole;
+using Utils::Errors::ErrorOr;
 
 namespace Kernel::Firmware::FDT {
   struct FDTProperty {
@@ -52,7 +54,7 @@ namespace Kernel::Firmware::FDT {
     void parse_reserve_entries();
     void parse_nodes();
     FDTNode* parse_node(u32** current_offset);
-    uintptr_t aling_to(u32 alignment, uintptr_t address);
+    uintptr_t align_to(u32 alignment, uintptr_t address);
 
     template<typename T>
     T* access_at_offset(u32 offset) {
@@ -63,5 +65,6 @@ namespace Kernel::Firmware::FDT {
     void parse(FDTHeader* header);
     [[nodiscard]] const ArrayList<FDTReserveEntry>& get_reserve_entries() const;
     [[nodiscard]] const FDTNode& get_root_node() const;
+    [[nodiscard]] ErrorOr<const FDTNode&> get_node(const String& path) const;
   };
 }// namespace Kernel::Firmware::FDT

@@ -1,12 +1,12 @@
 #pragma once
 
+#include <Utils/DebugConsole.h>
 #include <Utils/Pointers/RefPtr.h>
 #include <Utils/Strings/StringValue.h>
 #include <Utils/Utility.h>
-#include <Utils/DebugConsole.h>
 
-using Utils::Pointers::RefPtr;
 using Utils::DebugConsole;
+using Utils::Pointers::RefPtr;
 
 namespace Utils::Strings {
   class StringView;
@@ -25,11 +25,12 @@ namespace Utils::Strings {
     explicit String(const char*);
     explicit String(const char* src, size_t length);
     ~String() = default;
-    size_t length() {
+    [[nodiscard]] size_t length() const {
       return m_value->length();
     }
     [[nodiscard]] const char* to_cstring() const { return m_value->value(); }
     static u64 calculate_size(const char*);
+
     String& operator=(const String& other);
     String& operator=(String&& other) noexcept;
     [[nodiscard]] bool equals(const String& other) const;
@@ -40,10 +41,14 @@ namespace Utils::Strings {
     [[nodiscard]] bool equals_ignore_case(const StringView& other) const;
     bool operator==(const String& other) const { return equals(other); }
     bool operator==(const char* other) const { return equals(other); }
-    bool operator==(const StringView& other) const { return equals(other);}
+    bool operator==(const StringView& other) const { return equals(other); }
     bool operator!=(const String& other) const { return !equals(other); }
     bool operator!=(const char* other) const { return !equals(other); }
     bool operator!=(const StringView& other) const { return !(*this == other); }
+    char operator[](int index) const { return m_value->value()[index]; };
+
+    ArrayList<String> split(const String& separator);
+
     static String repeat(const char* string, size_t count);
     [[nodiscard]] String repeat(size_t count) const;
     static String adopt(char* cstring) {

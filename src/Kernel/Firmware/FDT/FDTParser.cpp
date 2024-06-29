@@ -6,6 +6,8 @@ using Utils::DebugConsole;
 using Kernel::Firmware::FDT::FDTNode;
 using Kernel::Firmware::FDT::FDTProperty;
 using Utils::move;
+using Utils::Errors::Error;
+using Utils::Errors::ErrorOr;
 
 void Kernel::Firmware::FDT::FDTParser::parse_reserve_entries() {
   DebugConsole::println("Parsing reserve entries");
@@ -67,7 +69,7 @@ FDTNode* Kernel::Firmware::FDT::FDTParser::parse_node(u32** offset) {
       case ParserState::BeginNode: {
         current_node->name = String(reinterpret_cast<char*>(current_offset));
         current_offset = reinterpret_cast<u32*>(reinterpret_cast<char*>(current_offset) + current_node->name.length());
-        current_offset = reinterpret_cast<u32*>(aling_to(4, reinterpret_cast<uintptr_t>(current_offset)));
+        current_offset = reinterpret_cast<u32*>(align_to(4, reinterpret_cast<uintptr_t>(current_offset)));
         skip_increment = true;
         state = ParserState::NodeName;
       } break;
@@ -101,7 +103,7 @@ FDTNode* Kernel::Firmware::FDT::FDTParser::parse_node(u32** offset) {
         auto value = String(reinterpret_cast<char*>(current_offset), *prop->len);
         current_node->properties.add({move(name), move(value)});
         current_offset = reinterpret_cast<u32*>(reinterpret_cast<char*>(current_offset) + *prop->len);
-        current_offset = reinterpret_cast<u32*>(aling_to(4, reinterpret_cast<uintptr_t>(current_offset)));
+        current_offset = reinterpret_cast<u32*>(align_to(4, reinterpret_cast<uintptr_t>(current_offset)));
         skip_increment = true;
         state = ParserState::NodeName;
       } break;
@@ -129,9 +131,12 @@ const ArrayList<FDTReserveEntry>& Kernel::Firmware::FDT::FDTParser::get_reserve_
   return m_reserve_entries;
 }
 
-uintptr_t Kernel::Firmware::FDT::FDTParser::aling_to(u32 alignment, uintptr_t address) {
+uintptr_t Kernel::Firmware::FDT::FDTParser::align_to(u32 alignment, uintptr_t address) {
   return (address + alignment - 1) & ~(alignment - 1);
 }
 const FDTNode& Kernel::Firmware::FDT::FDTParser::get_root_node() const {
   return *m_root_node;
+}
+ErrorOr<const FDTNode&> Kernel::Firmware::FDT::FDTParser::get_node(const String& path) const {
+  return ErrorOr<const FDTNode&>::create_error(Error::create_from_string(String("Not implemented")));
 }

@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "Utils/Variant.h"
 #include <Utils/Strings/String.h>
 #include <Utils/Utility.h>
 
@@ -37,7 +38,7 @@ namespace Utils::Errors {
       return Error(move(message), error);
     }
     [[nodiscard]] bool has_error() const { return m_code; }
-    [[nodiscard]] StringView get_message() const { return m_message; }
+    [[nodiscard]] StringView get_message() const { return static_cast<StringView>(m_message); }
     [[nodiscard]] int get_error() const { return m_code; }
 
     ~Error() = default;
@@ -50,55 +51,46 @@ namespace Utils::Errors {
     using ErrorType = E;
 
   protected:
-    enum class ErrorOrType { Value,
-                             Error,
-                             Uninitialized } m_contains;
-    union {
-      ResultType m_value;
-      ErrorType m_error;
-    };
+    Variant<ResultType, ErrorType> m_value_or_error;
 
   protected:
-    ErrorOr() : m_contains(ErrorOrType::Uninitialized) {}
-    explicit ErrorOr(ResultType& value) : m_contains(ErrorOrType::Value), m_value(value) {}
-    explicit ErrorOr(ResultType&& value) : m_contains(ErrorOrType::Value), m_value(move(value)) {}
-    explicit ErrorOr(ErrorType error) : m_error(error) {}
+    ErrorOr() = default;
+    explicit ErrorOr(ResultType&& value) {
+      m_value_or_error.template set<ResultType>(move(value));
+    }
+    explicit ErrorOr(ErrorType error) {
+      m_value_or_error.template set<ErrorType>(error);
+    }
+
     ErrorOr(const ErrorOr& other) {
       if(other.has_error()) {
-        m_error = other.get_error();
+        m_value_or_error.template set<ErrorType>(other.get_error());
       } else {
-        m_value = other.get_value();
+        m_value_or_error.template set<ResultType>(other.get_value());
       }
     }
 
   public:
-    static ErrorOr<T, E> create(ResultType& value) { return ErrorOr<T, E>(value); }
     static ErrorOr<T, E> create(ResultType&& value) { return ErrorOr<T, E>(move(value)); }
     static ErrorOr<T, E> create_error(ErrorType error) {
       return ErrorOr<T, E>(error);
     }
-    ~ErrorOr() {
-      if(m_contains == ErrorOrType::Value) {
-        m_value.~ResultType();
-      } else if(m_contains == ErrorOrType::Error) {
-        m_error.~ErrorType();
-      }
-    }
+    ~ErrorOr() = default;
 
     [[nodiscard]] bool has_value() const {
-      return m_contains == ErrorOrType::Value;
+      return m_value_or_error.template is<ResultType>();
     }
     [[nodiscard]] bool has_error() const {
-      return m_contains == ErrorOrType::Error;
+      return m_value_or_error.template is<ErrorType>();
     }
     [[nodiscard]] ResultType get_value() const {
-      return m_value;
+      return m_value_or_error.template as<ResultType>();
     }
     [[nodiscard]] ErrorType get_error() const {
-      return m_error;
+      return m_value_or_error.template as<ErrorType>();
     }
     [[nodiscard]] ResultType&& get_unique() {
-      return move(m_value);
+      return move(m_value_or_error.template as<ResultType>());
     }
   };
 
@@ -112,9 +104,9 @@ namespace Utils::Errors {
 
     explicit ErrorOr(const ErrorOr<Empty, Error>& other) : ErrorOr<Empty>() {
       if(other.has_error()) {
-        m_error = other.get_error();
+        m_value_or_error.template set<ErrorType>(other.get_error());
       } else {
-        m_value = other.get_value();
+        m_value_or_error.template set<ResultType>(other.get_value());
       }
     }
   };
