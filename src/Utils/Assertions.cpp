@@ -4,11 +4,11 @@
 
 using Kernel::CPU;
 
-namespace Utils{
-    void ASSERT(bool condition){
-        if(!condition){
-            DebugConsole::println("Assetion");
-            CPU::halt();
-        }
+namespace Utils {
+  void ASSERT(bool condition) {
+    if(!condition) {
+      DebugConsole::println("Assetion");
+      CPU::halt();
     }
-};
+  }
+};// namespace Utils

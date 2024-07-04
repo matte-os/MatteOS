@@ -6,4 +6,4 @@
 
 namespace Kernel::Process {
 
-} // Kernel
+}// namespace Kernel::Process
