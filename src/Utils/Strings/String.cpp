@@ -67,21 +67,40 @@ namespace Utils::Strings {
   String String::repeat(size_t count) const {
     return String::repeat(m_value->value(), count);
   }
-  ArrayList<String> String::split(const String& separator) {
+  ArrayList<String> String::split(const String& separator) const {
     ArrayList<String> result;
     size_t last_index = 0;
     for(size_t i = 0; i < m_value->length(); i++) {
       if(m_value->value()[i] == separator[0]) {
-        for(size_t j = i + 1; j < m_value->length() && separator.length(); j++) {
-          if(m_value->value()[j] != separator[j - i]) break;
-          if(j - i == separator.length() - 1) {
-            result.add(String(m_value->value() + last_index, i - last_index));
-            last_index = j + 1;
+        if(i == 0 || i == m_value->length() - 1) {
+          last_index = i + 1;
+          continue;
+        }
+        bool found = true;
+        for(size_t j = i + 1; j < m_value->length() && separator.length() > 1; j++) {
+          if(m_value->value()[j] != separator[j - i]) {
+            found = false;
+            break;
           }
+        }
+        if(found) {
+          result.add(String(m_value->value() + last_index, i - last_index));
+          last_index = i + separator.length();
         }
       }
     }
+
+    if(last_index < m_value->length()) {
+      result.add(String(m_value->value() + last_index, m_value->length() - last_index));
+    }
     return result;
+  }
+  bool String::starts_with(const String& other) const {
+    if(other.length() > m_value->length()) return false;
+    for(size_t i = 0; i < other.length(); i++) {
+      if(m_value->value()[i] != other[i]) return false;
+    }
+    return true;
   }
   char to_lower(char c) {
     if(c >= 'A' && c <= 'Z') return c + 32;

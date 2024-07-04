@@ -2,9 +2,9 @@
 #include <Utils/DebugConsole.h>
 #include <Utils/Utility.h>
 
-using Utils::DebugConsole;
 using Kernel::Firmware::FDT::FDTNode;
 using Kernel::Firmware::FDT::FDTProperty;
+using Utils::DebugConsole;
 using Utils::move;
 using Utils::Errors::Error;
 using Utils::Errors::ErrorOr;
@@ -67,8 +67,8 @@ FDTNode* Kernel::Firmware::FDT::FDTParser::parse_node(u32** offset) {
         }
       } break;
       case ParserState::BeginNode: {
-        current_node->name = String(reinterpret_cast<char*>(current_offset));
-        current_offset = reinterpret_cast<u32*>(reinterpret_cast<char*>(current_offset) + current_node->name.length());
+        current_node->m_name = String(reinterpret_cast<char*>(current_offset));
+        current_offset = reinterpret_cast<u32*>(reinterpret_cast<char*>(current_offset) + current_node->m_name.length());
         current_offset = reinterpret_cast<u32*>(align_to(4, reinterpret_cast<uintptr_t>(current_offset)));
         skip_increment = true;
         state = ParserState::NodeName;
@@ -82,7 +82,7 @@ FDTNode* Kernel::Firmware::FDT::FDTParser::parse_node(u32** offset) {
         } else if(type == static_cast<u32>(FDTNodeType::FDT_BEGIN_NODE)) {
           auto* child_node = parse_node(&current_offset);
           if(child_node != nullptr) {
-            current_node->children.add(child_node);
+            current_node->m_children.add(child_node);
           }
         } else if(type == static_cast<u32>(FDTNodeType::FDT_END_NODE)) {
           state = ParserState::EndNode;
@@ -101,7 +101,7 @@ FDTNode* Kernel::Firmware::FDT::FDTParser::parse_node(u32** offset) {
         current_offset = reinterpret_cast<u32*>(reinterpret_cast<char*>(current_offset) + sizeof(FDTProp));
         auto name = String(reinterpret_cast<char*>(m_header) + static_cast<u64>(*m_header->off_dt_strings) + static_cast<u64>(*prop->name_offset));
         auto value = String(reinterpret_cast<char*>(current_offset), *prop->len);
-        current_node->properties.add({move(name), move(value)});
+        current_node->m_properties.add({move(name), move(value)});
         current_offset = reinterpret_cast<u32*>(reinterpret_cast<char*>(current_offset) + *prop->len);
         current_offset = reinterpret_cast<u32*>(align_to(4, reinterpret_cast<uintptr_t>(current_offset)));
         skip_increment = true;
@@ -137,6 +137,54 @@ uintptr_t Kernel::Firmware::FDT::FDTParser::align_to(u32 alignment, uintptr_t ad
 const FDTNode& Kernel::Firmware::FDT::FDTParser::get_root_node() const {
   return *m_root_node;
 }
-ErrorOr<const FDTNode&> Kernel::Firmware::FDT::FDTParser::get_node(const String& path) const {
-  return ErrorOr<const FDTNode&>::create_error(Error::create_from_string(String("Not implemented")));
+ErrorOr<const FDTNode*> Kernel::Firmware::FDT::FDTParser::find_node(const String& path) const {
+  FDTNode* current_node = m_root_node;
+  auto path_array = path.split("/");
+  size_t i = 0, path_array_index = 0;
+  while(current_node != nullptr && i < current_node->m_children.size() && path_array_index < path_array.size()) {
+    if(current_node->m_children[i] == nullptr) {
+      continue;
+    }
+
+    if(current_node->m_children[i]->get_name() == path_array[path_array_index]) {
+      current_node = current_node->m_children[i];
+      i = 0;
+      path_array_index++;
+      continue;
+    }
+
+    i++;
+  }
+
+  if(path_array_index == path_array.size()) {
+    return ErrorOr<const FDTNode*>::create(move(current_node));
+  } else {
+    return ErrorOr<const FDTNode*>::create_error(Error::create_from_string(String("Node not found")));
+  }
+}
+ErrorOr<ArrayList<const FDTNode*>> Kernel::Firmware::FDT::FDTParser::find_nodes(const String& path) const {
+  FDTNode* current_node = m_root_node;
+  auto path_array = path.split("/");
+  size_t i = 0, path_array_index = 0;
+  ArrayList<const FDTNode*> nodes;
+  while(current_node != nullptr && i < current_node->m_children.size() && path_array_index < path_array.size()) {
+    if(current_node->m_children[i] == nullptr) {
+      continue;
+    }
+
+    if(current_node->m_children[i]->get_name() == path_array[path_array_index]) {
+      if(path_array_index == path_array.size() - 1) {
+        nodes.add(current_node->m_children[i]);
+      } else {
+        current_node = current_node->m_children[i];
+        i = 0;
+        path_array_index++;
+        continue;
+      }
+    }
+
+    i++;
+  }
+
+  return ErrorOr<ArrayList<const FDTNode*>>::create(move(nodes));
 }

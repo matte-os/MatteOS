@@ -112,6 +112,8 @@ namespace Utils {
      */
     T* to_array() { return m_array; }
 
+    T& operator[](size_t i) { return get(i); }
+
   private:
     /**
      * @brief Grows the array.

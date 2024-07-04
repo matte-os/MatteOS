@@ -2,8 +2,8 @@
 // Created by matejbucek on 13.5.24.
 //
 
-#include <Kernel/System/Timer.h>
 #include <Kernel/Sbi/sbi.h>
+#include <Kernel/System/Timer.h>
 
 namespace Kernel::System {
   static Timer* g_timer = nullptr;

@@ -46,6 +46,22 @@ namespace Kernel::System {
       Utils::DebugConsole::println(".");
       m_fdt_parser = new FDTParser();
       m_fdt_parser->parse(header);
+
+      auto result = m_fdt_parser->find_node(String("/memory"));
+      if(result.has_error()) {
+        DebugConsole::println("System: Could not find /memory node in FDT.");
+      } else {
+        DebugConsole::println("System: Found /memory node in FDT.");
+      }
+
+      auto virtio_result = m_fdt_parser->find_nodes("/soc/virtio_mmio");
+      if(virtio_result.has_error()) {
+        DebugConsole::println("System: Could not find /soc/virtio_mmio node in FDT.");
+      } else {
+        DebugConsole::println("System: Found /soc/virtio_mmio node in FDT.");
+        DebugConsole::print("Found node count: ");
+        DebugConsole::print_ln_number(virtio_result.get_value().size(), 10);
+      }
     }
   }
 

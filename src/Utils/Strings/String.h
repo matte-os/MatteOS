@@ -22,7 +22,7 @@ namespace Utils::Strings {
     String() : String("") {}
     String(const String& other) : m_value(StringValue::create(other.m_value->value(), other.m_value->length())) {}
     String(String&& other) noexcept : m_value(move(other.m_value)) {}
-    explicit String(const char*);
+    String(const char*);
     explicit String(const char* src, size_t length);
     ~String() = default;
     [[nodiscard]] size_t length() const {
@@ -46,8 +46,9 @@ namespace Utils::Strings {
     bool operator!=(const char* other) const { return !equals(other); }
     bool operator!=(const StringView& other) const { return !(*this == other); }
     char operator[](int index) const { return m_value->value()[index]; };
+    bool starts_with(const String& other) const;
 
-    ArrayList<String> split(const String& separator);
+    ArrayList<String> split(const String& separator) const;
 
     static String repeat(const char* string, size_t count);
     [[nodiscard]] String repeat(size_t count) const;
