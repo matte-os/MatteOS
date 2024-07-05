@@ -16,9 +16,7 @@ namespace Utils::Pointers {
       if(m_value) m_value->ref();
     }
 
-    RefPtr(const RefPtr<T>& other) {
-      if(m_value) m_value->deref();
-      m_value = other.m_value;
+    RefPtr(const RefPtr<T>& other) : m_value(other.m_value) {
       if(m_value) m_value->ref();
     }
 

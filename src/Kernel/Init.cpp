@@ -9,11 +9,13 @@
 #include <Kernel/Process/ProcessManager.h>
 #include <Kernel/Process/Scheduler.h>
 #include <Kernel/Satp.h>
+#include <Kernel/System/DeviceManager.h>
 #include <Kernel/System/System.h>
 #include <Utils/DebugConsole.h>
 #include <Utils/Strings/String.h>
 
 using Kernel::CPU;
+using Kernel::DeviceManager;
 using Kernel::SATP;
 using Kernel::SatpMode;
 using Kernel::TrapFrame;
@@ -64,9 +66,9 @@ extern "C" void kmain([[maybe_unused]] int a0, FDTHeader* header) {
   DebugConsole::println("MemoryManager: Mapping the FDT.");
   MemoryManager::the().identity_map_range(*page_table, 0x8c000000, 0x8c000000 + *header->totalsize,
                                           (u64) EntryBits::READ_WRITE);
+  DeviceManager::init();
   system.parse_fdt(header);
   sizeof_test();
-  DebugConsole::println("Tejd");
   ProcessManager::init(page_table);
   auto* dummy_root = ProcessManager::the().create_dummy_process(reinterpret_cast<uintptr_t>(&_text_start), reinterpret_cast<uintptr_t>(&_text_end));
   MemoryManager::the().identity_map_range(*dummy_root, (uintptr_t) &_context_switching_start, (uintptr_t) &_context_switching_end, (u64) Kernel::Memory::EntryBits::READ_EXECUTE);

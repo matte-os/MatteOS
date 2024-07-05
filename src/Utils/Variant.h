@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <Utils/Utility.h>
 #include <Utils/DebugConsole.h>
 #include <Utils/Types.h>
 

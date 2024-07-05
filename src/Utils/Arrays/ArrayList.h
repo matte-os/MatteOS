@@ -37,6 +37,22 @@ namespace Utils {
       m_ptr = 0;
     }
 
+    ArrayList(const ArrayList<T>& other) {
+      m_array = kmalloc<T>(sizeof(T) * other.m_size);
+      m_size = other.m_size;
+      m_ptr = other.m_ptr;
+      memcpy((char*) m_array, (char*) other.m_array, m_ptr * sizeof(T));
+    }
+
+    ArrayList(ArrayList<T>&& other) noexcept {
+      m_array = other.m_array;
+      m_size = other.m_size;
+      m_ptr = other.m_ptr;
+      other.m_array = nullptr;
+      other.m_size = 0;
+      other.m_ptr = 0;
+    }
+
     /**
      * @brief Destroys the ArrayList object.
      */
@@ -113,6 +129,26 @@ namespace Utils {
     T* to_array() { return m_array; }
 
     T& operator[](size_t i) { return get(i); }
+
+    ArrayList<T>& operator=(const ArrayList<T>& other) {
+      if(this == &other) return *this;
+      m_array = kmalloc<T>(sizeof(T) * other.m_size);
+      m_size = other.m_size;
+      m_ptr = other.m_ptr;
+      memcpy((char*) m_array, (char*) other.m_array, m_ptr * sizeof(T));
+      return *this;
+    }
+
+    ArrayList<T>& operator=(ArrayList<T>&& other) noexcept {
+      if(this == &other) return *this;
+      m_array = other.m_array;
+      m_size = other.m_size;
+      m_ptr = other.m_ptr;
+      other.m_array = nullptr;
+      other.m_size = 0;
+      other.m_ptr = 0;
+      return *this;
+    }
 
   private:
     /**

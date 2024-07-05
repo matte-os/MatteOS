@@ -53,6 +53,7 @@ namespace Kernel::Memory {
         void map_range(PageTable &root, size_t virtual_start, size_t virtual_end, size_t physical_start, u64 bits);
         void map(PageTable&, VirtualAddress, PhysicalAddress, size_t, int);
         void debug_output();
+        PageTable* get_current_root_page_table();
 
         ~MemoryManager();
 

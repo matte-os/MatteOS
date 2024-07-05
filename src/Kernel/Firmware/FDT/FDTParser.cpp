@@ -33,8 +33,6 @@ void Kernel::Firmware::FDT::FDTParser::parse_nodes() {
     return;
   }
 
-  node->print();
-
   m_root_node = node;
   DebugConsole::println("Finished parsing nodes");
 }

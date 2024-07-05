@@ -19,3 +19,20 @@ void itoa(char* buf, unsigned long int n, int base) {
     buf[i] = tmp;
   }
 }
+
+size_t atoi(const char* str, size_t base) {
+  size_t result = 0;
+  size_t i = 0;
+  size_t sign = 1;
+
+  if(str[0] == '-') {
+    sign = -1;
+    i++;
+  }
+
+  for(; str[i] != 0; i++) {
+    result = result * base + str[i] - '0';
+  }
+
+  return sign * result;
+}

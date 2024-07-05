@@ -7,7 +7,7 @@ using Kernel::Uart;
 
 namespace Utils {
   void DebugConsole::print(const char c) {
-    Kernel::SBI::sbi_debug_console_write_byte(c);
+    Kernel::SBI::sbi_console_putchar(c);
   }
 
   void DebugConsole::print(const char* str) {

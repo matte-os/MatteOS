@@ -103,5 +103,8 @@ namespace Kernel::Firmware::FDT {
     [[nodiscard]] const FDTNode& get_root_node() const;
     [[nodiscard]] ErrorOr<const FDTNode*> find_node(const String& path) const;
     [[nodiscard]] ErrorOr<ArrayList<const FDTNode*>> find_nodes(const String& path) const;
+    void print_debug() {
+      m_root_node->print();
+    }
   };
 }// namespace Kernel::Firmware::FDT

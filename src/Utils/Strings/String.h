@@ -46,9 +46,11 @@ namespace Utils::Strings {
     bool operator!=(const char* other) const { return !equals(other); }
     bool operator!=(const StringView& other) const { return !(*this == other); }
     char operator[](int index) const { return m_value->value()[index]; };
-    bool starts_with(const String& other) const;
+    [[nodiscard]] bool starts_with(const String& other) const;
 
-    ArrayList<String> split(const String& separator) const;
+    [[nodiscard]] ArrayList<String> split(const String& separator) const;
+
+    [[nodiscard]] size_t to_uint(size_t base = 10) const;
 
     static String repeat(const char* string, size_t count);
     [[nodiscard]] String repeat(size_t count) const;

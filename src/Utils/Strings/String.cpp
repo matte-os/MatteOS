@@ -1,19 +1,16 @@
-#include "Utils/Arrays/ArrayList.h"
+#include <Utils/Arrays/ArrayList.h>
+#include <Utils/Basic.h>
 #include <Utils/Strings/String.h>
 
 namespace Utils::Strings {
-  String::String(const char* value) {
-    this->m_value = StringValue::create(value, calculate_size(value));
-  }
+  String::String(const char* value) : m_value(StringValue::create(value, calculate_size(value))) {}
 
   u64 String::calculate_size(const char* cstring) {
     u64 i = 0;
     while(*(cstring + i) != '\0') i++;
     return i;
   }
-  String::String(const char* src, size_t length) {
-    this->m_value = StringValue::create(src, length);
-  }
+  String::String(const char* src, size_t length) : m_value(StringValue::create(src, length)) {}
   String& String::operator=(const String& other) {
     if(this == &other) return *this;
     m_value = StringValue::create(other.m_value->value(), other.m_value->length());
@@ -53,12 +50,13 @@ namespace Utils::Strings {
   String String::repeat(const char* string, size_t count) {
     if(count == 0) return {};
 
-    size_t length = calculate_size(string) * count;
+    size_t string_length = calculate_size(string);
+    size_t length = string_length * count;
     char* buffer = new char[length + 1];
 
     for(size_t i = 0; i < count; i++) {
-      for(size_t j = 0; j < length; j++) {
-        buffer[i * length + j] = string[j];
+      for(size_t j = 0; j < string_length; j++) {
+        buffer[i * string_length + j] = string[j];
       }
     }
     buffer[length] = '\0';
@@ -93,6 +91,7 @@ namespace Utils::Strings {
     if(last_index < m_value->length()) {
       result.add(String(m_value->value() + last_index, m_value->length() - last_index));
     }
+
     return result;
   }
   bool String::starts_with(const String& other) const {
@@ -101,6 +100,9 @@ namespace Utils::Strings {
       if(m_value->value()[i] != other[i]) return false;
     }
     return true;
+  }
+  size_t String::to_uint(size_t base) const {
+    return atoi(m_value->value(), base);
   }
   char to_lower(char c) {
     if(c >= 'A' && c <= 'Z') return c + 32;

@@ -2,6 +2,7 @@
 // Created by matejbucek on 31.8.22.
 //
 
+#include <Kernel/Satp.h>
 #include <Kernel/Memory/MemoryManager.h>
 #include <Utils/Basic.h>
 
@@ -168,5 +169,10 @@ namespace Kernel::Memory {
       virtual_memory_address += 1 << 12;
       physical_memory_address += 1 << 12;
     }
+  }
+  PageTable* MemoryManager::get_current_root_page_table() {
+    SATP satp{};
+    asm volatile("csrr %0, satp" : "=r"(satp));
+    return reinterpret_cast<PageTable*>(satp.ppn << 12);
   }
 }// namespace Kernel::Memory

@@ -2,12 +2,17 @@
 // Created by matejbucek on 1.9.22.
 //
 
+#include <Kernel/System/DeviceManager.h>
 #include <Kernel/CPU.h>
 #include <Kernel/Process/ProcessManager.h>
 #include <Kernel/Sbi/sbi.h>
 #include <Kernel/System/System.h>
 #include <Kernel/System/Trap.h>
 #include <Utils/DebugConsole.h>
+#include <Kernel/Memory/MemoryManager.h>
+
+using Kernel::Memory::MemoryManager;
+using Kernel::Memory::EntryBits;
 
 extern "C" void m_trap_vector();
 extern "C" void switch_to_user(TrapFrame* trap_frame);
@@ -47,6 +52,8 @@ namespace Kernel::System {
       m_fdt_parser = new FDTParser();
       m_fdt_parser->parse(header);
 
+
+
       auto result = m_fdt_parser->find_node(String("/memory"));
       if(result.has_error()) {
         DebugConsole::println("System: Could not find /memory node in FDT.");
@@ -55,12 +62,23 @@ namespace Kernel::System {
       }
 
       auto virtio_result = m_fdt_parser->find_nodes("/soc/virtio_mmio");
+
       if(virtio_result.has_error()) {
         DebugConsole::println("System: Could not find /soc/virtio_mmio node in FDT.");
       } else {
+        auto virtio_nodes = virtio_result.get_value();
         DebugConsole::println("System: Found /soc/virtio_mmio node in FDT.");
         DebugConsole::print("Found node count: ");
-        DebugConsole::print_ln_number(virtio_result.get_value().size(), 10);
+        DebugConsole::print_ln_number(virtio_nodes.size(), 10);
+
+        //MemoryManager::the().identity_map_range(*MemoryManager::the().get_current_root_page_table(), 0x10001000, 0x10009000,  (u64) EntryBits::READ_WRITE);
+
+        for(size_t i = 0; i < virtio_nodes.size(); i++) {
+          auto node = virtio_nodes[i];
+          auto string_address = node->get_address();
+          auto address = string_address.to_uint(16);
+          auto result = DeviceManager::the().try_to_load_mmio_device(address);
+        }
       }
     }
   }

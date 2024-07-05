@@ -13,6 +13,7 @@ set(SOURCE
         Memory/PageTable.cpp
         Memory/PageTableEntry.cpp
         Uart.cpp
+        System/DeviceManager.cpp
         System/Trap.cpp
         System/Plic.cpp
         System/System.cpp

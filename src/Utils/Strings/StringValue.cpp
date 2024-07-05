@@ -19,12 +19,14 @@ namespace Utils::Strings {
     return *s_empty_string;
   }
 
-  RefPtr<StringValue> StringValue::create(const char* cstring, size_t t_length) {
+  RefPtr<StringValue> StringValue::create(const char* cstring, size_t length) {
     auto* ptr = new StringValue;
-    ptr->m_value = new char[t_length + 1];
-    memcpy(ptr->m_value, cstring, t_length);
-    ptr->m_value[t_length] = '\0';
-    ptr->m_length = t_length;
+    ptr->m_value = new char[length + 1];
+    if(length != 0) {
+      memcpy(ptr->m_value, cstring, length);
+    }
+    ptr->m_value[length] = '\0';
+    ptr->m_length = length;
     return RefPtr<StringValue>(ptr);
   }
 
