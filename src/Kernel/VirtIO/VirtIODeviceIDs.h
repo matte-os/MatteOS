@@ -23,4 +23,6 @@ namespace Kernel {
 
   static constexpr size_t PCIEVendorID = 0x1af4;
   static constexpr size_t PCIEDeviceID = 0x1040;
+
+  VirtIODeviceIDs get_device_type(u32 device_id);
 }// namespace Kernel

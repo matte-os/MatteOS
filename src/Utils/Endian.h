@@ -34,6 +34,17 @@ namespace Utils {
         return value;
       }
     }
+
+    Endian<T, E>& operator=(T val) {
+      if(E == Endianness::Big && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__) {
+        value = swap_endian(val);
+      } else if(E == Endianness::Little && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__) {
+        value = swap_endian(val);
+      } else {
+        value = val;
+      }
+      return *this;
+    }
   };
 
   template<typename T, typename OffsetType, Endianness E, uintptr_t From>

@@ -14,6 +14,7 @@ set(SOURCE
         Memory/PageTableEntry.cpp
         Uart.cpp
         System/DeviceManager.cpp
+        System/DriverManager.cpp
         System/Trap.cpp
         System/Plic.cpp
         System/System.cpp
@@ -24,6 +25,8 @@ set(SOURCE
         Process/Scheduler.cpp
         Sbi/sbi.cpp
         Firmware/FDT/FDTParser.cpp
+        VirtIO/VirtIODeviceIDs.cpp
+        VirtIO/VirtQueue.cpp
 )
 
 include_directories(${SOURCE_DIRECTORY})

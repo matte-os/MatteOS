@@ -6,6 +6,7 @@
  */
 
 #pragma once
+#include <Utils/Function.h>
 #include <Kernel/Memory/MemoryRegion.h>
 #include <Utils/DebugConsole.h>
 #include <Utils/Memory.h>
@@ -57,7 +58,6 @@ namespace Utils {
      * @brief Destroys the ArrayList object.
      */
     ~ArrayList() {
-      DebugConsole::println("ArrayList destroyed!");
       for(size_t i = 0; i < m_ptr; i++) {
         m_array[i].~T();
       }

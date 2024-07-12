@@ -2,15 +2,17 @@
 // Created by matejbucek on 4.7.24.
 //
 
-#include <Kernel/VirtIO/MMIODevice.h>
-#include <Kernel/System/DeviceManager.h>
 #include <Kernel/Memory/MemoryManager.h>
+#include <Kernel/System/DeviceManager.h>
+#include <Kernel/VirtIO/MMIODevice.h>
+#include <Kernel/VirtIO/VirtIODeviceIDs.h>
 #include <Utils/DebugConsole.h>
 
 namespace Kernel {
-  using Utils::DebugConsole;
+  using Kernel::get_device_type;
   using Kernel::Memory::EntryBits;
   using Kernel::Memory::MemoryManager;
+  using Utils::DebugConsole;
 
   static DeviceManager* g_device_manager = nullptr;
 
@@ -38,7 +40,15 @@ namespace Kernel {
     if(mmio_device->get_magic_value() == 0x74726976) {
       DebugConsole::println("DeviceManager: Found VirtIO device.");
       auto virtio_device = RefPtr<UnderlyingDevice>(new VirtIODevice(mmio_device));
-      auto device = RefPtr<Device>(new Device(virtio_device));
+      RefPtr<Device> device;
+      switch(get_device_type(virtio_device->get_device_id())) {
+        case VirtIODeviceIDs::EntropySource:
+          device = RefPtr<Device>(new EntropyDevice(virtio_device));
+          break;
+        default:
+          device = RefPtr<Device>(new Device(virtio_device));
+      }
+      m_devices.add(device);
       return ErrorOr<RefPtr<Device>>::create(move(device));
     } else {
       DebugConsole::println("DeviceManager: Not a VirtIO device.");
