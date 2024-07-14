@@ -11,6 +11,7 @@
 #include <Kernel/Satp.h>
 #include <Kernel/System/DeviceManager.h>
 #include <Kernel/System/System.h>
+#include <Kernel/System/Timer.h>
 #include <Utils/DebugConsole.h>
 #include <Utils/Strings/String.h>
 
@@ -18,6 +19,7 @@ using Kernel::CPU;
 using Kernel::DeviceManager;
 using Kernel::SATP;
 using Kernel::SatpMode;
+using Kernel::Timer;
 using Kernel::TrapFrame;
 using Kernel::Memory::EntryBits;
 using Kernel::Memory::KernelMemoryAllocator;
@@ -29,8 +31,8 @@ using Kernel::Memory::PhysicalAddress;
 using Kernel::Memory::VirtualAddress;
 using Kernel::Process::ProcessManager;
 using Kernel::Process::Scheduler;
-using Kernel::System::System;
 using Utils::DebugConsole;
+using Utils::ErrorOr;
 using Utils::Strings::String;
 
 extern "C" {
@@ -74,6 +76,7 @@ extern "C" void kmain([[maybe_unused]] int a0, FDTHeader* header) {
   MemoryManager::the().identity_map_range(*dummy_root, (uintptr_t) &_context_switching_start, (uintptr_t) &_context_switching_end, (u64) Kernel::Memory::EntryBits::READ_EXECUTE);
   system.setup_interrupts();
   system.set_default_trap_vector();
+  Timer::init();
   Scheduler::init();
   DebugConsole::println("Initialization completed");
   //DebugConsole::printf("Testing the printf function: {}\n", 42);

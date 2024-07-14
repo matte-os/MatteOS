@@ -7,8 +7,8 @@
 
 using Kernel::TrapFrame;
 using Kernel::Uart;
-using Kernel::System::Plic;
-using Kernel::System::Timer;
+using Kernel::Plic;
+using Kernel::Timer;
 
 extern "C" size_t trap_vector(
         u64 sepc,

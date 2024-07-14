@@ -3,17 +3,18 @@
 //
 
 #pragma once
-#include <Kernel/System/TrapFrame.h>
 #include "Process.h"
+#include <Kernel/System/TrapFrame.h>
 
 namespace Kernel::Process {
-    class Scheduler {
-    public:
-        static void init();
-        static Scheduler& the();
-        Process* schedule();
-        [[noreturn]] void start_scheduling();
-    private:
-        Scheduler() = default;
-    };
-} // Kernel
+  class Scheduler {
+  public:
+    static void init();
+    static Scheduler& the();
+    Process* schedule();
+    [[noreturn]] void start_scheduling();
+
+  private:
+    Scheduler() = default;
+  };
+}// namespace Kernel::Process

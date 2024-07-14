@@ -11,7 +11,7 @@
 #include <Utils/Strings/String.h>
 #include <Utils/Utility.h>
 
-namespace Utils::Errors {
+namespace Utils {
   using namespace Utils::Strings;
 
 #define PROPAGATE_IF_ERROR(maybe_error) return maybe_error;
@@ -102,7 +102,7 @@ namespace Utils::Errors {
     using ResultType = Empty;
     using ErrorType = Error;
 
-    explicit ErrorOr(const ErrorOr<Empty, Error>& other) : ErrorOr<Empty>() {
+    ErrorOr(const ErrorOr<Empty, Error>& other) : ErrorOr<Empty>() {
       if(other.has_error()) {
         m_value_or_error.template set<ErrorType>(other.get_error());
       } else {
@@ -111,4 +111,4 @@ namespace Utils::Errors {
     }
   };
 
-}// namespace Utils::Errors
+}// namespace Utils

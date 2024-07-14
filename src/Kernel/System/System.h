@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <Kernel/Firmware/FDT/FDTParser.h>
 #include <Kernel/Firmware/FDT/fdt.h>
 #include <Kernel/Memory/MemoryRegion.h>
 #include <Kernel/Sbi/sbi.h>
@@ -11,14 +12,13 @@
 #include <Utils/Arrays/ArrayList.h>
 #include <Utils/Pointers/RefPtr.h>
 #include <Utils/Types.h>
-#include <Kernel/Firmware/FDT/FDTParser.h>
 
+using Kernel::Firmware::FDT::FDTParser;
 using Kernel::Memory::MemoryRegion;
 using Utils::ArrayList;
 using Utils::Pointers::RefPtr;
-using Kernel::Firmware::FDT::FDTParser;
 
-namespace Kernel::System {
+namespace Kernel {
   struct SStatus {
     u64 wpri1 : 1;
     u64 sie   : 1;
@@ -71,4 +71,4 @@ namespace Kernel::System {
     void set_trap_vector(void (*trap_vector)());
   };
 
-}// namespace Kernel::System
+}// namespace Kernel

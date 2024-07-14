@@ -6,9 +6,10 @@
 
 #include <Utils/Types.h>
 
-namespace Kernel::System {
+namespace Kernel {
   class Timer {
   public:
+    static constexpr size_t DEFAULT_PROCESS_TIME = 1000;
     static void init();
     static Timer& the();
 

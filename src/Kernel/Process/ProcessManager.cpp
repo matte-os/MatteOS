@@ -13,7 +13,7 @@
 
 namespace Kernel::Process {
   using Memory::MemoryManager;
-  using System::System;
+  using Kernel::System;
   using Utils::Array;
   static ProcessManager* s_process_manager;
 

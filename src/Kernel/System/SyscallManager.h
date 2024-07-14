@@ -12,7 +12,7 @@
 
 using Kernel::Process::Process;
 
-namespace Kernel::System {
+namespace Kernel {
   /**
    * @brief SyscallManager is a singleton class that manages syscalls.
    */

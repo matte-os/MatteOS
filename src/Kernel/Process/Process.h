@@ -19,7 +19,7 @@
 using Kernel::Memory::MemoryManager;
 using Kernel::Memory::MemoryRegion;
 using Kernel::Memory::PageTable;
-using Kernel::System::System;
+using Kernel::System;
 using Utils::Array;
 using Utils::Pointers::RefPtr;
 

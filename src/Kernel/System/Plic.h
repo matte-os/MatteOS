@@ -5,7 +5,7 @@
 
 using Utils::Optional;
 
-namespace Kernel::System {
+namespace Kernel {
     class Plic{
     private:
         size_t PLIC_PRIORITY;

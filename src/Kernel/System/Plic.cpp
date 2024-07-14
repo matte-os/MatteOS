@@ -1,7 +1,7 @@
 #include <Kernel/System/Plic.h>
 #include <Utils/DebugConsole.h>
 
-namespace Kernel::System {
+namespace Kernel {
   static Plic* s_plic;
 
   Plic& Plic::the() {

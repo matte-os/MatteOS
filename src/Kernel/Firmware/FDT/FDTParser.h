@@ -7,7 +7,7 @@
 
 using Utils::ArrayList;
 using Utils::DebugConsole;
-using Utils::Errors::ErrorOr;
+using Utils::ErrorOr;
 using Utils::move;
 
 namespace Kernel::Firmware::FDT {

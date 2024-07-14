@@ -24,6 +24,10 @@ set(SOURCE
         Process/ProcessManager.cpp
         Process/Scheduler.cpp
         Sbi/sbi.cpp
+        FileSystem/VirtualFileSystem.cpp
+        FileSystem/FileSystem.cpp
+        FileSystem/Inode.cpp
+        FileSystem/File.cpp
         Firmware/FDT/FDTParser.cpp
         VirtIO/VirtIODeviceIDs.cpp
         VirtIO/VirtQueue.cpp

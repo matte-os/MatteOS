@@ -20,7 +20,7 @@ extern "C" void switch_to_user(TrapFrame* trap_frame);
 
 #define MY_OFFSETOF(type, member) ((size_t) (&((type*) 0)->member))
 
-namespace Kernel::System {
+namespace Kernel {
   static System* s_system;
 
   void System::init() {
@@ -81,6 +81,13 @@ namespace Kernel::System {
             DebugConsole::println("System: Loaded MMIO device.");
             DebugConsole::print("System: The device type is: ");
             DebugConsole::print_ln_number(static_cast<size_t>(result.get_value()->get_device_type()), 10);
+            auto init_or_error = result.get_value()->init();
+            if(init_or_error.has_error()) {
+              DebugConsole::print("System: Could not initialise device. Error: ");
+              DebugConsole::println(init_or_error.get_error().get_message().value());
+            } else {
+              DebugConsole::println("System: Initialised device.");
+            }
           }
         }
       }

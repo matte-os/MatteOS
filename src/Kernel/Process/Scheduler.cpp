@@ -5,6 +5,7 @@
 #include <Kernel/Process/ProcessManager.h>
 #include <Kernel/Process/Scheduler.h>
 #include <Kernel/System/System.h>
+#include <Kernel/System/Timer.h>
 #include <Utils/kmalloc.h>
 
 namespace Kernel::Process {
@@ -44,6 +45,7 @@ namespace Kernel::Process {
   }
 
   void Scheduler::start_scheduling() {
+    //Timer::the().set_timer(Timer::DEFAULT_PROCESS_TIME);
     System::System::the().switch_to_user_mode(schedule()->get_thread()->get_trap_frame());
   }
 

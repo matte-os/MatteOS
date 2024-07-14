@@ -4,7 +4,7 @@
 
 #include <Kernel/System/SyscallManager.h>
 
-namespace Kernel::System {
+namespace Kernel {
   static SyscallManager* g_syscall_manager = nullptr;
   void SyscallManager::init() {
     if(g_syscall_manager == nullptr) {

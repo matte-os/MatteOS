@@ -51,7 +51,6 @@ m_trap_vector:
 
 	# TODO: Save all FP registers
 
-
 	# Save the actual t6 register, which we swapped into
 	# sscratch
 	csrr a0, sscratch
@@ -81,14 +80,13 @@ m_trap_vector:
 	csrr	a4, sstatus
 	call	trap_vector
 
-	# When we get here, we've returned from m_trap, restore registers
-	# and return.
-	# m_trap will return the return address via a0.
+	# trap_vector will return the return address via a0.
 
 	csrw	sepc, a0
 
-	# Now load the trap frame back into t6
-	csrr	t6, sscratch
+	# Restore the userland SATP
+    csrr t5, sscratch
+    csrw satp, t5
 
 	# Restore all GP registers
 	.set	i, 1
@@ -98,7 +96,7 @@ m_trap_vector:
 	.endr
 
 	# Since we ran this loop 31 times starting with i = 1,
-	# the last one loaded t6 back to its original m_value.
+	# the last one loaded t6 back to its original value.
 
 	sret
 

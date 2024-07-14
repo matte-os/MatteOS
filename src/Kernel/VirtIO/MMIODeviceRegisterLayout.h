@@ -26,4 +26,13 @@ namespace Kernel {
     Status = 0x070,
     Config = 0x100,
   };
+
+  enum class StatusField : u32 {
+    Acknowledge = 1 << 0,
+    Driver = 1 << 1,
+    DriverOK = 1 << 2,
+    FeaturesOK = 1 << 3,
+    DeviceNeedsReset = 1 << 6,
+    Failed = 1 << 7,
+  };
 }// namespace Kernel

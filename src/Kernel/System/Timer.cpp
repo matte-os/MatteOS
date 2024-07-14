@@ -5,7 +5,7 @@
 #include <Kernel/Sbi/sbi.h>
 #include <Kernel/System/Timer.h>
 
-namespace Kernel::System {
+namespace Kernel {
   static Timer* g_timer = nullptr;
 
   void Timer::init() {
