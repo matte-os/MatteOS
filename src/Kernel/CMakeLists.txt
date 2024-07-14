@@ -33,7 +33,7 @@ set(SOURCE
         VirtIO/VirtQueue.cpp
 )
 
-include_directories(${SOURCE_DIRECTORY})
+include_directories(SYSTEM ${SOURCE_DIRECTORY})
 add_library(Kernel OBJECT ${SOURCE} ${ASM_SOURCE})
 
 set(CURRENT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})

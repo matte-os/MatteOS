@@ -42,4 +42,14 @@ namespace Utils::Strings {
     ptr->m_length = length;
     return ptr;
   }
+  void StringValue::append(const RefPtr<StringValue>& other) {
+    size_t new_length = m_length + other->length();
+    char* new_value = new char[new_length + 1];
+    memcpy(new_value, m_value, m_length);
+    memcpy(new_value + m_length, other->m_value, other->m_length);
+    new_value[new_length] = '\0';
+    delete[] m_value;
+    m_value = new_value;
+    m_length = new_length;
+  }
 }// namespace Utils::Strings

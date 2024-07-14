@@ -25,7 +25,8 @@ namespace Utils::Strings {
     const char* value() const { return m_value; }
     size_t length() const { return m_length; }
     char operator[](int index) const { return m_value[index]; }
-    ~StringValue();
+    void append(const RefPtr<StringValue>& other);
+    virtual ~StringValue();
 
   protected:
     StringValue() = default;

@@ -4,6 +4,7 @@
 #include <Utils/Pointers/RefPtr.h>
 #include <Utils/Strings/StringValue.h>
 #include <Utils/Utility.h>
+#include <Utils/Arrays/ArrayList.h>
 
 using Utils::DebugConsole;
 using Utils::Pointers::RefPtr;
@@ -30,6 +31,7 @@ namespace Utils::Strings {
     }
     [[nodiscard]] const char* to_cstring() const { return m_value->value(); }
     static u64 calculate_size(const char*);
+    static String from_int(int value);
 
     String& operator=(const String& other);
     String& operator=(String&& other) noexcept;
@@ -46,6 +48,7 @@ namespace Utils::Strings {
     bool operator!=(const char* other) const { return !equals(other); }
     bool operator!=(const StringView& other) const { return !(*this == other); }
     char operator[](int index) const { return m_value->value()[index]; };
+    void operator+=(const String& other);
     [[nodiscard]] bool starts_with(const String& other) const;
 
     [[nodiscard]] ArrayList<String> split(const String& separator) const;
@@ -66,8 +69,8 @@ namespace Utils::Strings {
     size_t m_offset{};
 
   public:
-    explicit StringView(const String& string) : m_value(string.m_value) {}
-    explicit StringView(const char* cstring) : m_value(StringValue::create(cstring, String::calculate_size(cstring))) {}
+    StringView(const String& string) : m_value(string.m_value) {}
+    StringView(const char* cstring) : m_value(StringValue::create(cstring, String::calculate_size(cstring))) {}
     StringView offset(size_t offset) {
       StringView view = *this;
       view.m_offset = offset;

@@ -104,6 +104,15 @@ namespace Utils::Strings {
   size_t String::to_uint(size_t base) const {
     return atoi(m_value->value(), base);
   }
+  void String::operator+=(const String& other) {
+    m_value->append(other.m_value);
+  }
+  String String::from_int(int value) {
+    //FIXME: We should calculate the largest possible number of digits
+    char* buffer = new char[20];
+    itoa(buffer, value, 10);
+    return adopt(buffer);
+  }
   char to_lower(char c) {
     if(c >= 'A' && c <= 'Z') return c + 32;
     return c;
