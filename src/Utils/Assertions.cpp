@@ -1,4 +1,4 @@
-#include <Kernel/CPU.h>
+#include <Kernel/Arch/riscv/CPU.h>
 #include <Utils/Assertions.h>
 #include <Utils/DebugConsole.h>
 

@@ -8,7 +8,7 @@
 #include <Kernel/System/Timer.h>
 #include <Utils/kmalloc.h>
 
-namespace Kernel::Process {
+namespace Kernel {
   static Scheduler* s_scheduler;
 
   void Scheduler::init() {
@@ -41,6 +41,9 @@ namespace Kernel::Process {
       }
     }
     lock.unlock();
+
+    System::get_current_kernel_trap_frame()->current_process = first;
+
     return first;
   }
 
@@ -49,4 +52,4 @@ namespace Kernel::Process {
     System::System::the().switch_to_user_mode(schedule()->get_thread()->get_trap_frame());
   }
 
-}// namespace Kernel::Process
+}// namespace Kernel

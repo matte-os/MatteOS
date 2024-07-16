@@ -1,4 +1,4 @@
-#include <Kernel/System/Plic.h>
+#include <Kernel/Arch/riscv/Interrupts/Plic.h>
 #include <Utils/DebugConsole.h>
 
 namespace Kernel {
@@ -55,4 +55,4 @@ namespace Kernel {
     u32 pendingIds = *pending;
     return actualId & pendingIds != 0;
   }
-};// namespace Kernel::System
+};// namespace Kernel

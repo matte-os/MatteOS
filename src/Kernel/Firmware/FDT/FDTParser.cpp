@@ -5,9 +5,9 @@
 using Kernel::Firmware::FDT::FDTNode;
 using Kernel::Firmware::FDT::FDTProperty;
 using Utils::DebugConsole;
-using Utils::move;
 using Utils::Error;
 using Utils::ErrorOr;
+using Utils::move;
 
 void Kernel::Firmware::FDT::FDTParser::parse_reserve_entries() {
   DebugConsole::println("Parsing reserve entries");

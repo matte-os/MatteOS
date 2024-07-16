@@ -2,18 +2,18 @@
 // Created by matejbucek on 1.9.22.
 //
 
-#include "Kernel/Memory/PageTable.h"
-#include "Kernel/Memory/PageTableEntry.h"
-#include <Kernel/CPU.h>
+#include <Kernel/Arch/riscv/CPU.h>
 #include <Kernel/Memory/MemoryManager.h>
+#include <Kernel/Memory/PageTable.h>
+#include <Kernel/Memory/PageTableEntry.h>
 #include <Kernel/Process/ProcessManager.h>
 #include <Kernel/System/System.h>
 #include <Utils/Arrays/Array.h>
 #include <Utils/kmalloc.h>
 
-namespace Kernel::Process {
-  using Memory::MemoryManager;
+namespace Kernel {
   using Kernel::System;
+  using Memory::MemoryManager;
   using Utils::Array;
   static ProcessManager* s_process_manager;
 
@@ -71,7 +71,7 @@ namespace Kernel::Process {
 
     MemoryManager::the().map(
             *root, ProcessManager::KERNEL_FRAME_ADDRESS,
-            reinterpret_cast<uintptr_t>(m_kernel_process->get_kernel_trap_frames()->get_underlying_array()),
+            reinterpret_cast<uintptr_t>(System::the().get_kernel_trap_frame(0)),
             (size_t) Memory::EntryBits::READ_WRITE, 0);
 
     // Map the stack
@@ -101,4 +101,4 @@ namespace Kernel::Process {
   ProcessManager::~ProcessManager() {
     DebugConsole::println("ProcessManager destroyed");
   }
-}// namespace Kernel::Process
+}// namespace Kernel

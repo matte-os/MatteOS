@@ -12,4 +12,4 @@ namespace Kernel {
   VirtualFileSystem& VirtualFileSystem::the() {
     return *g_instance;
   }
-}
+}// namespace Kernel

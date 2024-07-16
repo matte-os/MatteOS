@@ -2,11 +2,32 @@
 // Created by matejbucek on 31.8.22.
 //
 
-#include <Kernel/Satp.h>
+#include <Kernel/Arch/riscv/Satp.h>
 #include <Kernel/Memory/MemoryManager.h>
 #include <Utils/Basic.h>
 
 namespace Kernel::Memory {
+  extern "C" {
+  char _data_start;
+  char _data_end;
+  char _rodata_start;
+  char _rodata_end;
+  char _text_start;
+  char _text_end;
+  char _bss_start;
+  char _bss_end;
+  char _memory_start;
+  char _memory_end;
+  char _heap_start;
+  char _heap_size;
+  char _stack_start;
+  char _stack_end;
+  char _context_switching_start;
+  char _context_switching_end;
+  char _text_special_start;
+  char _text_special_end;
+  }
+
   static MemoryManager* s_memory_manager;
 
   MemoryManager& MemoryManager::the() {
@@ -17,14 +38,16 @@ namespace Kernel::Memory {
     return s_memory_manager;
   }
 
-  void MemoryManager::init(size_t heapStart, size_t heapSize) {
-    size_t numberOfPages = heapSize / PAGE_SIZE;
-    size_t allocStart = align_value(heapStart + (numberOfPages * sizeof(Page)), PAGE_ORDER);
+  void MemoryManager::init() {
+    DebugConsole::print_ln_number(get_heap_start(), 16);
+    DebugConsole::print_ln_number(get_heap_size(), 16);
+    size_t numberOfPages = get_heap_size() / PAGE_SIZE;
+    size_t allocStart = align_value(get_heap_start() + (numberOfPages * sizeof(Page)), PAGE_ORDER);
     //The first page is allocated for the MemoryManager to live.
     s_memory_manager = (MemoryManager*) (allocStart);
-    s_memory_manager->m_heap_start = heapStart;
-    s_memory_manager->m_heap_size = heapSize;
-    s_memory_manager->m_first_page = (Page*) heapStart;
+    s_memory_manager->m_heap_start = get_heap_start();
+    s_memory_manager->m_heap_size = get_heap_size();
+    s_memory_manager->m_first_page = (Page*) get_heap_start();
     s_memory_manager->m_first_page[0].set_status(PageStatus::LAST);
     s_memory_manager->m_number_of_pages = numberOfPages;
     for(size_t i = 1; i < numberOfPages; i++) {
@@ -174,5 +197,96 @@ namespace Kernel::Memory {
     SATP satp{};
     asm volatile("csrr %0, satp" : "=r"(satp));
     return reinterpret_cast<PageTable*>(satp.ppn << 12);
+  }
+
+  void MemoryManager::map_system_defaults(PageTable& root) {
+    DebugConsole::println("MemoryManager: Mapping the heap.");
+    identity_map_range(root, (uintptr_t) (&_heap_start),
+                       ((uintptr_t) ((u64) &_heap_start + (u64) &_heap_size)),
+                       (u64) EntryBits::READ_WRITE);
+    DebugConsole::println("MemoryManager: Mapping the text section.");
+    identity_map_range(root, (uintptr_t) &_text_start,
+                       (uintptr_t) &_text_end, (u64) EntryBits::READ_EXECUTE);
+    DebugConsole::println("MemoryManager: Mapping the rodata section.");
+    identity_map_range(root, (uintptr_t) &_rodata_start,
+                       (uintptr_t) &_rodata_end,
+                       (u64) EntryBits::READ_EXECUTE);
+    DebugConsole::println("MemoryManager: Mapping the data section.");
+    identity_map_range(root, (uintptr_t) &_data_start,
+                       (uintptr_t) &_data_end, (u64) EntryBits::READ_WRITE);
+    DebugConsole::println("MemoryManager: Mapping the bss section.");
+    identity_map_range(root, (uintptr_t) &_bss_start,
+                       (uintptr_t) &_bss_end, (u64) EntryBits::READ_WRITE);
+    DebugConsole::println("MemoryManager: Mapping the stack.");
+    identity_map_range(root, (uintptr_t) &_stack_start,
+                       (uintptr_t) &_stack_end, (u64) EntryBits::READ_WRITE);
+    DebugConsole::println("MemoryManager: Mapping the UART.");
+    map(root, 0x10000000, 0x10000000,
+        (u64) EntryBits::READ_WRITE, 0);
+    DebugConsole::println("MemoryManager: Mapping the CLINT.");
+    identity_map_range(root, 0x02000000, 0x0200ffff,
+                       (u64) EntryBits::READ_WRITE);
+    DebugConsole::println("MemoryManager: Mapping the PLIC.");
+    identity_map_range(root, 0x0c000000, 0x0c002001,
+                       (u64) EntryBits::READ_WRITE);
+    identity_map_range(root, 0x0c200000, 0x0c208001,
+                       (u64) EntryBits::READ_WRITE);
+    identity_map_range(root, (uintptr_t) &_context_switching_start, (uintptr_t) &_context_switching_end, (u64) EntryBits::READ_EXECUTE);
+    identity_map_range(root, (uintptr_t) &_text_special_start, (uintptr_t) &_text_special_end, (u64) EntryBits::READ_EXECUTE);
+  }
+
+  uintptr_t MemoryManager::get_data_start() {
+    return (uintptr_t) &_data_start;
+  }
+  uintptr_t MemoryManager::get_data_end() {
+    return (uintptr_t) &_data_end;
+  }
+  uintptr_t MemoryManager::get_rodata_start() {
+    return (uintptr_t) &_rodata_start;
+  }
+  uintptr_t MemoryManager::get_rodata_end() {
+    return (uintptr_t) &_rodata_end;
+  }
+  uintptr_t MemoryManager::get_text_start() {
+    return (uintptr_t) &_text_start;
+  }
+  uintptr_t MemoryManager::get_text_end() {
+    return (uintptr_t) &_text_end;
+  }
+  uintptr_t MemoryManager::get_bss_start() {
+    return (uintptr_t) &_bss_start;
+  }
+  uintptr_t MemoryManager::get_bss_end() {
+    return (uintptr_t) &_bss_end;
+  }
+  uintptr_t MemoryManager::get_memory_start() {
+    return (uintptr_t) &_memory_start;
+  }
+  uintptr_t MemoryManager::get_memory_end() {
+    return (uintptr_t) &_memory_end;
+  }
+  uintptr_t MemoryManager::get_heap_start() {
+    return (uintptr_t) &_heap_start;
+  }
+  uintptr_t MemoryManager::get_heap_size() {
+    return (uintptr_t) &_heap_size;
+  }
+  uintptr_t MemoryManager::get_stack_start() {
+    return (uintptr_t) &_stack_start;
+  }
+  uintptr_t MemoryManager::get_stack_end() {
+    return (uintptr_t) &_stack_end;
+  }
+  uintptr_t MemoryManager::get_context_switching_start() {
+    return (uintptr_t) &_context_switching_start;
+  }
+  uintptr_t MemoryManager::get_context_switching_end() {
+    return (uintptr_t) &_context_switching_end;
+  }
+  uintptr_t MemoryManager::get_text_special_start() {
+    return (uintptr_t) &_text_special_start;
+  }
+  uintptr_t MemoryManager::get_text_special_end() {
+    return (uintptr_t) &_text_special_end;
   }
 }// namespace Kernel::Memory

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Kernel/Satp.h"
-#include "Utils/Types.h"
+#include <Kernel/Arch/riscv/Satp.h>
+#include <Utils/Types.h>
 
 namespace Kernel {
   struct TrapFrame {
@@ -12,7 +12,5 @@ namespace Kernel {
     u64* trap_stack;
   };
 
-  struct KernelTrapFrame : public TrapFrame {
-    u64 cpu_id;
-  };
+
 };// namespace Kernel

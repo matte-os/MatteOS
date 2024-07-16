@@ -45,15 +45,35 @@ namespace Kernel::Memory {
     public:
         static MemoryManager& the();
         static MemoryManager* ptr();
-        static void init(size_t, size_t);
+        static void init();
+        static uintptr_t get_data_start();
+        static uintptr_t get_data_end();
+        static uintptr_t get_rodata_start();
+        static uintptr_t get_rodata_end();
+        static uintptr_t get_text_start();
+        static uintptr_t get_text_end();
+        static uintptr_t get_bss_start();
+        static uintptr_t get_bss_end();
+        static uintptr_t get_memory_start();
+        static uintptr_t get_memory_end();
+        static uintptr_t get_heap_start();
+        static uintptr_t get_heap_size();
+        static uintptr_t get_stack_start();
+        static uintptr_t get_stack_end();
+        static uintptr_t get_context_switching_start();
+        static uintptr_t get_context_switching_end();
+        static uintptr_t get_text_special_start();
+        static uintptr_t get_text_special_end();
         uintptr_t* alloc(size_t);
         uintptr_t* zalloc(size_t);
         void dealloc(uintptr_t*);
         void identity_map_range(PageTable &root, size_t start, size_t end, u64 bits);
         void map_range(PageTable &root, size_t virtual_start, size_t virtual_end, size_t physical_start, u64 bits);
         void map(PageTable&, VirtualAddress, PhysicalAddress, size_t, int);
+        void map_system_defaults(PageTable& root);
         void debug_output();
         PageTable* get_current_root_page_table();
+
 
         ~MemoryManager();
 

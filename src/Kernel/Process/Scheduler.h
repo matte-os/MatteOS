@@ -6,7 +6,7 @@
 #include "Process.h"
 #include <Kernel/System/TrapFrame.h>
 
-namespace Kernel::Process {
+namespace Kernel {
   class Scheduler {
   public:
     static void init();
@@ -17,4 +17,4 @@ namespace Kernel::Process {
   private:
     Scheduler() = default;
   };
-}// namespace Kernel::Process
+}// namespace Kernel

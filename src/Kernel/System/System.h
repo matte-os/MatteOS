@@ -8,6 +8,7 @@
 #include <Kernel/Firmware/FDT/fdt.h>
 #include <Kernel/Memory/MemoryRegion.h>
 #include <Kernel/Sbi/sbi.h>
+#include <Kernel/System/KernelTrapFrame.h>
 #include <Kernel/System/TrapFrame.h>
 #include <Utils/Arrays/ArrayList.h>
 #include <Utils/Pointers/RefPtr.h>
@@ -19,43 +20,21 @@ using Utils::ArrayList;
 using Utils::Pointers::RefPtr;
 
 namespace Kernel {
-  struct SStatus {
-    u64 wpri1 : 1;
-    u64 sie   : 1;
-    u64 wpri2 : 3;
-    u64 spie  : 1;
-    u64 ube   : 1;
-    u64 wpri3 : 1;
-    u64 spp   : 1;
-    u64 vs    : 2;
-    u64 wpri4 : 2;
-    u64 fs    : 2;
-    u64 xs    : 2;
-    u64 wpri5 : 1;
-    u64 sum   : 1;
-    u64 mxr   : 1;
-    u64 wpri6 : 12;
-    u64 uxl   : 2;
-    u64 wpri7 : 29;
-    u64 sd    : 1;
-  };
-
-  struct Stvec {
-    u64 mode : 2;
-    u64 warl : 62;
-  };
-
   class System {
   private:
     size_t m_number_of_harts;
     RefPtr<ArrayList<MemoryRegion>> m_memory_regions;
     u64* m_mtime;
     FDTParser* m_fdt_parser{};
-
+    ArrayList<KernelTrapFrame*> m_kernel_trap_frames;
+    static const size_t TRAP_VECTOR_ADDRESS = 0x1000;
 
   public:
     static void init();
     static System& the();
+    static KernelTrapFrame* get_current_kernel_trap_frame() { return reinterpret_cast<KernelTrapFrame*>(TRAP_VECTOR_ADDRESS); }
+    KernelTrapFrame* get_kernel_trap_frame(size_t hart_id) { return m_kernel_trap_frames[hart_id]; }
+    [[nodiscard]] RefPtr<ArrayList<MemoryRegion>> get_memory_regions() const { return m_memory_regions; }
     void parse_fdt(FDTHeader* header);
     [[nodiscard]] size_t get_number_of_harts() const;
     [[nodiscard]] u64 get_mtime() const { return *m_mtime; }

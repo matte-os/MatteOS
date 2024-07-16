@@ -4,6 +4,6 @@
 
 #include <Kernel/Process/Process.h>
 
-namespace Kernel::Process {
+namespace Kernel {
 
-}// namespace Kernel::Process
+}// namespace Kernel

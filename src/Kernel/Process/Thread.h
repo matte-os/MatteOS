@@ -7,7 +7,7 @@
 #include <Kernel/System/TrapFrame.h>
 #include <Utils/Types.h>
 
-namespace Kernel::Process {
+namespace Kernel {
     class Thread {
     private:
         TrapFrame* m_trap_frame;

@@ -21,4 +21,4 @@ namespace Kernel {
   void Timer::set_timer(u64 time) {
     SBI::sbi_set_timer(time);
   }
-}// namespace Kernel::System
+}// namespace Kernel

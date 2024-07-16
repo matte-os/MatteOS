@@ -1,6 +1,7 @@
 #define KERNEL 1
 
-#include <Kernel/CPU.h>
+#include <Kernel/Arch/riscv//CPU.h>
+#include <Kernel/Arch/riscv/Satp.h>
 #include <Kernel/Firmware/FDT/fdt.h>
 #include <Kernel/Memory/KernelMemoryAllocator.h>
 #include <Kernel/Memory/MemoryManager.h>
@@ -8,7 +9,6 @@
 #include <Kernel/Memory/PageTableEntry.h>
 #include <Kernel/Process/ProcessManager.h>
 #include <Kernel/Process/Scheduler.h>
-#include <Kernel/Satp.h>
 #include <Kernel/System/DeviceManager.h>
 #include <Kernel/System/System.h>
 #include <Kernel/System/Timer.h>
@@ -17,8 +17,10 @@
 
 using Kernel::CPU;
 using Kernel::DeviceManager;
+using Kernel::ProcessManager;
 using Kernel::SATP;
 using Kernel::SatpMode;
+using Kernel::Scheduler;
 using Kernel::Timer;
 using Kernel::TrapFrame;
 using Kernel::Memory::EntryBits;
@@ -29,32 +31,9 @@ using Kernel::Memory::PageTable;
 using Kernel::Memory::PageTableEntry;
 using Kernel::Memory::PhysicalAddress;
 using Kernel::Memory::VirtualAddress;
-using Kernel::Process::ProcessManager;
-using Kernel::Process::Scheduler;
 using Utils::DebugConsole;
 using Utils::ErrorOr;
 using Utils::Strings::String;
-
-extern "C" {
-char _data_start;
-char _data_end;
-char _rodata_start;
-char _rodata_end;
-char _text_start;
-char _text_end;
-char _bss_start;
-char _bss_end;
-char _memory_start;
-char _memory_end;
-char _heap_start;
-char _heap_size;
-char _stack_start;
-char _stack_end;
-char _context_switching_start;
-char _context_switching_end;
-char _text_special_start;
-char _text_special_end;
-}
 
 PageTable* init_memory();
 void sizeof_test();
@@ -72,8 +51,8 @@ extern "C" void kmain([[maybe_unused]] int a0, FDTHeader* header) {
   system.parse_fdt(header);
   sizeof_test();
   ProcessManager::init(page_table);
-  auto* dummy_root = ProcessManager::the().create_dummy_process(reinterpret_cast<uintptr_t>(&_text_start), reinterpret_cast<uintptr_t>(&_text_end));
-  MemoryManager::the().identity_map_range(*dummy_root, (uintptr_t) &_context_switching_start, (uintptr_t) &_context_switching_end, (u64) Kernel::Memory::EntryBits::READ_EXECUTE);
+  auto* dummy_root = ProcessManager::the().create_dummy_process(MemoryManager::get_text_start(), MemoryManager::get_text_end());
+  MemoryManager::the().identity_map_range(*dummy_root, MemoryManager::get_context_switching_start(), MemoryManager::get_context_switching_end(), (u64) Kernel::Memory::EntryBits::READ_EXECUTE);
   system.setup_interrupts();
   system.set_default_trap_vector();
   Timer::init();
@@ -98,52 +77,18 @@ void sizeof_test() {
 
 PageTable* init_memory() {
   DebugConsole::println("Initializing memory.");
-  MemoryManager::init((uintptr_t) &_heap_start, (uintptr_t) &_heap_size);
-  auto& memoryManager = MemoryManager::the();
-  auto* pageTable = (PageTable*) memoryManager.alloc(1);
-  memoryManager.debug_output();
+  MemoryManager::init();
+  auto* page_table = (PageTable*) MemoryManager::the().alloc(1);
 
-  DebugConsole::println("MemoryManager: Mapping the heap.");
-  memoryManager.identity_map_range(*pageTable, (uintptr_t) (&_heap_start),
-                                   ((uintptr_t) ((u64) &_heap_start + (u64) &_heap_size)),
-                                   (u64) EntryBits::READ_WRITE);
-  DebugConsole::println("MemoryManager: Mapping the text section.");
-  memoryManager.identity_map_range(*pageTable, (uintptr_t) &_text_start,
-                                   (uintptr_t) &_text_end, (u64) EntryBits::READ_EXECUTE);
-  DebugConsole::println("MemoryManager: Mapping the rodata section.");
-  memoryManager.identity_map_range(*pageTable, (uintptr_t) &_rodata_start,
-                                   (uintptr_t) &_rodata_end,
-                                   (u64) EntryBits::READ_EXECUTE);
-  DebugConsole::println("MemoryManager: Mapping the data section.");
-  memoryManager.identity_map_range(*pageTable, (uintptr_t) &_data_start,
-                                   (uintptr_t) &_data_end, (u64) EntryBits::READ_WRITE);
-  DebugConsole::println("MemoryManager: Mapping the bss section.");
-  memoryManager.identity_map_range(*pageTable, (uintptr_t) &_bss_start,
-                                   (uintptr_t) &_bss_end, (u64) EntryBits::READ_WRITE);
-  DebugConsole::println("MemoryManager: Mapping the stack.");
-  memoryManager.identity_map_range(*pageTable, (uintptr_t) &_stack_start,
-                                   (uintptr_t) &_stack_end, (u64) EntryBits::READ_WRITE);
-  DebugConsole::println("MemoryManager: Mapping the UART.");
-  memoryManager.map(*pageTable, 0x10000000, 0x10000000,
-                    (u64) EntryBits::READ_WRITE, 0);
-  DebugConsole::println("MemoryManager: Mapping the CLINT.");
-  memoryManager.identity_map_range(*pageTable, 0x02000000, 0x0200ffff,
-                                   (u64) EntryBits::READ_WRITE);
-  DebugConsole::println("MemoryManager: Mapping the PLIC.");
-  memoryManager.identity_map_range(*pageTable, 0x0c000000, 0x0c002001,
-                                   (u64) EntryBits::READ_WRITE);
-  memoryManager.identity_map_range(*pageTable, 0x0c200000, 0x0c208001,
-                                   (u64) EntryBits::READ_WRITE);
-  memoryManager.identity_map_range(*pageTable, (uintptr_t) &_context_switching_start, (uintptr_t) &_context_switching_end, (u64) EntryBits::READ_EXECUTE);
-  memoryManager.identity_map_range(*pageTable, (uintptr_t) &_text_special_start, (uintptr_t) &_text_special_end, (u64) EntryBits::READ_EXECUTE);
+  MemoryManager::the().map_system_defaults(*page_table);
 
   DebugConsole::println("MemoryManager: Initial mapping done.");
-  KernelMemoryAllocator::init(memoryManager.zalloc(1));
+  KernelMemoryAllocator::init(MemoryManager::the().zalloc(1));
 
   DebugConsole::println("System: Setting up SATP.");
   auto satp =
-          Kernel::CPU::build_satp(Kernel::SatpMode::Sv39, 0, (uintptr_t) pageTable);
+          Kernel::CPU::build_satp(Kernel::SatpMode::Sv39, 0, (uintptr_t) page_table);
   DebugConsole::println("System: Writing SATP.");
   CPU::write_satp(*(u64*) &satp);
-  return pageTable;
+  return page_table;
 }

@@ -12,3 +12,4 @@ _start:
     bgeu	a2, a3, 2f
     2:
     j kmain
+

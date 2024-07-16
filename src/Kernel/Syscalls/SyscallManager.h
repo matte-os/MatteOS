@@ -8,9 +8,13 @@
 #pragma once
 
 #include <Kernel/Process/Process.h>
+#include <Utils/Strings/String.h>
 #include <Utils/Types.h>
+#include <Utils/Function.h>
 
-using Kernel::Process::Process;
+using Kernel::Process;
+using Utils::Strings::String;
+using Utils::Function;
 
 namespace Kernel {
   /**
@@ -20,6 +24,6 @@ namespace Kernel {
   public:
     static void init();
     static SyscallManager& the();
-    void handle_syscall(Process::Process* process, u64 syscall_id);
+    void handle_syscall(Process* process, u64 syscall_id);
   };
 }// namespace Kernel::System

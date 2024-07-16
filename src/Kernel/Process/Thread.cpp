@@ -4,6 +4,6 @@
 
 #include <Kernel/Process/Thread.h>
 
-namespace Kernel::Process {
+namespace Kernel {
 
 }

@@ -5,7 +5,7 @@ set(ASM_SOURCE
 )
 set(SOURCE
         Init.cpp
-        CPU.cpp
+        Arch/riscv/CPU.cpp
         Memory/MemoryManager.cpp
         Memory/KernelMemoryAllocator.cpp
         Memory/MemoryRegion.cpp
@@ -13,12 +13,13 @@ set(SOURCE
         Memory/PageTable.cpp
         Memory/PageTableEntry.cpp
         Uart.cpp
+        Syscalls/SyscallManager.cpp
+        Syscalls/SyscallOpen.cpp
         System/DeviceManager.cpp
         System/DriverManager.cpp
         System/Trap.cpp
-        System/Plic.cpp
+        Arch/riscv/Interrupts/Plic.cpp
         System/System.cpp
-        System/SyscallManager.cpp
         System/Timer.cpp
         Process/Process.cpp
         Process/ProcessManager.cpp

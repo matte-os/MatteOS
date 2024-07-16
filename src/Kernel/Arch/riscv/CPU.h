@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kernel/Satp.h>
+#include <Kernel/Arch/riscv/Satp.h>
 #include <Kernel/System/TrapFrame.h>
 #include <Utils/Types.h>
 

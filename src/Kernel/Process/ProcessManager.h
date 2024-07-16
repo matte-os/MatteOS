@@ -11,7 +11,7 @@
 using Utils::LinkedQueue;
 using Utils::Locks::SpinLock;
 
-namespace Kernel::Process {
+namespace Kernel {
 class ProcessManager {
 private:
   static const size_t START_ADDRESS = 0x20000000;
@@ -40,4 +40,4 @@ private:
   Thread *initialize_thread(uintptr_t program_counter, SATP satp,
                             size_t hart_id);
 };
-} // namespace Kernel::Process
+} // namespace Kernel

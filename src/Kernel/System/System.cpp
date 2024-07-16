@@ -2,17 +2,16 @@
 // Created by matejbucek on 1.9.22.
 //
 
-#include <Kernel/VirtIO/VirtIODeviceIDs.h>
-#include <Kernel/CPU.h>
+#include <Kernel/Arch/riscv/CPU.h>
 #include <Kernel/Memory/MemoryManager.h>
 #include <Kernel/Process/ProcessManager.h>
 #include <Kernel/Sbi/sbi.h>
 #include <Kernel/System/DeviceManager.h>
 #include <Kernel/System/System.h>
 #include <Kernel/System/Trap.h>
+#include <Kernel/VirtIO/VirtIODeviceIDs.h>
 #include <Utils/DebugConsole.h>
 
-using Kernel::Memory::EntryBits;
 using Kernel::Memory::EntryBits;
 
 extern "C" void m_trap_vector();
@@ -37,6 +36,23 @@ namespace Kernel {
     init_harts();
     m_mtime = (u64*) 0x0200BFF8;
     //Utils::DebugConsole::println("System: Initialised.");
+
+    m_kernel_trap_frames = ArrayList<KernelTrapFrame*>();
+    for(size_t i = 0; i < m_number_of_harts; i++) {
+      auto* kernel_trap_frame = reinterpret_cast<KernelTrapFrame*>(MemoryManager::the().zalloc(1));
+      kernel_trap_frame->cpu_id = i;
+      kernel_trap_frame->regs[2] = reinterpret_cast<u64>(MemoryManager::the().zalloc(1));
+      if(i == 0) {
+        MemoryManager::the().map_range(*MemoryManager::the().get_current_root_page_table(), TRAP_VECTOR_ADDRESS, TRAP_VECTOR_ADDRESS + 0x1000, reinterpret_cast<uintptr_t>(kernel_trap_frame), static_cast<u64>(EntryBits::READ_WRITE));
+        kernel_trap_frame->satp = CPU::read_satp();
+      } else {
+        auto* root_page_table = reinterpret_cast<PageTable*>(MemoryManager::the().zalloc(1));
+        MemoryManager::the().map_system_defaults(*root_page_table);
+        MemoryManager::the().map_range(*root_page_table, TRAP_VECTOR_ADDRESS, TRAP_VECTOR_ADDRESS + 0x1000, reinterpret_cast<uintptr_t>(kernel_trap_frame), static_cast<u64>(EntryBits::READ_WRITE));
+        kernel_trap_frame->satp = CPU::build_satp(SatpMode::Sv39, 0, reinterpret_cast<uintptr_t>(root_page_table));
+      }
+      m_kernel_trap_frames.add(kernel_trap_frame);
+    }
   }
 
   void System::parse_fdt(FDTHeader* header) {
@@ -135,4 +151,4 @@ namespace Kernel {
     DebugConsole::print_ln_number(frame_to_apply->program_counter, 16);
     switch_to_user(frame_to_apply);
   }
-}// namespace Kernel::System
+}// namespace Kernel

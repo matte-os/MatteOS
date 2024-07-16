@@ -102,6 +102,7 @@ description = "Build the image"
 [targets.disk]
 action = """
 qemu-img create -f raw build/dist/riscv/disk.img 1G
+mkfs.fat -F 32 build/dist/riscv/disk.img
 """
 description = "Create a 1G disk image"
 

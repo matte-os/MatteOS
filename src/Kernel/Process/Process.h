@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Kernel/CPU.h>
+#include <Kernel/Arch/riscv/CPU.h>
 #include <Kernel/Memory/MemoryManager.h>
 #include <Kernel/Memory/MemoryRegion.h>
 #include <Kernel/Memory/PageTable.h>
@@ -23,7 +23,7 @@ using Kernel::System;
 using Utils::Array;
 using Utils::Pointers::RefPtr;
 
-namespace Kernel::Process {
+namespace Kernel {
   enum class ProcessState : u8 {
     Running,
     Sleeping,
@@ -54,25 +54,12 @@ namespace Kernel::Process {
   };
 
   class KernelProcess : public Process {
-  protected:
-    Array<KernelTrapFrame>* m_kernel_trap_frames;
-
   public:
     explicit KernelProcess(size_t pid,
                            PageTable* page_table,
                            ProcessState state) : Process(pid, nullptr, page_table, state) {
-      auto number_of_harts = System::System::the().get_number_of_harts();
-      auto number_of_pages = MemoryManager::PAGE_SIZE / sizeof(KernelTrapFrame);
-      m_kernel_trap_frames = new Array<KernelTrapFrame>(number_of_harts, reinterpret_cast<KernelTrapFrame*>(MemoryManager::the().zalloc(number_of_pages)));
-      auto& this_threads_frame = m_kernel_trap_frames->get(0);
-      this_threads_frame.cpu_id = 0;
-      this_threads_frame.satp = CPU::build_satp(SatpMode::Sv39, 0, reinterpret_cast<uintptr_t>(page_table));
-      this_threads_frame.regs[2] = reinterpret_cast<u64>(MemoryManager::the().zalloc(1));
     }
 
-    [[nodiscard]] auto get_kernel_trap_frames() const {
-      return m_kernel_trap_frames;
-    }
   };
 
-}// namespace Kernel::Process
+}// namespace Kernel

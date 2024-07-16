@@ -1,14 +1,18 @@
-#include <Kernel/System/Plic.h>
-#include <Kernel/System/SyscallManager.h>
+#include <Kernel/Arch/riscv/CSR.h>
+#include <Kernel/Arch/riscv/Interrupts/Plic.h>
+#include <Kernel/Process/ProcessManager.h>
+#include <Kernel/Syscalls/SyscallManager.h>
 #include <Kernel/System/Timer.h>
 #include <Kernel/System/Trap.h>
 #include <Kernel/Uart.h>
 #include <Utils/DebugConsole.h>
 
+using Kernel::Plic;
+using Kernel::ProcessManager;
+using Kernel::SyscallManager;
+using Kernel::Timer;
 using Kernel::TrapFrame;
 using Kernel::Uart;
-using Kernel::Plic;
-using Kernel::Timer;
 
 extern "C" size_t trap_vector(
         u64 sepc,
@@ -87,6 +91,9 @@ extern "C" size_t trap_vector(
       }
       case 8: {
         Utils::DebugConsole::println("Ecall from User mode!");
+        DebugConsole::print("Current time: ");
+        DebugConsole::print_ln_number(Kernel::RISCV64::CSR::read<Kernel::RISCV64::CSR::Address::TIME>(), 10);
+        SyscallManager::the().handle_syscall(System::get_current_kernel_trap_frame()->current_process, 0);
         returnEpc += 4;
         break;
       }
