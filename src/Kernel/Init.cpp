@@ -49,7 +49,7 @@ extern "C" void kmain([[maybe_unused]] int a0, FDTHeader* header) {
   KernelMemoryAllocator::the().debug();
   auto& system = System::the();
   DebugConsole::println("MemoryManager: Mapping the FDT.");
-  MemoryManager::the().identity_map_range(*page_table, 0x8c000000, 0x8c000000 + *header->totalsize,
+  MemoryManager::the().identity_map_range(*page_table, reinterpret_cast<uintptr_t>(header), reinterpret_cast<uintptr_t>(header) + *header->totalsize,
                                           (u64) EntryBits::READ_WRITE);
   VirtualFileSystem::init();
   DeviceManager::init();
