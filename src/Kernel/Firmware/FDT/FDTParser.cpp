@@ -1,6 +1,6 @@
 #include <Kernel/Firmware/FDT/FDTParser.h>
 #include <Utils/DebugConsole.h>
-#include <Utils/Utility.h>
+#include <Utils/Traits.h>
 
 using Kernel::Firmware::FDT::FDTNode;
 using Kernel::Firmware::FDT::FDTProperty;

@@ -2,7 +2,7 @@
 // Created by matejbucek on 1.9.22.
 //
 
-#include <Kernel/Arch/riscv/CPU.h>
+#include <Kernel/Arch/riscv64/CPU.h>
 #include <Kernel/Memory/MemoryManager.h>
 #include <Kernel/Memory/PageTable.h>
 #include <Kernel/Memory/PageTableEntry.h>

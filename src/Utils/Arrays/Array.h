@@ -40,6 +40,41 @@ namespace Utils {
             m_array = array;
         }
 
+        Array(const Array<T>& other) : m_size(other.m_size) {
+            m_array = new T[m_size];
+            for(size_t i = 0; i < m_size; i++) {
+                m_array[i] = other.m_array[i];
+            }
+        }
+
+        Array(Array<T>&& other) noexcept : m_size(other.m_size), m_array(other.m_array) {
+            other.m_array = nullptr;
+            other.m_size = 0;
+        }
+
+        Array<T>& operator=(const Array<T>& other) {
+            if(this != &other) {
+                m_size = other.m_size;
+                delete[] m_array;
+                m_array = new T[m_size];
+                for(size_t i = 0; i < m_size; i++) {
+                    m_array[i] = other.m_array[i];
+                }
+            }
+            return *this;
+        }
+
+        Array<T>& operator=(Array<T>&& other) noexcept {
+            if(this != &other) {
+                m_size = other.m_size;
+                delete[] m_array;
+                m_array = other.m_array;
+                other.m_array = nullptr;
+                other.m_size = 0;
+            }
+            return *this;
+        }
+
         /**
          * @brief Destructor
          */
@@ -75,7 +110,9 @@ namespace Utils {
         T* get_underlying_array() {
             return m_array;
         }
-        //T operator[](size_t i) { return get(i); };
+
+        T& operator[](size_t i) { return get(i); };
+
         /**
          * @brief Gets the size of the array
          *

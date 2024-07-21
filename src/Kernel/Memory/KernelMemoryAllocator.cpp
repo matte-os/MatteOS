@@ -4,15 +4,17 @@
 
 #include <Kernel/Memory/KernelMemoryAllocator.h>
 #include <Kernel/Memory/MemoryManager.h>
+#include <Utils/Assertions.h>
 
 namespace Kernel::Memory {
-  static KernelMemoryAllocator* s_kernel_memory_allocator;
+  static KernelMemoryAllocator* s_kernel_memory_allocator = nullptr;
 
   void KernelMemoryAllocator::init(uintptr_t* page) {
     s_kernel_memory_allocator = new(page) KernelMemoryAllocator;
   }
 
   KernelMemoryAllocator& KernelMemoryAllocator::the() {
+    runtime_assert(s_kernel_memory_allocator, "KernelMemoryAllocator not initialized");
     return *s_kernel_memory_allocator;
   }
 

@@ -3,7 +3,7 @@
 #include <Utils/Strings/String.h>
 
 namespace Utils {
-  using Utils::Strings::String;
+  using Utils::String;
   class StringBuilder {
   private:
     static constexpr size_t DEFAULT_CAPACITY = 16;

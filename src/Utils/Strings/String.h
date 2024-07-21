@@ -1,15 +1,15 @@
 #pragma once
 
+#include <Utils/Arrays/ArrayList.h>
 #include <Utils/DebugConsole.h>
 #include <Utils/Pointers/RefPtr.h>
 #include <Utils/Strings/StringValue.h>
-#include <Utils/Utility.h>
-#include <Utils/Arrays/ArrayList.h>
+#include <Utils/Traits.h>
 
 using Utils::DebugConsole;
-using Utils::Pointers::RefPtr;
+using Utils::RefPtr;
 
-namespace Utils::Strings {
+namespace Utils {
   class StringView;
 
   class String {
@@ -96,4 +96,4 @@ namespace Utils::Strings {
   char to_lower(char c);
   char to_upper(char c);
   bool equals(const char* a, const char* b);
-};// namespace Utils::Strings
+};// namespace Utils

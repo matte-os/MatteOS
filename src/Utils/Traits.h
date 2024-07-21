@@ -59,4 +59,17 @@ namespace Utils {
     return static_cast<typename remove_reference<T>::type&&>(value);
   }
 
+  template<typename T, typename U>
+  struct is_same {
+    const bool value = false;
+  };
+
+  template<typename T>
+  struct is_same<T, T> {
+    static const bool value = true;
+  };
+
+  template<typename T, typename U>
+  concept same_as = is_same<T, U>::value;
+
 }// namespace Utils

@@ -8,7 +8,7 @@
 #include <Utils/Strings/StringBuilder.h>
 
 namespace Utils {
-  using Utils::Strings::String;
+  using Utils::String;
 
   struct StandardFormatter {
   };

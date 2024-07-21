@@ -21,7 +21,7 @@ namespace Utils {
    * @tparam T Type of the elements in the array.
    */
   template<typename T>
-  class ArrayList : public Pointers::RefCounted<ArrayList<T>> {
+  class ArrayList : public RefCounted<ArrayList<T>> {
   private:
     static const size_t DEFAULT_SIZE = 8;//!< Default size of the array.
     T* m_array;                          //!< Pointer to the array.

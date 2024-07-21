@@ -1,4 +1,4 @@
-#include <Kernel/Arch/riscv/CPU.h>
+#include <Kernel/Arch/riscv64/CPU.h>
 
 namespace Kernel {
   TrapFrame CPU::KERNEL_TRAP_FRAME[8] = {};

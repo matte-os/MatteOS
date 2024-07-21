@@ -1,11 +1,14 @@
 set(ASM_SOURCE
-        Arch/riscv/boot.S
-        Arch/riscv/mem.S
-        Arch/riscv/trap.S
+        Arch/riscv64/boot.S
+        Arch/riscv64/mem.S
+        Arch/riscv64/trap.S
 )
 set(SOURCE
         Init.cpp
-        Arch/riscv/CPU.cpp
+        Arch/riscv64/CPU.cpp
+        Console/Console.cpp
+        FileSystem/DEVFS/DevFileSystem.cpp
+        FileSystem/DEVFS/DevInode.cpp
         Memory/MemoryManager.cpp
         Memory/KernelMemoryAllocator.cpp
         Memory/MemoryRegion.cpp
@@ -18,7 +21,7 @@ set(SOURCE
         System/DeviceManager.cpp
         System/DriverManager.cpp
         System/Trap.cpp
-        Arch/riscv/Interrupts/Plic.cpp
+        Arch/riscv64/Interrupts/Plic.cpp
         System/System.cpp
         System/Timer.cpp
         Process/Process.cpp

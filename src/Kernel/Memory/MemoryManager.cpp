@@ -2,8 +2,9 @@
 // Created by matejbucek on 31.8.22.
 //
 
-#include <Kernel/Arch/riscv/Satp.h>
+#include <Kernel/Arch/riscv64/Satp.h>
 #include <Kernel/Memory/MemoryManager.h>
+#include <Utils/Assertions.h>
 #include <Utils/Basic.h>
 
 namespace Kernel::Memory {
@@ -28,9 +29,10 @@ namespace Kernel::Memory {
   char _text_special_end;
   }
 
-  static MemoryManager* s_memory_manager;
+  static MemoryManager* s_memory_manager = nullptr;
 
   MemoryManager& MemoryManager::the() {
+    runtime_assert(s_memory_manager, "MemoryManager is not initialized!");
     return *s_memory_manager;
   }
 

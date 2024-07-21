@@ -4,18 +4,20 @@
 
 #include <Kernel/Sbi/sbi.h>
 #include <Kernel/System/Timer.h>
+#include <Utils/Assertions.h>
 
 namespace Kernel {
-  static Timer* g_timer = nullptr;
+  static Timer* s_timer = nullptr;
 
   void Timer::init() {
-    if(g_timer == nullptr) {
-      g_timer = new Timer();
+    if(s_timer == nullptr) {
+      s_timer = new Timer();
     }
   }
 
   Timer& Timer::the() {
-    return *g_timer;
+    runtime_assert(s_timer, "Timer is not initialized");
+    return *s_timer;
   }
 
   void Timer::set_timer(u64 time) {

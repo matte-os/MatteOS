@@ -9,10 +9,10 @@
 #include <Utils/Types.h>
 #include <Utils/DebugConsole.h>
 
-using Utils::Pointers::RefPtr;
+using Utils::RefPtr;
 using Utils::DebugConsole;
 
-namespace Utils::Strings {
+namespace Utils {
   class StringValue : public RefCounted<StringValue> {
   private:
     char* m_value{};
@@ -31,4 +31,4 @@ namespace Utils::Strings {
   protected:
     StringValue() = default;
   };
-}// namespace Utils::Strings
+}// namespace Utils

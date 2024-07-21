@@ -3,21 +3,23 @@
 //
 
 #include <Kernel/System/DriverManager.h>
+#include <Utils/Assertions.h>
 #include <Utils/DebugConsole.h>
 using Utils::DebugConsole;
 
 namespace Kernel {
-  DriverManager* g_driver_manager = nullptr;
+  DriverManager* s_driver_manager = nullptr;
 
   void DriverManager::init() {
-    if(g_driver_manager == nullptr) {
-      g_driver_manager = new DriverManager;
+    if(s_driver_manager == nullptr) {
+      s_driver_manager = new DriverManager;
     } else {
       DebugConsole::println("DriverManager: Already initialised.");
     }
   }
 
   DriverManager& Kernel::DriverManager::the() {
-    return *g_driver_manager;
+    runtime_assert(s_driver_manager, "DriverManager: Not initialised.");
+    return *s_driver_manager;
   }
 }// namespace Kernel

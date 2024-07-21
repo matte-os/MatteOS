@@ -9,10 +9,10 @@
 
 #include "Utils/Variant.h"
 #include <Utils/Strings/String.h>
-#include <Utils/Utility.h>
+#include <Utils/Traits.h>
 
 namespace Utils {
-  using namespace Utils::Strings;
+  using namespace Utils;
 
 #define PROPAGATE_IF_ERROR(maybe_error) return maybe_error;
 

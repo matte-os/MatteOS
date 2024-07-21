@@ -1,10 +1,12 @@
-#include <Kernel/Arch/riscv/Interrupts/Plic.h>
+#include <Kernel/Arch/riscv64/Interrupts/Plic.h>
 #include <Utils/DebugConsole.h>
+#include <Utils/Assertions.h>
 
 namespace Kernel {
-  static Plic* s_plic;
+  static Plic* s_plic = nullptr;
 
   Plic& Plic::the() {
+    runtime_assert(s_plic, "Plic not initialized");
     return *s_plic;
   }
 

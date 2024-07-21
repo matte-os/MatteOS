@@ -7,7 +7,7 @@
 #include <Utils/Strings/StringValue.h>
 #include <Utils/kmalloc.h>
 
-namespace Utils::Strings {
+namespace Utils {
 
   static StringValue* s_empty_string = nullptr;
 
@@ -52,4 +52,4 @@ namespace Utils::Strings {
     m_value = new_value;
     m_length = new_length;
   }
-}// namespace Utils::Strings
+}// namespace Utils

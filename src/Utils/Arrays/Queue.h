@@ -5,7 +5,7 @@
 #pragma once
 #include <Utils/Pointers/RefCounted.h>
 
-using Utils::Pointers::RefCounted;
+using Utils::RefCounted;
 namespace Utils {
 
     template<typename T>

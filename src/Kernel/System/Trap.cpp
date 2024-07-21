@@ -1,5 +1,5 @@
-#include <Kernel/Arch/riscv/CSR.h>
-#include <Kernel/Arch/riscv/Interrupts/Plic.h>
+#include <Kernel/Arch/riscv64/CSR.h>
+#include <Kernel/Arch/riscv64/Interrupts/Plic.h>
 #include <Kernel/Process/ProcessManager.h>
 #include <Kernel/Syscalls/SyscallManager.h>
 #include <Kernel/System/Timer.h>

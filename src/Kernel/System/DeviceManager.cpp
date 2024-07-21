@@ -6,6 +6,7 @@
 #include <Kernel/System/DeviceManager.h>
 #include <Kernel/VirtIO/MMIODevice.h>
 #include <Kernel/VirtIO/VirtIODeviceIDs.h>
+#include <Utils/Assertions.h>
 #include <Utils/DebugConsole.h>
 
 namespace Kernel {
@@ -14,18 +15,19 @@ namespace Kernel {
   using Kernel::Memory::MemoryManager;
   using Utils::DebugConsole;
 
-  static DeviceManager* g_device_manager = nullptr;
+  static DeviceManager* s_device_manager = nullptr;
 
   void DeviceManager::init() {
-    if(g_device_manager == nullptr) {
-      g_device_manager = new DeviceManager;
+    if(s_device_manager == nullptr) {
+      s_device_manager = new DeviceManager;
     } else {
       DebugConsole::println("DeviceManager: Already initialised.");
     }
   }
 
   DeviceManager& DeviceManager::the() {
-    return *g_device_manager;
+    runtime_assert(s_device_manager, "DeviceManager is not initialised.");
+    return *s_device_manager;
   }
   ErrorOr<RefPtr<Device>> DeviceManager::try_to_load_mmio_device(uintptr_t address) {
     DebugConsole::print("DeviceManager: Trying to load MMIO device at address ");

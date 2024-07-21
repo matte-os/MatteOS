@@ -17,7 +17,7 @@
 using Kernel::Firmware::FDT::FDTParser;
 using Kernel::Memory::MemoryRegion;
 using Utils::ArrayList;
-using Utils::Pointers::RefPtr;
+using Utils::RefPtr;
 
 namespace Kernel {
   class System {

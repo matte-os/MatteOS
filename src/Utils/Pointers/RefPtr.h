@@ -4,7 +4,7 @@
 
 #pragma once
 
-namespace Utils::Pointers {
+namespace Utils {
   template<typename T>
   class RefPtr {
     T* m_value;
@@ -61,4 +61,4 @@ namespace Utils::Pointers {
   };
   template<typename T>
   RefPtr<T> adopt_ref();
-}// namespace Utils::Pointers
+}// namespace Utils

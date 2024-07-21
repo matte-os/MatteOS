@@ -6,16 +6,20 @@
 #include <Kernel/Process/Scheduler.h>
 #include <Kernel/System/System.h>
 #include <Kernel/System/Timer.h>
+#include <Utils/Assertions.h>
 #include <Utils/kmalloc.h>
 
 namespace Kernel {
-  static Scheduler* s_scheduler;
+  static Scheduler* s_scheduler = nullptr;
 
   void Scheduler::init() {
-    s_scheduler = new Scheduler;
+    if(!s_scheduler) {
+      s_scheduler = new Scheduler;
+    }
   }
 
   Scheduler& Scheduler::the() {
+    runtime_assert(s_scheduler, "Scheduler not initialized.");
     return *s_scheduler;
   }
 

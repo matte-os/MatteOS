@@ -7,11 +7,11 @@
 #include <Utils/Locks/Lock.h>
 
 namespace Utils::Locks {
-    template<typename T, typename L = SpinLock>
+    template<typename T, typename Lock = SpinLock>
     class Locked{
     private:
         T value;
-        L lock;
+        Lock lock;
     public:
         T operator->() {
             lock.use();

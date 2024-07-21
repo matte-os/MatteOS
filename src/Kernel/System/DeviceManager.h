@@ -8,19 +8,19 @@
 #include <Kernel/VirtIO/VirtQueue.h>
 #include <Utils/Arrays/ArrayList.h>
 #include <Utils/Errors/ErrorOr.h>
+#include <Utils/Function.h>
 #include <Utils/Pointers/RefCounted.h>
 #include <Utils/Pointers/RefPtr.h>
+#include <Utils/Traits.h>
 #include <Utils/Types.h>
-#include <Utils/Function.h>
-#include <Utils/Utility.h>
 
 namespace Kernel {
   using Utils::ArrayList;
   using Utils::move;
   using Utils::Error;
   using Utils::ErrorOr;
-  using Utils::Pointers::RefCounted;
-  using Utils::Pointers::RefPtr;
+  using Utils::RefCounted;
+  using Utils::RefPtr;
   using Utils::Function;
 
   enum class UnderlyingDeviceType {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kernel/Arch/riscv/Satp.h>
+#include <Kernel/Arch/riscv64/Satp.h>
 #include <Utils/Types.h>
 
 namespace Kernel {

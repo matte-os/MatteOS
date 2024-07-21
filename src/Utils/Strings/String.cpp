@@ -2,7 +2,7 @@
 #include <Utils/Basic.h>
 #include <Utils/Strings/String.h>
 
-namespace Utils::Strings {
+namespace Utils {
   String::String(const char* value) : m_value(StringValue::create(value, calculate_size(value))) {}
 
   u64 String::calculate_size(const char* cstring) {
@@ -156,4 +156,4 @@ namespace Utils::Strings {
   bool StringView::operator==(const StringView& other) const {
     return equals(other);
   }
-};// namespace Utils::Strings
+};// namespace Utils

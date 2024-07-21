@@ -4,21 +4,11 @@
 
 #pragma once
 
-#include <Utils/Utility.h>
 #include <Utils/DebugConsole.h>
+#include <Utils/Traits.h>
 #include <Utils/Types.h>
 
 namespace Utils {
-  template<typename T, typename U>
-  struct is_same {
-    const bool value = false;
-  };
-
-  template<typename T>
-  struct is_same<T, T> {
-    const bool value = true;
-  };
-
   template<typename T, typename... Types>
   struct VariantHelper {
     static const size_t size = sizeof(T) > VariantHelper<Types...>::size ? sizeof(T) : VariantHelper<Types...>::size;

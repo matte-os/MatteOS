@@ -7,9 +7,9 @@
  */
 #pragma once
 
-#include <Utils/Utility.h>
+#include <Utils/Traits.h>
 
-namespace Utils::Pointers {
+namespace Utils {
   template<typename T>
   class Unique {
   private:
@@ -42,4 +42,4 @@ namespace Utils::Pointers {
     }
   };
 
-}// namespace Utils::Pointers
+}// namespace Utils

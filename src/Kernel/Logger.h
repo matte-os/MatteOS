@@ -2,7 +2,7 @@
 #include <Utils/Strings/String.h>
 
 namespace Kernel {
-using Utils::Strings::StringView;
+using Utils::StringView;
 #ifdef __GNUC__
 #define GET_CLASS_NAME (__PRETTY_FUNCTION__)
 #else

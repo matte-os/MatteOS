@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include <Kernel/Arch/riscv/CPU.h>
+#include <Kernel/API/Syscall.h>
+#include <Kernel/Arch/riscv64/CPU.h>
 #include <Kernel/Memory/MemoryManager.h>
 #include <Kernel/Memory/MemoryRegion.h>
 #include <Kernel/Memory/PageTable.h>
@@ -16,12 +17,12 @@
 #include <Utils/Pointers/RefPtr.h>
 #include <Utils/Types.h>
 
+using Kernel::System;
 using Kernel::Memory::MemoryManager;
 using Kernel::Memory::MemoryRegion;
 using Kernel::Memory::PageTable;
-using Kernel::System;
 using Utils::Array;
-using Utils::Pointers::RefPtr;
+using Utils::RefPtr;
 
 namespace Kernel {
   enum class ProcessState : u8 {
@@ -48,6 +49,10 @@ namespace Kernel {
     virtual ~Process() = default;
     [[nodiscard]] ProcessState get_state() const { return m_state; }
     [[nodiscard]] Thread* get_thread() const { return m_thread; }
+
+    ErrorOr<uintptr_t, SysError> handle_open(u64 syscall_id);
+    ErrorOr<uintptr_t, SysError> handle_close();
+
     void map_memory_region(MemoryRegion&);
     void unmap_memory_region(MemoryRegion&);
     [[nodiscard]] PageTable* get_page_table() const { return m_page_table; }
@@ -59,7 +64,6 @@ namespace Kernel {
                            PageTable* page_table,
                            ProcessState state) : Process(pid, nullptr, page_table, state) {
     }
-
   };
 
 }// namespace Kernel

@@ -2,7 +2,7 @@
 // Created by matejbucek on 1.9.22.
 //
 
-#include <Kernel/Arch/riscv/CPU.h>
+#include <Kernel/Arch/riscv64/CPU.h>
 #include <Kernel/Memory/MemoryManager.h>
 #include <Kernel/Process/ProcessManager.h>
 #include <Kernel/Sbi/sbi.h>
@@ -10,6 +10,7 @@
 #include <Kernel/System/System.h>
 #include <Kernel/System/Trap.h>
 #include <Kernel/VirtIO/VirtIODeviceIDs.h>
+#include <Utils/Assertions.h>
 #include <Utils/DebugConsole.h>
 
 using Kernel::Memory::EntryBits;
@@ -20,13 +21,16 @@ extern "C" void switch_to_user(TrapFrame* trap_frame);
 #define MY_OFFSETOF(type, member) ((size_t) (&((type*) 0)->member))
 
 namespace Kernel {
-  static System* s_system;
+  static System* s_system = nullptr;
 
   void System::init() {
-    s_system = new System;
+    if(!s_system) {
+      s_system = new System;
+    }
   }
 
   System& System::the() {
+    runtime_assert(s_system, "System is not initialized.");
     return *s_system;
   }
 

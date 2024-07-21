@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "Utils/DebugConsole.h"
 namespace Utils::Locks {
   enum class LockState : u8 {
     UNLOCKED = 0,
@@ -17,19 +16,20 @@ namespace Utils::Locks {
 
   public:
     SpinLock() : m_state(LockState::UNLOCKED) {}
+    SpinLock(const SpinLock&) = delete;
+    SpinLock& operator=(const SpinLock&) = delete;
+    SpinLock(SpinLock&&) = delete;
+    SpinLock& operator=(SpinLock&&) = delete;
+
     void unlock() {
-      DebugConsole::println("Is about unlocking!");
-      DebugConsole::print_ln_number((int) m_state, 16);
       asm volatile("amoswap.d.rl zero, zero, (%0)" ::"r"(&m_state));
-      DebugConsole::println("Unlocked");
     }
+
     bool try_lock() {
       LockState st;
       asm volatile("amoswap.d.aq %0, %1, (%2)" : "=r"(m_state) : "r"(1), "r"(this));
       return st == LockState::UNLOCKED;
     }
-    ~SpinLock() {
-      DebugConsole::println("Destroing the lock");
-    }
+    ~SpinLock() = default;
   };
 }// namespace Utils::Locks

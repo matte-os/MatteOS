@@ -1,7 +1,8 @@
 #define KERNEL 1
 
-#include <Kernel/Arch/riscv//CPU.h>
-#include <Kernel/Arch/riscv/Satp.h>
+#include <Kernel/Arch/riscv64//CPU.h>
+#include <Kernel/Arch/riscv64/Satp.h>
+#include <Kernel/FileSystem/VirtualFileSystem.h>
 #include <Kernel/Firmware/FDT/fdt.h>
 #include <Kernel/Memory/KernelMemoryAllocator.h>
 #include <Kernel/Memory/MemoryManager.h>
@@ -9,6 +10,7 @@
 #include <Kernel/Memory/PageTableEntry.h>
 #include <Kernel/Process/ProcessManager.h>
 #include <Kernel/Process/Scheduler.h>
+#include <Kernel/Syscalls/SyscallManager.h>
 #include <Kernel/System/DeviceManager.h>
 #include <Kernel/System/System.h>
 #include <Kernel/System/Timer.h>
@@ -21,8 +23,10 @@ using Kernel::ProcessManager;
 using Kernel::SATP;
 using Kernel::SatpMode;
 using Kernel::Scheduler;
+using Kernel::SyscallManager;
 using Kernel::Timer;
 using Kernel::TrapFrame;
+using Kernel::VirtualFileSystem;
 using Kernel::Memory::EntryBits;
 using Kernel::Memory::KernelMemoryAllocator;
 using Kernel::Memory::MemoryManager;
@@ -33,7 +37,7 @@ using Kernel::Memory::PhysicalAddress;
 using Kernel::Memory::VirtualAddress;
 using Utils::DebugConsole;
 using Utils::ErrorOr;
-using Utils::Strings::String;
+using Utils::String;
 
 PageTable* init_memory();
 void sizeof_test();
@@ -47,6 +51,7 @@ extern "C" void kmain([[maybe_unused]] int a0, FDTHeader* header) {
   DebugConsole::println("MemoryManager: Mapping the FDT.");
   MemoryManager::the().identity_map_range(*page_table, 0x8c000000, 0x8c000000 + *header->totalsize,
                                           (u64) EntryBits::READ_WRITE);
+  VirtualFileSystem::init();
   DeviceManager::init();
   system.parse_fdt(header);
   sizeof_test();
@@ -57,6 +62,7 @@ extern "C" void kmain([[maybe_unused]] int a0, FDTHeader* header) {
   system.set_default_trap_vector();
   Timer::init();
   Scheduler::init();
+  SyscallManager::init();
   DebugConsole::println("Initialization completed");
   //DebugConsole::printf("Testing the printf function: {}\n", 42);
   Scheduler::the().start_scheduling();

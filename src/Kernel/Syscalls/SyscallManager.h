@@ -13,7 +13,7 @@
 #include <Utils/Function.h>
 
 using Kernel::Process;
-using Utils::Strings::String;
+using Utils::String;
 using Utils::Function;
 
 namespace Kernel {

@@ -11,7 +11,7 @@
 using Utils::ArrayList;
 using Utils::Endian;
 using Utils::Endianness;
-using Utils::Strings::String;
+using Utils::String;
 
 struct FDTHeader {
   Endian<u32, Endianness::Big> magic;

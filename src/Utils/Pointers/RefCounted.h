@@ -4,7 +4,7 @@
 
 #pragma once
 
-namespace Utils::Pointers {
+namespace Utils {
     class RefCountedBase{
     public:
         unsigned int mutable m_ref_count = 0;
@@ -34,4 +34,4 @@ namespace Utils::Pointers {
     };
 }
 
-using Utils::Pointers::RefCounted;
+using Utils::RefCounted;

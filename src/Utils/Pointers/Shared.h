@@ -7,9 +7,9 @@
  */
 #pragma once
 
-#include <Utils/Utility.h>
+#include <Utils/Traits.h>
 
-namespace Utils::Pointers {
+namespace Utils {
   template<typename T>
   class Value {
   private:
@@ -75,4 +75,4 @@ namespace Utils::Pointers {
     }
     //static Shared<T> adopt(T*);
   };
-}// namespace Utils::Pointers
+}// namespace Utils
