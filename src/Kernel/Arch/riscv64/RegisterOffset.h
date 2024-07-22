@@ -41,15 +41,16 @@ namespace Kernel {
   }
 
   enum class RegisterOffset : size_t {
-    GP0 = Arch::RISCV64::RegisterOffset::A0,
-    GP1 = Arch::RISCV64::RegisterOffset::A1,
-    GP2 = Arch::RISCV64::RegisterOffset::A2,
-    GP3 = Arch::RISCV64::RegisterOffset::A3,
-    GP4 = Arch::RISCV64::RegisterOffset::A4,
-    GP5 = Arch::RISCV64::RegisterOffset::A5,
-    GP6 = Arch::RISCV64::RegisterOffset::A6,
-    GP7 = Arch::RISCV64::RegisterOffset::A7,
-    SP = Arch::RISCV64::RegisterOffset::SP,
-    RA = Arch::RISCV64::RegisterOffset::RA
+    GP0 = static_cast<size_t>(Arch::RISCV64::RegisterOffset::A0),
+    GP1 = static_cast<size_t>(Arch::RISCV64::RegisterOffset::A1),
+    GP2 = static_cast<size_t>(Arch::RISCV64::RegisterOffset::A2),
+    GP3 = static_cast<size_t>(Arch::RISCV64::RegisterOffset::A3),
+    GP4 = static_cast<size_t>(Arch::RISCV64::RegisterOffset::A4),
+    GP5 = static_cast<size_t>(Arch::RISCV64::RegisterOffset::A5),
+    GP6 = static_cast<size_t>(Arch::RISCV64::RegisterOffset::A6),
+    GP7 = static_cast<size_t>(Arch::RISCV64::RegisterOffset::A7),
+    SP = static_cast<size_t>(Arch::RISCV64::RegisterOffset::SP),
+    RA = static_cast<size_t>(Arch::RISCV64::RegisterOffset::RA),
+    SyscallId = static_cast<size_t>(Arch::RISCV64::RegisterOffset::A7)
   };
 }

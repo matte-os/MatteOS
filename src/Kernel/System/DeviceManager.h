@@ -99,6 +99,12 @@ namespace Kernel {
     ErrorOr<void> init() override;
   };
 
+  class BlockDevice : public Device {
+  public:
+    explicit BlockDevice(RefPtr<UnderlyingDevice> underlying_device) : Device(move(underlying_device), DeviceType::Block) {}
+    ErrorOr<void> init() override;
+  };
+
   class DeviceManager {
   private:
     ArrayList<RefPtr<Device>> m_devices;

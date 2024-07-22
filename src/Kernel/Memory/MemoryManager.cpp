@@ -7,7 +7,7 @@
 #include <Utils/Assertions.h>
 #include <Utils/Basic.h>
 
-namespace Kernel::Memory {
+namespace Kernel {
   extern "C" {
   char _data_start;
   char _data_end;
@@ -291,4 +291,4 @@ namespace Kernel::Memory {
   uintptr_t MemoryManager::get_text_special_end() {
     return (uintptr_t) &_text_special_end;
   }
-}// namespace Kernel::Memory
+}// namespace Kernel

@@ -6,7 +6,7 @@
 #include <Kernel/Memory/MemoryManager.h>
 #include <Utils/Assertions.h>
 
-namespace Kernel::Memory {
+namespace Kernel {
   static KernelMemoryAllocator* s_kernel_memory_allocator = nullptr;
 
   void KernelMemoryAllocator::init(uintptr_t* page) {
@@ -124,7 +124,7 @@ namespace Kernel::Memory {
       ptr = (AllocHeader*) (((u8*) ptr) + ptr->get_size());
     }
   }
-}// namespace Kernel::Memory
+}// namespace Kernel
 
 namespace std {// NOLINT(cert-dcl58-cpp) These declarations must be in ::std and we are not using <new>
   struct nothrow_t {
@@ -139,27 +139,27 @@ namespace std {// NOLINT(cert-dcl58-cpp) These declarations must be in ::std and
 };// namespace std
 
 uintptr_t* kmalloc(size_t size) {
-  return Kernel::Memory::KernelMemoryAllocator::the().kmalloc(size);
+  return Kernel::KernelMemoryAllocator::the().kmalloc(size);
 }
 
 void kfree(uintptr_t* ptr) {
-  Kernel::Memory::KernelMemoryAllocator::the().kfree(ptr);
+  Kernel::KernelMemoryAllocator::the().kfree(ptr);
 }
 
 void* operator new(size_t size) {
-  return Kernel::Memory::KernelMemoryAllocator::the().kmalloc(size);
+  return Kernel::KernelMemoryAllocator::the().kmalloc(size);
 }
 
 void* operator new[](size_t size) {
-  return Kernel::Memory::KernelMemoryAllocator::the().kmalloc(size);
+  return Kernel::KernelMemoryAllocator::the().kmalloc(size);
 }
 
 void operator delete(void* ptr) {
   if(!ptr) return;
-  return Kernel::Memory::KernelMemoryAllocator::the().kfree((uintptr_t*) ptr);
+  return Kernel::KernelMemoryAllocator::the().kfree((uintptr_t*) ptr);
 }
 
 void operator delete[](void* ptr) {
   if(!ptr) return;
-  return Kernel::Memory::KernelMemoryAllocator::the().kfree((uintptr_t*) ptr);
+  return Kernel::KernelMemoryAllocator::the().kfree((uintptr_t*) ptr);
 }

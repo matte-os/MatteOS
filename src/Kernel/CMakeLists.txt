@@ -33,6 +33,7 @@ set(SOURCE
         FileSystem/Inode.cpp
         FileSystem/File.cpp
         Firmware/FDT/FDTParser.cpp
+        Firmware/DeviceTree.cpp
         VirtIO/VirtIODeviceIDs.cpp
         VirtIO/VirtQueue.cpp
 )

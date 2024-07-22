@@ -1,18 +1,20 @@
 #pragma once
 
+#include <Kernel/Memory/VirtualAddress.h>
 #include <Kernel/Memory/PageTableEntry.h>
+#include <Kernel/Memory/PhysicalAddress.h>
 #include <Utils/DebugConsole.h>
+#include <Utils/Errors/ErrorOr.h>
 
 using Utils::DebugConsole;
+using Utils::ErrorOr;
 
-namespace Kernel::Memory {
-    struct PageTable{
-        PageTableEntry m_entries[512];
+namespace Kernel {
+  struct PageTable {
+    PageTableEntry m_entries[512];
+    PageTable() = default;
 
-        PageTable(){
-            //entries = (PageTableEntry*)this;
-        }
-
-        void debug_output();
-    };
-};
+    ErrorOr<PhysicalAddress> translate(VirtualAddress address);
+    void debug_output();
+  };
+};// namespace Kernel

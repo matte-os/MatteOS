@@ -4,8 +4,8 @@
 
 #pragma once
 
+#include <Kernel/Firmware/FDT/FDT.h>
 #include <Kernel/Firmware/FDT/FDTParser.h>
-#include <Kernel/Firmware/FDT/fdt.h>
 #include <Kernel/Memory/MemoryRegion.h>
 #include <Kernel/Sbi/sbi.h>
 #include <Kernel/System/KernelTrapFrame.h>
@@ -14,8 +14,8 @@
 #include <Utils/Pointers/RefPtr.h>
 #include <Utils/Types.h>
 
-using Kernel::Firmware::FDT::FDTParser;
-using Kernel::Memory::MemoryRegion;
+using Kernel::FDTParser;
+using Kernel::MemoryRegion;
 using Utils::ArrayList;
 using Utils::RefPtr;
 
@@ -25,7 +25,6 @@ namespace Kernel {
     size_t m_number_of_harts;
     RefPtr<ArrayList<MemoryRegion>> m_memory_regions;
     u64* m_mtime;
-    FDTParser* m_fdt_parser{};
     ArrayList<KernelTrapFrame*> m_kernel_trap_frames;
     static const size_t TRAP_VECTOR_ADDRESS = 0x1000;
 
@@ -35,7 +34,7 @@ namespace Kernel {
     static KernelTrapFrame* get_current_kernel_trap_frame() { return reinterpret_cast<KernelTrapFrame*>(TRAP_VECTOR_ADDRESS); }
     KernelTrapFrame* get_kernel_trap_frame(size_t hart_id) { return m_kernel_trap_frames[hart_id]; }
     [[nodiscard]] RefPtr<ArrayList<MemoryRegion>> get_memory_regions() const { return m_memory_regions; }
-    void parse_fdt(FDTHeader* header);
+    void install_from_device_tree();
     [[nodiscard]] size_t get_number_of_harts() const;
     [[nodiscard]] u64 get_mtime() const { return *m_mtime; }
     void set_default_trap_vector();

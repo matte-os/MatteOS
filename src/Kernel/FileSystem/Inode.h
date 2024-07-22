@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Kernel/Forwards.h>
 #include <Utils/Errors/ErrorOr.h>
 #include <Utils/Pointers/RefCounted.h>
 #include <Utils/Types.h>
@@ -14,5 +15,6 @@ namespace Kernel {
 
     virtual ErrorOr<size_t> read(u8* buffer, size_t size, size_t offset) = 0;
     virtual ErrorOr<size_t> write(const u8* buffer, size_t size, size_t offset) = 0;
+    virtual RefPtr<FileSystem> fs() = 0;
   };
 }// namespace Kernel

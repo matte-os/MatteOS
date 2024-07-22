@@ -9,7 +9,7 @@
 
 using Utils::DebugConsole;
 
-namespace Kernel::Memory {
+namespace Kernel {
   struct AllocHeader {
     u64 size  : 63;
     u64 taken : 1;
@@ -51,7 +51,7 @@ namespace Kernel::Memory {
     KernelMemoryAllocator();
     ~KernelMemoryAllocator();
   };
-}// namespace Kernel::Memory
+}// namespace Kernel
 
 uintptr_t* kmalloc(size_t);
 void kfree(uintptr_t*);

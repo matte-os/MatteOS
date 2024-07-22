@@ -3,7 +3,8 @@
 #include <Kernel/Arch/riscv64//CPU.h>
 #include <Kernel/Arch/riscv64/Satp.h>
 #include <Kernel/FileSystem/VirtualFileSystem.h>
-#include <Kernel/Firmware/FDT/fdt.h>
+#include <Kernel/Firmware/DeviceTree.h>
+#include <Kernel/Firmware/FDT/FDT.h>
 #include <Kernel/Memory/KernelMemoryAllocator.h>
 #include <Kernel/Memory/MemoryManager.h>
 #include <Kernel/Memory/PageTable.h>
@@ -19,6 +20,7 @@
 
 using Kernel::CPU;
 using Kernel::DeviceManager;
+using Kernel::DeviceTree;
 using Kernel::ProcessManager;
 using Kernel::SATP;
 using Kernel::SatpMode;
@@ -27,14 +29,14 @@ using Kernel::SyscallManager;
 using Kernel::Timer;
 using Kernel::TrapFrame;
 using Kernel::VirtualFileSystem;
-using Kernel::Memory::EntryBits;
-using Kernel::Memory::KernelMemoryAllocator;
-using Kernel::Memory::MemoryManager;
-using Kernel::Memory::Page;
-using Kernel::Memory::PageTable;
-using Kernel::Memory::PageTableEntry;
-using Kernel::Memory::PhysicalAddress;
-using Kernel::Memory::VirtualAddress;
+using Kernel::EntryBits;
+using Kernel::KernelMemoryAllocator;
+using Kernel::MemoryManager;
+using Kernel::Page;
+using Kernel::PageTable;
+using Kernel::PageTableEntry;
+using Kernel::PhysicalAddress;
+using Kernel::VirtualAddress;
 using Utils::DebugConsole;
 using Utils::ErrorOr;
 using Utils::String;
@@ -46,25 +48,28 @@ extern "C" void kmain([[maybe_unused]] int a0, FDTHeader* header) {
   DebugConsole::println("RiscVOS: v0.0.1, U-Boot + OpenSBI, SPL configuration");
   auto* page_table = init_memory();
   System::init();
+  //FIXME: We should have a trap handler setup here
+  //so when we get a trap we can handle it/halt the system.
   KernelMemoryAllocator::the().debug();
   auto& system = System::the();
   DebugConsole::println("MemoryManager: Mapping the FDT.");
   MemoryManager::the().identity_map_range(*page_table, reinterpret_cast<uintptr_t>(header), reinterpret_cast<uintptr_t>(header) + *header->totalsize,
                                           (u64) EntryBits::READ_WRITE);
+  DeviceTree::init(header);
+
   VirtualFileSystem::init();
   DeviceManager::init();
-  system.parse_fdt(header);
+  system.install_from_device_tree();
   sizeof_test();
   ProcessManager::init(page_table);
   auto* dummy_root = ProcessManager::the().create_dummy_process(MemoryManager::get_text_start(), MemoryManager::get_text_end());
-  MemoryManager::the().identity_map_range(*dummy_root, MemoryManager::get_context_switching_start(), MemoryManager::get_context_switching_end(), (u64) Kernel::Memory::EntryBits::READ_EXECUTE);
+  MemoryManager::the().identity_map_range(*dummy_root, MemoryManager::get_context_switching_start(), MemoryManager::get_context_switching_end(), (u64) Kernel::EntryBits::READ_EXECUTE);
   system.setup_interrupts();
   system.set_default_trap_vector();
   Timer::init();
   Scheduler::init();
   SyscallManager::init();
   DebugConsole::println("Initialization completed");
-  //DebugConsole::printf("Testing the printf function: {}\n", 42);
   Scheduler::the().start_scheduling();
 }
 

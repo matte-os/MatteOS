@@ -2,7 +2,7 @@
 
 #include <Utils/Types.h>
 
-namespace Kernel::Memory {
+namespace Kernel {
     struct VirtualAddress
     {
         u64 offset  : 12;

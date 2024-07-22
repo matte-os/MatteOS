@@ -1,7 +1,7 @@
 #pragma once
 #include <Utils/Types.h>
 
-namespace Kernel::Memory {
+namespace Kernel {
     enum class PageStatus : u8 {
         FREE = 0,
         TAKEN = 1 << 0,

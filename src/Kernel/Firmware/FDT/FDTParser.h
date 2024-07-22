@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kernel/Firmware/FDT/fdt.h>
+#include <Kernel/Firmware/FDT/FDT.h>
 #include <Utils/Arrays/ArrayList.h>
 #include <Utils/DebugConsole.h>
 #include <Utils/Errors/ErrorOr.h>
@@ -10,7 +10,7 @@ using Utils::DebugConsole;
 using Utils::ErrorOr;
 using Utils::move;
 
-namespace Kernel::Firmware::FDT {
+namespace Kernel {
   class FDTParser;
   struct FDTProperty {
     friend class FDTParser;
@@ -106,5 +106,14 @@ namespace Kernel::Firmware::FDT {
     void print_debug() {
       m_root_node->print();
     }
+    void print_reserve_entries() {
+      DebugConsole::println("Reserve entries:");
+      for(size_t i = 0; i < m_reserve_entries.size(); i++) {
+        DebugConsole::print("Address: ");
+        DebugConsole::print_ln_number(*m_reserve_entries[i].address, 16);
+        DebugConsole::print("Size: ");
+        DebugConsole::print_ln_number(*m_reserve_entries[i].size, 16);
+      }
+    }
   };
-}// namespace Kernel::Firmware::FDT
+}// namespace Kernel

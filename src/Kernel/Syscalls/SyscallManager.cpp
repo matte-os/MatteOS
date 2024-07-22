@@ -9,15 +9,16 @@
 
 namespace Kernel {
   using SysResult = Utils::ErrorOr<uintptr_t, SysError>;
-  using SyscallHandler = auto (Process::*)()-> SysResult;
+  using SyscallHandler = auto (Process::*)(uintptr_t arg0, uintptr_t arg1, uintptr_t arg2,
+                                           uintptr_t arg3, uintptr_t arg4, uintptr_t arg5,
+                                           uintptr_t arg6) -> SysResult;
 
 
   static SyscallManager* s_syscall_manager = nullptr;
 
 #define SYSCALL_HANDLER(name) reinterpret_cast<SyscallHandler>((&Process::handle_##name)),
   static SyscallHandler syscall_handlers[] = {
-          SYSCALL_GENERATOR(SYSCALL_HANDLER)
-  };
+          SYSCALL_GENERATOR(SYSCALL_HANDLER)};
 #undef SYSCALL_HANDLER
 
   void SyscallManager::init() {
@@ -41,11 +42,40 @@ namespace Kernel {
     DebugConsole::print_number((u64) process, 16);
     DebugConsole::print(" called syscall ");
     DebugConsole::print_ln_number(syscall_id, 10);
-    auto result = (process->*(handler))();
+
+    auto trap_frame = process->get_thread()->get_trap_frame();
+
+    auto arg0 = trap_frame->get_register<u64>(RegisterOffset::GP0);
+    auto arg1 = trap_frame->get_register<u64>(RegisterOffset::GP1);
+    auto arg2 = trap_frame->get_register<u64>(RegisterOffset::GP2);
+    auto arg3 = trap_frame->get_register<u64>(RegisterOffset::GP3);
+    auto arg4 = trap_frame->get_register<u64>(RegisterOffset::GP4);
+    auto arg5 = trap_frame->get_register<u64>(RegisterOffset::GP5);
+    auto arg6 = trap_frame->get_register<u64>(RegisterOffset::GP6);
+
+    DebugConsole::print("SyscallManager: Arguments: ");
+    DebugConsole::print_number(arg0, 16);
+    DebugConsole::print(", ");
+    DebugConsole::print_number(arg1, 16);
+    DebugConsole::print(", ");
+    DebugConsole::print_number(arg2, 16);
+    DebugConsole::print(", ");
+    DebugConsole::print_number(arg3, 16);
+    DebugConsole::print(", ");
+    DebugConsole::print_number(arg4, 16);
+    DebugConsole::print(", ");
+    DebugConsole::print_number(arg5, 16);
+    DebugConsole::print(", ");
+    DebugConsole::print_ln_number(arg6, 16);
+
+
+    auto result = (process->*(handler))(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
     if(result.has_error()) {
       DebugConsole::println("SyscallManager: Error in syscall handler.");
+      trap_frame->set_register<u64>(RegisterOffset::GP0, static_cast<u64>(result.get_error()));
     } else {
       DebugConsole::println("SyscallManager: Syscall executed successfully.");
+      trap_frame->set_register<u64>(RegisterOffset::GP0, result.get_value());
     }
   }
 }// namespace Kernel

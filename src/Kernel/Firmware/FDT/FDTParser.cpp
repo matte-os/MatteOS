@@ -2,14 +2,14 @@
 #include <Utils/DebugConsole.h>
 #include <Utils/Traits.h>
 
-using Kernel::Firmware::FDT::FDTNode;
-using Kernel::Firmware::FDT::FDTProperty;
+using Kernel::FDTNode;
+using Kernel::FDTProperty;
 using Utils::DebugConsole;
 using Utils::Error;
 using Utils::ErrorOr;
 using Utils::move;
 
-void Kernel::Firmware::FDT::FDTParser::parse_reserve_entries() {
+void Kernel::FDTParser::parse_reserve_entries() {
   DebugConsole::println("Parsing reserve entries");
   auto* reserve_entry = access_at_offset<FDTReserveEntry>(*m_header->off_mem_rsvmap);
   while(*reserve_entry->address != 0 && *reserve_entry->size != 0) {
@@ -24,7 +24,7 @@ void Kernel::Firmware::FDT::FDTParser::parse_reserve_entries() {
   DebugConsole::println("Finished parsing reserve entries");
 }
 
-void Kernel::Firmware::FDT::FDTParser::parse_nodes() {
+void Kernel::FDTParser::parse_nodes() {
   DebugConsole::println("Parsing nodes");
   u32* current_offset = reinterpret_cast<u32*>(reinterpret_cast<char*>(m_header) + *m_header->off_dt_struct);
   auto* node = parse_node(&current_offset);
@@ -37,7 +37,7 @@ void Kernel::Firmware::FDT::FDTParser::parse_nodes() {
   DebugConsole::println("Finished parsing nodes");
 }
 
-FDTNode* Kernel::Firmware::FDT::FDTParser::parse_node(u32** offset) {
+FDTNode* Kernel::FDTParser::parse_node(u32** offset) {
   enum class ParserState {
     None,
     BeginNode,
@@ -119,23 +119,23 @@ FDTNode* Kernel::Firmware::FDT::FDTParser::parse_node(u32** offset) {
   return current_node;
 }
 
-void Kernel::Firmware::FDT::FDTParser::parse(FDTHeader* header) {
+void Kernel::FDTParser::parse(FDTHeader* header) {
   m_header = header;
   parse_reserve_entries();
   parse_nodes();
 }
 
-const ArrayList<FDTReserveEntry>& Kernel::Firmware::FDT::FDTParser::get_reserve_entries() const {
+const ArrayList<FDTReserveEntry>& Kernel::FDTParser::get_reserve_entries() const {
   return m_reserve_entries;
 }
 
-uintptr_t Kernel::Firmware::FDT::FDTParser::align_to(u32 alignment, uintptr_t address) {
+uintptr_t Kernel::FDTParser::align_to(u32 alignment, uintptr_t address) {
   return (address + alignment - 1) & ~(alignment - 1);
 }
-const FDTNode& Kernel::Firmware::FDT::FDTParser::get_root_node() const {
+const FDTNode& Kernel::FDTParser::get_root_node() const {
   return *m_root_node;
 }
-ErrorOr<const FDTNode*> Kernel::Firmware::FDT::FDTParser::find_node(const String& path) const {
+ErrorOr<const FDTNode*> Kernel::FDTParser::find_node(const String& path) const {
   FDTNode* current_node = m_root_node;
   auto path_array = path.split("/");
   size_t i = 0, path_array_index = 0;
@@ -160,7 +160,7 @@ ErrorOr<const FDTNode*> Kernel::Firmware::FDT::FDTParser::find_node(const String
     return ErrorOr<const FDTNode*>::create_error(Error::create_from_string(String("Node not found")));
   }
 }
-ErrorOr<ArrayList<const FDTNode*>> Kernel::Firmware::FDT::FDTParser::find_nodes(const String& path) const {
+ErrorOr<ArrayList<const FDTNode*>> Kernel::FDTParser::find_nodes(const String& path) const {
   FDTNode* current_node = m_root_node;
   auto path_array = path.split("/");
   size_t i = 0, path_array_index = 0;

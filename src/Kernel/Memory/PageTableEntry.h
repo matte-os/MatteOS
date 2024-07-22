@@ -2,7 +2,7 @@
 
 #include <Utils/Types.h>
 
-namespace Kernel::Memory {
+namespace Kernel {
     struct PageTableEntry {
         u64 valid   : 1; //Page is valid
         u64 read    : 1; //Page is readable
@@ -24,5 +24,7 @@ namespace Kernel::Memory {
         void set_value(u64 value);
         void set_bits(u64 bits);
         bool is_valid();
+        bool is_leaf();
+        uintptr_t get_ppn();
     };
 };

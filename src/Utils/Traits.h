@@ -72,4 +72,17 @@ namespace Utils {
   template<typename T, typename U>
   concept same_as = is_same<T, U>::value;
 
+  template<typename T>
+  struct IsPointer {
+    static const bool value = false;
+  };
+
+  template<typename T>
+  struct IsPointer<T*> {
+    static const bool value = true;
+  };
+
+  template<typename T>
+  concept Pointer = IsPointer<T>::value;
+
 }// namespace Utils

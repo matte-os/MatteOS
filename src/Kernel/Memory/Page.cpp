@@ -1,6 +1,6 @@
 #include <Kernel/Memory/Page.h>
 
-namespace Kernel::Memory {
+namespace Kernel {
   Page::Page() {
     m_status = PageStatus::FREE;
   }
@@ -27,4 +27,4 @@ namespace Kernel::Memory {
   void Page::set_status(PageStatus status) {
     this->m_status = status;
   }
-};// namespace Kernel::Memory
+};// namespace Kernel

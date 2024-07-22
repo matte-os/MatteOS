@@ -11,8 +11,8 @@
 
 namespace Kernel {
   using Kernel::get_device_type;
-  using Kernel::Memory::EntryBits;
-  using Kernel::Memory::MemoryManager;
+  using Kernel::EntryBits;
+  using Kernel::MemoryManager;
   using Utils::DebugConsole;
 
   static DeviceManager* s_device_manager = nullptr;
@@ -48,6 +48,9 @@ namespace Kernel {
       switch(get_device_type(virtio_device->get_device_id())) {
         case VirtIODeviceIDs::EntropySource:
           device = RefPtr<Device>(new EntropyDevice(virtio_device));
+          break;
+        case VirtIODeviceIDs::BlockDevice:
+          device = RefPtr<Device>(new BlockDevice(virtio_device));
           break;
         default:
           device = RefPtr<Device>(new Device(virtio_device));
@@ -125,5 +128,10 @@ namespace Kernel {
   }
   void VirtIODevice::reset() {
     m_mmio_device->set_status(0);
+  }
+  ErrorOr<void> BlockDevice::init() {
+    return m_underlying_device->init(0, [](VirtQueue*) {
+      DebugConsole::println("BlockDevice: Initialising VirtQueue.");
+    });
   }
 }// namespace Kernel

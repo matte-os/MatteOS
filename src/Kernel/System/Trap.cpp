@@ -1,3 +1,4 @@
+#include <Kernel/Arch/RegisterOffset.h>
 #include <Kernel/Arch/riscv64/CSR.h>
 #include <Kernel/Arch/riscv64/Interrupts/Plic.h>
 #include <Kernel/Process/ProcessManager.h>
@@ -93,7 +94,9 @@ extern "C" size_t trap_vector(
         Utils::DebugConsole::println("Ecall from User mode!");
         DebugConsole::print("Current time: ");
         DebugConsole::print_ln_number(Kernel::RISCV64::CSR::read<Kernel::RISCV64::CSR::Address::TIME>(), 10);
-        SyscallManager::the().handle_syscall(System::get_current_kernel_trap_frame()->current_process, 0);
+        auto* process = System::get_current_kernel_trap_frame()->current_process;
+        auto syscallId = process->get_thread()->get_trap_frame()->regs[static_cast<size_t>(Kernel::RegisterOffset::SyscallId)];
+        SyscallManager::the().handle_syscall(process, syscallId);
         returnEpc += 4;
         break;
       }

@@ -10,7 +10,7 @@
 #include <Kernel/Memory/VirtualAddress.h>
 #include <Utils/Types.h>
 
-namespace Kernel::Memory {
+namespace Kernel {
     enum class EntryBits : u64{
         NONE = 0,
         VALID = 1 << 0,

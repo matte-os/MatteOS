@@ -1,6 +1,6 @@
 #include <Kernel/Memory/PageTableEntry.h>
 
-namespace Kernel::Memory {
+namespace Kernel {
   u64 PageTableEntry::get_value() {
     u64 out = *(u64*) this;
     return out;
@@ -17,4 +17,10 @@ namespace Kernel::Memory {
   bool PageTableEntry::is_valid() {
     return valid == 1;
   }
-};// namespace Kernel::Memory
+  bool PageTableEntry::is_leaf() {
+    return read || write || execute;
+  }
+  uintptr_t PageTableEntry::get_ppn() {
+    return ppn0 | ppn1 << 9 | ppn2 << 18;
+  }
+};// namespace Kernel

@@ -5,7 +5,7 @@
 #pragma once
 #include <Utils/Types.h>
 
-namespace Kernel::Memory {
+namespace Kernel {
   enum class MemoryRegionType : u8 {
     Uninitialized,
     Conventional,
@@ -26,4 +26,4 @@ namespace Kernel::Memory {
     [[nodiscard]] u64 get_end_address() const { return m_start_address + m_size; }
     [[nodiscard]] MemoryRegionType get_type() const { return m_type; }
   };
-}// namespace Kernel::Memory
+}// namespace Kernel

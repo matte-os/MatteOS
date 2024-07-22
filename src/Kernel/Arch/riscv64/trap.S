@@ -88,6 +88,7 @@ m_trap_vector:
     csrr t5, sscratch
     csrw satp, t5
 
+    li t6, 0x10000000
 	# Restore all GP registers
 	.set	i, 1
 	.rept	31

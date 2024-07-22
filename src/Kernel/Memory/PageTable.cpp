@@ -1,8 +1,12 @@
 #include <Kernel/Memory/PageTable.h>
 #include <Kernel/Memory/PageTableEntry.h>
 #include <Utils/Basic.h>
+#include <Utils/Errors/ErrorOr.h>
 
-namespace Kernel::Memory {
+using Utils::ErrorOr;
+using Utils::Error;
+
+namespace Kernel {
   void PageTable::debug_output() {
     char buffer[64];
     for(int i = 0; i < 520; i++) {
@@ -18,4 +22,31 @@ namespace Kernel::Memory {
       }
     }
   }
-};// namespace Kernel::Memory
+  ErrorOr<PhysicalAddress> PageTable::translate(VirtualAddress address) {
+    PageTableEntry* entry = &this->m_entries[address.vpn0];
+    if(!entry->is_valid()) {
+      return ErrorOr<PhysicalAddress>::create_error(Error::create_from_string("First entry is not valid"));
+    }
+
+    if(entry->is_leaf()) {
+      return ErrorOr<PhysicalAddress>::create(PhysicalAddress(entry->get_ppn() << 12 | address.offset));
+    }
+
+    entry = &reinterpret_cast<PageTableEntry*>(entry->get_ppn())[address.vpn1];
+
+    if(!entry->is_valid()) {
+      return ErrorOr<PhysicalAddress>::create_error(Error::create_from_string("Second entry is not valid"));
+    }
+
+    if(entry->is_leaf()) {
+      return ErrorOr<PhysicalAddress>::create(PhysicalAddress(entry->get_ppn() << 12 | address.offset));
+    }
+
+    entry = &reinterpret_cast<PageTableEntry*>(entry->get_ppn())[address.vpn2];
+    if(!entry->is_valid()) {
+      return ErrorOr<PhysicalAddress>::create_error(Error::create_from_string("Third entry is not valid"));
+    }
+
+    return ErrorOr<PhysicalAddress>::create(PhysicalAddress(entry->get_ppn() << 12 | address.offset));
+  }
+};// namespace Kernel

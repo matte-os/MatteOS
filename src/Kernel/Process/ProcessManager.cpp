@@ -1,7 +1,3 @@
-//
-// Created by matejbucek on 1.9.22.
-//
-
 #include <Kernel/Arch/riscv64/CPU.h>
 #include <Kernel/Memory/MemoryManager.h>
 #include <Kernel/Memory/PageTable.h>
@@ -12,8 +8,8 @@
 #include <Utils/kmalloc.h>
 
 namespace Kernel {
+  using Kernel::MemoryManager;
   using Kernel::System;
-  using Memory::MemoryManager;
   using Utils::Array;
   static ProcessManager* s_process_manager;
 
@@ -44,16 +40,27 @@ namespace Kernel {
 
   extern "C" [[noreturn]] void dummy_process_main() {
     for(;;) {
-      asm volatile("ecall");
+      auto result = syscall(Syscalls::Sys$close, 1);
     }
   }
 
   PageTable* ProcessManager::create_dummy_process(uintptr_t text_start,
                                                   uintptr_t text_end) {
     auto* root = reinterpret_cast<PageTable*>(MemoryManager::the().zalloc(1));
+    DebugConsole::print("Text start: ");
+    DebugConsole::print_ln_number(text_start, 16);
+    DebugConsole::print("Text end: ");
+    DebugConsole::print_ln_number(text_end, 16);
+    DebugConsole::print("Context switching start: ");
+    DebugConsole::print_ln_number(MemoryManager::get_context_switching_start(), 16);
+    DebugConsole::print("Context switching end: ");
+    DebugConsole::print_ln_number(MemoryManager::get_context_switching_end(), 16);
 
     MemoryManager::the().identity_map_range(*root, text_start, text_end,
-                                            (u64) (Memory::EntryBits::USER_READ_EXECUTE));
+                                            (u64) (Kernel::EntryBits::USER_READ_EXECUTE));
+    MemoryManager::the().identity_map_range(*root, MemoryManager::get_text_special_start(),
+                                            MemoryManager::get_text_special_end(),
+                                            (u64) (Kernel::EntryBits::USER_READ_EXECUTE));
     auto satp = Kernel::CPU::build_satp(Kernel::SatpMode::Sv39, 1, (uintptr_t) root);
 
     DebugConsole::print("The dummy process PC: ");
@@ -67,18 +74,19 @@ namespace Kernel {
     MemoryManager::the().map(
             *root, ProcessManager::THREAD_FRAME_ADDRESS,
             reinterpret_cast<uintptr_t>(trap_frame),
-            (size_t) Memory::EntryBits::READ_WRITE, 0);
+            (size_t) Kernel::EntryBits::READ_WRITE, 0);
 
     MemoryManager::the().map(
             *root, ProcessManager::KERNEL_FRAME_ADDRESS,
             reinterpret_cast<uintptr_t>(System::the().get_kernel_trap_frame(0)),
-            (size_t) Memory::EntryBits::READ_WRITE, 0);
+            (size_t) Kernel::EntryBits::READ_WRITE, 0);
 
     // Map the stack
     MemoryManager::the().map_range(*root, ProcessManager::STACK_ADDRESS - 0x1000,
                                    ProcessManager::STACK_ADDRESS,
                                    reinterpret_cast<uintptr_t>(trap_frame),
-                                   (size_t) Memory::EntryBits::USER_READ_WRITE);
+                                   (size_t) Kernel::EntryBits::USER_READ_WRITE);
+
     m_processes->add(new Process(m_pid_counter++, thread,
                                  m_kernel_process->get_page_table(),
                                  ProcessState::Running));
