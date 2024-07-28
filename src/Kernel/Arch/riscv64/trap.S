@@ -30,6 +30,9 @@
 m_trap_test:
         ret
 
+# This handler will handle an interrupt and if new process
+# should be scheduled, the code flow will not return from the
+# call to trap_frame, but will take a different path.
 .global m_trap_vector
 # This must be aligned by 4 since the last two bits
 # of the mtvec register do not contribute to the address
@@ -40,7 +43,7 @@ m_trap_vector:
 	# before we do anything.
 	csrrw	t6, sscratch, t6
 	# Put the trap frame into t6
-	li t6, 0x10000000
+	li t6, 0x1000
     # Save all GP registers
     # This also svaesthe SP, GP etc. as their are a part of the GP registers
 	.set 	i, 1
@@ -63,15 +66,25 @@ m_trap_vector:
     csrr t5, satp
     csrw sscratch, t5
 
+    # Load the kernel SATP
+    ld t4, 520(t6)
+    # Store the userland SATP to TrapFrame
+    sd t5, 520(t6)
+
+    # Switch memory to Kernel Mode
+    csrw satp, t4
+
+    # If kernel SATP(t4) & userland SATP(t5)
+    # are the same, trap occurred in the
+    # kernel itself.
+    # TODO: In such a case we should panic the kernel.
+
     # Load the kernel trap frame
-    li t6, 0x10001000
+    li t6, 0x1000
     # Load the stack pointer
     ld sp, 16(t6)
     # Load the kernel cpu_id
     ld a3, 536(t6)
-    # Load the kernel SATP
-    ld t5, 520(t6)
-    csrw satp, t5
 
     # Now we can work in th kernelsapce:
 	csrr	a0, sepc
@@ -81,14 +94,17 @@ m_trap_vector:
 	call	trap_vector
 
 	# trap_vector will return the return address via a0.
-
 	csrw	sepc, a0
 
 	# Restore the userland SATP
     csrr t5, sscratch
+    csrr t4, satp
     csrw satp, t5
 
-    li t6, 0x10000000
+    li t6, 0x1000
+    # Store kernel SATP
+    sd t4, 520(t6)
+
 	# Restore all GP registers
 	.set	i, 1
 	.rept	31
@@ -118,26 +134,25 @@ switch_to_user:
 	# in MPP (bits 12:11)
 	li		t0, 1 << 5 | 1 << 13 | 1 << 18 
 	csrw	sstatus, t0
-  la    a1, dummy_process_main
-	csrw	sepc, a1
-	li		t1, 1 << 1 | 1 << 5 | 1 << 9
-	csrw	sie, t1
-	la		t2, m_trap_vector
-	csrw	stvec, t2
-	# A0 is the context frame, so we need to reload it back
-	# and mret so we can start running the program.
-	mv	t6, a0
-	.set	i, 0
-	.rept	32
-		load_fp %i
-		.set i, i+1
-	.endr
+    csrw	sepc, a1
+    li		t1, 1 << 1 | 1 << 5 | 1 << 9
+    csrw	sie, t1
+    la		t2, m_trap_vector
+    csrw	stvec, t2
+    # A0 is the context frame, so we need to reload it back
+    # and mret so we can start running the program.
+    mv	t6, a0
+    .set	i, 0
+    .rept	32
+        load_fp %i
+        .set i, i+1
+    .endr
 
-	.set	i, 1
-	.rept	31
-		load_gp %i, t6
-		.set	i, i+1
-	.endr
+    .set	i, 1
+    .rept	31
+        load_gp %i, t6
+        .set	i, i+1
+    .endr
   csrrw t6, sscratch, t6
   csrw satp, t6
   csrrw t6, sscratch, t6

@@ -14,6 +14,7 @@ namespace Kernel {
   class DevInode : public Inode {
   private:
     RefPtr<Device> m_device;
+    RefPtr<DevFileSystem> m_file_system;
     HashMap<String, RefPtr<Inode>> m_inodes;
 
   public:

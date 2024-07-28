@@ -76,11 +76,6 @@ namespace Kernel {
             reinterpret_cast<uintptr_t>(trap_frame),
             (size_t) Kernel::EntryBits::READ_WRITE, 0);
 
-    MemoryManager::the().map(
-            *root, ProcessManager::KERNEL_FRAME_ADDRESS,
-            reinterpret_cast<uintptr_t>(System::the().get_kernel_trap_frame(0)),
-            (size_t) Kernel::EntryBits::READ_WRITE, 0);
-
     // Map the stack
     MemoryManager::the().map_range(*root, ProcessManager::STACK_ADDRESS - 0x1000,
                                    ProcessManager::STACK_ADDRESS,
