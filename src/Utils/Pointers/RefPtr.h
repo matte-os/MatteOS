@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include <Utils/Traits.h>
 
 namespace Utils {
   template<typename T>
@@ -57,6 +58,32 @@ namespace Utils {
       m_value = ptr.m_value;
       ptr.m_value = nullptr;
       return *this;
+    }
+
+    bool operator==(const RefPtr<T>& other) const {
+      return m_value == other.m_value;
+    }
+
+    bool operator!=(const RefPtr<T>& other) const {
+      return m_value != other.m_value;
+    }
+
+    bool operator==(const T* other) const {
+      return m_value == other;
+    }
+
+    bool operator!=(const T* other) const {
+      return m_value != other;
+    }
+
+    operator bool() const {
+      return m_value != nullptr;
+    }
+
+    template<typename U>
+    operator RefPtr<U>() const {
+      static_assert(IsBaseOf<U, T>::value, "Cannot convert to a non-base class!");
+      return RefPtr<U>(static_cast<U*>(m_value));
     }
   };
   template<typename T>

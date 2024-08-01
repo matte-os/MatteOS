@@ -30,18 +30,33 @@ namespace Utils {
   };
 
   template<typename T>
-  struct is_lvalue_reference {
+  struct IsLValueReference {
     static constexpr bool value = false;
   };
 
   template<typename T>
-  struct is_lvalue_reference<T&> {
+  struct IsLValueReference<T&> {
     static constexpr bool value = true;
   };
 
   template<typename T>
-  struct is_lvalue_reference<T&&> {
+  struct IsLValueReference<T&&> {
     static constexpr bool value = false;
+  };
+
+  template<typename T>
+  struct IsRValueReference {
+    static constexpr bool value = false;
+  };
+
+  template<typename T>
+  struct IsRValueReference<T&> {
+    static constexpr bool value = false;
+  };
+
+  template<typename T>
+  struct IsRValueReference<T&&> {
+    static constexpr bool value = true;
   };
 
   template<typename T>
@@ -85,4 +100,35 @@ namespace Utils {
   template<typename T>
   concept Pointer = IsPointer<T>::value;
 
+  struct TrueType {
+    static const bool value = true;
+  };
+
+  struct FalseType {
+    static const bool value = false;
+  };
+
+  template<typename Base, typename Derived>
+  struct IsConvertibleHelper {
+    static FalseType test(...);
+
+    template<typename T>
+    static auto test(T* t) -> decltype(static_cast<Base*>(t), TrueType());
+
+    using Type = decltype(test(static_cast<Derived*>(nullptr)));
+    static constexpr bool value = Type::value;
+  };
+
+  template<typename Base, typename Derived>
+  struct IsBaseOf {
+    static constexpr bool value = IsConvertibleHelper<const volatile Base, Derived>::value;
+  };
+
+  template<bool Condition, class T = void>
+  struct EnableIf {};
+
+  template<class T>
+  struct EnableIf<true, T> {
+    typedef T type;
+  };
 }// namespace Utils

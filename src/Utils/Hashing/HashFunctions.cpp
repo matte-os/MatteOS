@@ -13,4 +13,16 @@ namespace Utils {
     return hash;
   }
 
+  HashInput to_hash_input(const char* value) {
+    return { value, String::calculate_size(value) };
+  }
+
+  HashInput to_hash_input(const String& value) {
+    return { value.to_cstring(), value.length() };
+  }
+
+  HashInput to_hash_input(const StringView& value) {
+    return { value.value(), value.length() };
+  }
+
 }// namespace Utils

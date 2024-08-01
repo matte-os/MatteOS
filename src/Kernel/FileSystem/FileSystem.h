@@ -5,12 +5,13 @@
 namespace Kernel {
   using Utils::String;
 
-  class FileSystem {
+  class FileSystem : public RefCounted<FileSystem> {
   public:
     FileSystem() = default;
     virtual ~FileSystem() = default;
 
     virtual String name() const = 0;
+    virtual ErrorOr<RefPtr<Inode>> root() = 0;
 
     virtual ErrorOr<RefPtr<Inode>> open() = 0;
     virtual ErrorOr<void> close(RefPtr<Inode> inode) = 0;

@@ -69,11 +69,12 @@ namespace Utils {
      *
      * @param value Element to be added.
      */
-    void add(T value) {
+    size_t add(T value) {
       if(m_ptr >= m_size) grow();
       //Zero-initialize the memory
       memset((char*) &m_array[m_ptr], 0, sizeof(T));
-      new(&m_array[m_ptr++]) T(value);
+      new(&m_array[m_ptr]) T(value);
+      return m_ptr++;
     }
 
     /**

@@ -51,7 +51,7 @@ namespace Kernel {
     *completeRegister = id;
   }
 
-  bool Plic::isPending(u32 id) {
+  bool Plic::is_pending(u32 id) {
     u32* pending = (u32*) PLIC_PENDING;
     u32 actualId = 1 << id;
     u32 pendingIds = *pending;

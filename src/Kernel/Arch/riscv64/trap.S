@@ -91,7 +91,7 @@ m_trap_vector:
 	csrr	a1, stval
 	csrr	a2, scause
 	csrr	a4, sstatus
-	call	trap_vector
+	call	handle_interrupt
 
 	# trap_vector will return the return address via a0.
 	csrw	sepc, a0

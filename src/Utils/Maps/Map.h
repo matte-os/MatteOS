@@ -10,7 +10,7 @@ namespace Utils {
     Map() = default;
     virtual ~Map() = default;
 
-    virtual ErrorOr<Value&> get(const Key& key) = 0;
+    virtual ErrorOr<Value> get(const Key& key) = 0;
     virtual void set(const Key& key, const Value& value) = 0;
     virtual void remove(const Key& key) = 0;
   };

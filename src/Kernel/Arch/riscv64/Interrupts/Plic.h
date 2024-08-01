@@ -21,7 +21,7 @@ namespace Kernel {
         void set_treshold(u8 treshold);
         Optional<u32> next();
         void complete(u32);
-        bool isPending(u32);
+        bool is_pending(u32);
     private:
         Plic() : Plic(0x0c000000, 0x0c001000, 0x0c002000, 0x0c200000, 0x0c200004) {};
         Plic(size_t plic_priority, size_t plic_pending, size_t plic_int_enable, size_t plic_treshold, size_t plic_claim) : PLIC_PRIORITY(plic_priority), PLIC_PENDING(plic_pending), PLIC_INT_ENABLE(plic_int_enable), PLIC_TRESHOLD(plic_treshold), PLIC_CLAIM(plic_claim) {};

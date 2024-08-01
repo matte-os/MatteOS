@@ -15,13 +15,9 @@ namespace Utils {
     { to_hash_input(t) } -> same_as<HashInput>;
   };
 
-  HashInput to_hash_input(const char* value) {
-    return { value, String::calculate_size(value) };
-  }
-
-  HashInput to_hash_input(const String& value) {
-    return { value.to_cstring(), value.length() };
-  }
+  HashInput to_hash_input(const char* value);
+  HashInput to_hash_input(const String& value);
+  HashInput to_hash_input(const StringView& value);
 
   template<Hashable Input, typename Output>
   using HashFunction = Function<Output, Input>;

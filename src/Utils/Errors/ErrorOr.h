@@ -55,6 +55,9 @@ namespace Utils {
 
   protected:
     ErrorOr() = default;
+    explicit ErrorOr(ResultType& value) {
+      m_value_or_error.template set<ResultType>(value);
+    }
     explicit ErrorOr(ResultType&& value) {
       m_value_or_error.template set<ResultType>(move(value));
     }
@@ -62,6 +65,7 @@ namespace Utils {
       m_value_or_error.template set<ErrorType>(error);
     }
 
+  public:
     ErrorOr(const ErrorOr& other) {
       if(other.has_error()) {
         m_value_or_error.template set<ErrorType>(other.get_error());
@@ -71,7 +75,8 @@ namespace Utils {
     }
 
   public:
-    static ErrorOr<T, E> create(ResultType&& value) { return ErrorOr<T, E>(move(value)); }
+    static ErrorOr<T, E> create(T& value) { return ErrorOr<T, E>(value); }
+    static ErrorOr<T, E> create(T&& value) { return ErrorOr<T, E>(move(value)); }
     static ErrorOr<T, E> create_error(ErrorType error) {
       return ErrorOr<T, E>(error);
     }

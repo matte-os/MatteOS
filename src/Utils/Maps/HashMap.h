@@ -47,18 +47,18 @@ namespace Utils {
       return *this;
     }
 
-    ErrorOr<Value&> get(const Key& key) override {
+    ErrorOr<Value> get(const Key& key) override {
       u32 index = Function(key) % DefaultSize;
       RefPtr<Entry> entry = m_entries[index];
 
       while(entry != nullptr) {
         if(entry->key == key) {
-          return ErrorOr<Value&>::create(entry->value);
+          return ErrorOr<Value>::create(entry->value);
         }
         entry = entry->next;
       }
 
-      return ErrorOr<Value&>::create_error(Error::create_from_string("Key not found in map!"));
+      return ErrorOr<Value>::create_error(Error::create_from_string("Key not found in map!"));
     }
 
     void set(const Key& key, const Value& value) override {
@@ -66,15 +66,15 @@ namespace Utils {
       RefPtr<Entry> entry = m_entries[index];
 
       if(entry == nullptr) {
-        entry = new Entry();
+        entry = RefPtr<Entry>(new Entry());
         entry->key = key;
         entry->value = value;
         m_entries.set(index, entry);
       } else {
-        while(entry->next != nullptr) {
+        while(!entry->next) {
           entry = entry->next;
         }
-        RefPtr<Entry> new_entry = new Entry();
+        auto new_entry = RefPtr<Entry>(new Entry());
         new_entry->key = key;
         new_entry->value = value;
         entry->next = new_entry;
@@ -84,9 +84,9 @@ namespace Utils {
     void remove(const Key& key) override {
       u32 index = Function(key) % DefaultSize;
       RefPtr<Entry> entry = m_entries[index];
-      RefPtr<Entry> previous = nullptr;
+      RefPtr<Entry> previous;
 
-      while(entry != nullptr) {
+      while(!entry) {
         if(entry->key == key) {
           if(previous == nullptr) {
             m_entries.set(index, entry->next);

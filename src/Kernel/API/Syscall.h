@@ -11,6 +11,7 @@
 
 namespace Kernel {
   enum class SysError : size_t {
+    Error
 
   };
 

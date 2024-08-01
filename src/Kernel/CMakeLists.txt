@@ -6,9 +6,20 @@ set(ASM_SOURCE
 set(SOURCE
         Init.cpp
         Arch/riscv64/CPU.cpp
+        Arch/riscv64/Interrupts/Interrupts.cpp
         Console/Console.cpp
         FileSystem/DEVFS/DevFileSystem.cpp
         FileSystem/DEVFS/DevInode.cpp
+        FileSystem/RAMFS/RamFileSystem.cpp
+        FileSystem/RAMFS/RamInode.cpp
+        FileSystem/VirtualFileSystem.cpp
+        FileSystem/FileSystem.cpp
+        FileSystem/Inode.cpp
+        FileSystem/FileDescriptor.cpp
+        FileSystem/FileDescriptorTable.cpp
+        FileSystem/File.cpp
+        Firmware/FDT/FDTParser.cpp
+        Firmware/DeviceTree.cpp
         Memory/MemoryManager.cpp
         Memory/KernelMemoryAllocator.cpp
         Memory/MemoryRegion.cpp
@@ -21,6 +32,7 @@ set(SOURCE
         System/DeviceManager.cpp
         System/DriverManager.cpp
         System/Trap.cpp
+        System/InterruptManager.cpp
         Arch/riscv64/Interrupts/Plic.cpp
         System/System.cpp
         System/Timer.cpp
@@ -28,12 +40,6 @@ set(SOURCE
         Process/ProcessManager.cpp
         Process/Scheduler.cpp
         Sbi/sbi.cpp
-        FileSystem/VirtualFileSystem.cpp
-        FileSystem/FileSystem.cpp
-        FileSystem/Inode.cpp
-        FileSystem/File.cpp
-        Firmware/FDT/FDTParser.cpp
-        Firmware/DeviceTree.cpp
         VirtIO/VirtIODeviceIDs.cpp
         VirtIO/VirtQueue.cpp
 )

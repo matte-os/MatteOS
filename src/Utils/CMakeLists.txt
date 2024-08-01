@@ -7,6 +7,7 @@ set(SOURCE  Assertions.cpp
             Strings/StringValue.cpp
             Strings/String.cpp
             Strings/StringBuilder.cpp
+            Hashing/HashFunctions.cpp
             kmalloc.cpp
             Types.cpp
     )
