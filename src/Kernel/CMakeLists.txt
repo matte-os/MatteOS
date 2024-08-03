@@ -31,7 +31,6 @@ set(SOURCE
         Syscalls/SyscallOpen.cpp
         System/DeviceManager.cpp
         System/DriverManager.cpp
-        System/Trap.cpp
         System/InterruptManager.cpp
         Arch/riscv64/Interrupts/Plic.cpp
         System/System.cpp

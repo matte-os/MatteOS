@@ -6,25 +6,30 @@
 using Utils::Optional;
 
 namespace Kernel {
-    class Plic{
-    private:
-        size_t PLIC_PRIORITY;
-        size_t PLIC_PENDING;
-        size_t PLIC_INT_ENABLE;
-        size_t PLIC_TRESHOLD;
-        size_t PLIC_CLAIM;
-    public:
-        static Plic& the();
-        void init(size_t, size_t, size_t, size_t, size_t);
-        void enable(u32);
-        void set_priority(u32 id, u8 priority);
-        void set_treshold(u8 treshold);
-        Optional<u32> next();
-        void complete(u32);
-        bool is_pending(u32);
-    private:
-        Plic() : Plic(0x0c000000, 0x0c001000, 0x0c002000, 0x0c200000, 0x0c200004) {};
-        Plic(size_t plic_priority, size_t plic_pending, size_t plic_int_enable, size_t plic_treshold, size_t plic_claim) : PLIC_PRIORITY(plic_priority), PLIC_PENDING(plic_pending), PLIC_INT_ENABLE(plic_int_enable), PLIC_TRESHOLD(plic_treshold), PLIC_CLAIM(plic_claim) {};
-        ~Plic() = default;
+  class Plic {
+  private:
+    enum class PlicOffsets : size_t {
+      Priority = 0x000000,
+      Pending = 0x001000,
+      InterruptEnable = 0x002000,
+      PriorityThreshold = 0x200000,
+      Claim = 0x200004,
+      Complete = 0x200004,
     };
-};
+    size_t m_base;
+
+  public:
+    static Plic& the();
+    static void init();
+    void enable(u32 context_id, u32 id);
+    void disable(u32 context_id, u32 id);
+    void set_priority(u32 id, u8 priority);
+    void set_threshold(u32 context_id, u8 threshold);
+    Optional<u32> next(u32 context_id);
+    void complete(u32 context_id);
+    bool is_pending(u32 id);
+
+  private:
+    Plic();
+  };
+};// namespace Kernel

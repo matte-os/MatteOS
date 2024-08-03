@@ -21,5 +21,6 @@ namespace Kernel {
     runtime_assert(s_interruptManager, "InterruptManager: Not initialized.");
     return *s_interruptManager;
   }
-
+  void InterruptManager::register_device_interrupt(InterruptId interrupt_id, const RefPtr<Device>& device) {
+  }
 }// namespace Kernel

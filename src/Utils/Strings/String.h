@@ -61,6 +61,7 @@ namespace Utils {
       auto value = StringValue::adopt(cstring, calculate_size(cstring));
       return String(move(value));
     }
+    static String from_u64(u64 value);
   };
 
   class StringView {

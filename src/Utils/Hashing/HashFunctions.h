@@ -10,14 +10,15 @@ namespace Utils {
     size_t size;
   };
 
+  HashInput to_hash_input(u64 value);
+  HashInput to_hash_input(const char* value);
+  HashInput to_hash_input(const String& value);
+  HashInput to_hash_input(const StringView& value);
+
   template<typename T>
   concept Hashable = requires(T t) {
     { to_hash_input(t) } -> same_as<HashInput>;
   };
-
-  HashInput to_hash_input(const char* value);
-  HashInput to_hash_input(const String& value);
-  HashInput to_hash_input(const StringView& value);
 
   template<Hashable Input, typename Output>
   using HashFunction = Function<Output, Input>;

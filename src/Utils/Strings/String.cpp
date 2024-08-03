@@ -113,6 +113,11 @@ namespace Utils {
     itoa(buffer, value, 10);
     return adopt(buffer);
   }
+  String String::from_u64(u64 value) {
+    char* buffer = new char[22];
+    itoa(buffer, value, 10);
+    return adopt(buffer);
+  }
   char to_lower(char c) {
     if(c >= 'A' && c <= 'Z') return c + 32;
     return c;

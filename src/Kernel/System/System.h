@@ -34,19 +34,21 @@ namespace Kernel {
     static KernelTrapFrame* get_current_kernel_trap_frame() { return reinterpret_cast<KernelTrapFrame*>(TRAP_VECTOR_ADDRESS); }
     KernelTrapFrame* get_kernel_trap_frame(size_t hart_id) { return m_kernel_trap_frames[hart_id]; }
     [[nodiscard]] RefPtr<ArrayList<MemoryRegion>> get_memory_regions() const { return m_memory_regions; }
-    void install_from_device_tree();
     [[nodiscard]] size_t get_number_of_harts() const;
     [[nodiscard]] u64 get_mtime() const { return *m_mtime; }
     void set_default_trap_vector();
     //NOTE: This function is called by individual harts to initialize the kernel process for them.
     void setup_interrupts();
     [[noreturn]] void switch_to_user_mode(TrapFrame* frame_to_apply);
+    void install_from_device_tree();
 
   private:
     System();
     ~System() = default;
     void init_harts();
     void set_trap_vector(void (*trap_vector)());
+    void install_virtio_devices(ArrayList<const FDTNode*>& virtio_nodes);
+    void install_serial_device(const FDTNode* serial);
   };
 
 }// namespace Kernel

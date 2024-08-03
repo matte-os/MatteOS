@@ -9,6 +9,7 @@ using Utils::ArrayList;
 using Utils::DebugConsole;
 using Utils::ErrorOr;
 using Utils::move;
+using Utils::Error;
 
 namespace Kernel {
   class FDTParser;
@@ -29,6 +30,23 @@ namespace Kernel {
     [[nodiscard]] String get_value() const {
       return m_value;
     }
+
+    char* get_value_bytes() const {
+      return const_cast<char*>(m_value.to_cstring());
+    }
+
+    u32 get_value_as_u32(size_t index = 0) const {
+       return *(reinterpret_cast<Endian<u32, Utils::Endianness::Big>*>(get_value_bytes())[index]);
+    }
+
+    u32 number_of_u32_values() const {
+      return m_value.length() / sizeof(u32);
+    }
+
+    [[nodiscard]] bool is_empty() const {
+      return m_value.length() == 0;
+    }
+
     void print() const {
       DebugConsole::print(m_name.to_cstring());
       DebugConsole::print(": ");
@@ -78,6 +96,23 @@ namespace Kernel {
 
     String get_full_name() const {
       return m_name;
+    }
+
+    ErrorOr<const FDTProperty*> find_property(const String& name) const {
+      for(size_t i = 0; i < m_properties.size(); i++) {
+        if(m_properties[i].get_name() == name) {
+          return ErrorOr<const FDTProperty*>::create(&m_properties[i]);
+        }
+      }
+      return ErrorOr<const FDTProperty*>::create_error(Error::create_from_string("Property not found"));
+    }
+
+    [[nodiscard]] const ArrayList<FDTProperty>& get_properties() const {
+      return m_properties;
+    }
+
+    [[nodiscard]] const ArrayList<FDTNode*>& get_children() const {
+      return m_children;
     }
   };
 

@@ -3,12 +3,12 @@
 namespace Utils{
     template<class E>
     class Optional{
-        bool has;
-        E value;
+        bool m_has_value;
+        E m_value;
         public:
-            Optional();
-            Optional(E value);
-            bool has_some();
-            E get_value();
+            Optional() : m_has_value(false) {}
+            Optional(E value) : m_has_value(true), m_value(value) {}
+            bool has_value() const { return m_has_value; }
+            E get_value() const { return m_value; }
     };
 };

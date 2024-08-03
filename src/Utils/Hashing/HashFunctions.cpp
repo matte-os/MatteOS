@@ -25,4 +25,8 @@ namespace Utils {
     return { value.value(), value.length() };
   }
 
+  HashInput to_hash_input(u64 value) {
+    auto str = String::from_u64(value);
+    return { str.to_cstring(), str.length() };
+  }
 }// namespace Utils

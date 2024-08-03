@@ -13,6 +13,7 @@
 #include <Kernel/Process/Scheduler.h>
 #include <Kernel/Syscalls/SyscallManager.h>
 #include <Kernel/System/DeviceManager.h>
+#include <Kernel/System/InterruptManager.h>
 #include <Kernel/System/System.h>
 #include <Kernel/System/Timer.h>
 #include <Utils/DebugConsole.h>
@@ -21,6 +22,14 @@
 using Kernel::CPU;
 using Kernel::DeviceManager;
 using Kernel::DeviceTree;
+using Kernel::EntryBits;
+using Kernel::InterruptManager;
+using Kernel::KernelMemoryAllocator;
+using Kernel::MemoryManager;
+using Kernel::Page;
+using Kernel::PageTable;
+using Kernel::PageTableEntry;
+using Kernel::PhysicalAddress;
 using Kernel::ProcessManager;
 using Kernel::SATP;
 using Kernel::SatpMode;
@@ -28,15 +37,8 @@ using Kernel::Scheduler;
 using Kernel::SyscallManager;
 using Kernel::Timer;
 using Kernel::TrapFrame;
-using Kernel::VirtualFileSystem;
-using Kernel::EntryBits;
-using Kernel::KernelMemoryAllocator;
-using Kernel::MemoryManager;
-using Kernel::Page;
-using Kernel::PageTable;
-using Kernel::PageTableEntry;
-using Kernel::PhysicalAddress;
 using Kernel::VirtualAddress;
+using Kernel::VirtualFileSystem;
 using Utils::DebugConsole;
 using Utils::ErrorOr;
 using Utils::String;
@@ -60,10 +62,10 @@ extern "C" void kmain([[maybe_unused]] int a0, FDTHeader* header) {
   VirtualFileSystem::init();
   DeviceManager::init();
   system.install_from_device_tree();
-  sizeof_test();
   ProcessManager::init(page_table);
   auto* dummy_root = ProcessManager::the().create_dummy_process(MemoryManager::get_text_start(), MemoryManager::get_text_end());
   MemoryManager::the().identity_map_range(*dummy_root, MemoryManager::get_context_switching_start(), MemoryManager::get_context_switching_end(), (u64) Kernel::EntryBits::READ_EXECUTE);
+  InterruptManager::init();
   system.setup_interrupts();
   system.set_default_trap_vector();
   Timer::init();
@@ -71,19 +73,6 @@ extern "C" void kmain([[maybe_unused]] int a0, FDTHeader* header) {
   SyscallManager::init();
   DebugConsole::println("Initialization completed");
   Scheduler::the().start_scheduling();
-}
-
-void sizeof_test() {
-  DebugConsole::print("Size of size_t: ");
-  DebugConsole::print_ln_number(sizeof(size_t) * 8, 10);
-  DebugConsole::print("Size of u64: ");
-  DebugConsole::print_ln_number(sizeof(u64) * 8, 10);
-  DebugConsole::print("Size of u32: ");
-  DebugConsole::print_ln_number(sizeof(u32) * 8, 10);
-  DebugConsole::print("Size of u8: ");
-  DebugConsole::print_ln_number(sizeof(u8) * 8, 10);
-  DebugConsole::print("Size of uintptr_t: ");
-  DebugConsole::print_ln_number(sizeof(uintptr_t) * 8, 10);
 }
 
 PageTable* init_memory() {

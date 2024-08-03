@@ -6,9 +6,9 @@
  */
 
 #pragma once
-#include <Utils/Function.h>
 #include <Kernel/Memory/MemoryRegion.h>
 #include <Utils/DebugConsole.h>
+#include <Utils/Function.h>
 #include <Utils/Memory.h>
 #include <Utils/Pointers/RefCounted.h>
 #include <Utils/Types.h>
@@ -103,6 +103,15 @@ namespace Utils {
       return m_array[0];
     }
 
+    const T& get(size_t index) const {
+      if(m_size > index) {
+        return m_array[index];
+      }
+
+      DebugConsole::println("Index out of bounds!");
+      return m_array[0];
+    }
+
     /**
      * @brief Removes an element from the array.
      *
@@ -118,7 +127,7 @@ namespace Utils {
      *
      * @return size_t Size of the array.
      */
-    size_t size() {
+    size_t size() const {
       return m_ptr;
     }
 
@@ -130,6 +139,7 @@ namespace Utils {
     T* to_array() { return m_array; }
 
     T& operator[](size_t i) { return get(i); }
+    const T& operator[](size_t i) const { return get(i); }
 
     ArrayList<T>& operator=(const ArrayList<T>& other) {
       if(this == &other) return *this;

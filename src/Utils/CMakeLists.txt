@@ -1,7 +1,6 @@
 set(SOURCE  Assertions.cpp
             Basic.cpp
             DebugConsole.cpp
-            Optional.cpp
             cxx.cpp
             Memory.cpp
             Strings/StringValue.cpp

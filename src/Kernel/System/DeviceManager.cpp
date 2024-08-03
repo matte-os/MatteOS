@@ -29,7 +29,7 @@ namespace Kernel {
     runtime_assert(s_device_manager, "DeviceManager is not initialised.");
     return *s_device_manager;
   }
-  ErrorOr<RefPtr<Device>> DeviceManager::try_to_load_mmio_device(uintptr_t address) {
+  ErrorOr<RefPtr<Device>> DeviceManager::try_to_load_mmio_device(uintptr_t address, ArrayList<u64>&& interrupts) {
     DebugConsole::print("DeviceManager: Trying to load MMIO device at address ");
     DebugConsole::print_number(address, 16);
     DebugConsole::println(".");
@@ -44,16 +44,17 @@ namespace Kernel {
       DebugConsole::print("DeviceManager: The VirtIO version is ");
       DebugConsole::print_ln_number(mmio_device->get_version(), 10);
       auto virtio_device = RefPtr<UnderlyingDevice>(new VirtIODevice(mmio_device));
+
       RefPtr<Device> device;
       switch(get_device_type(virtio_device->get_device_id())) {
         case VirtIODeviceIDs::EntropySource:
-          device = RefPtr<Device>(new EntropyDevice(virtio_device));
+          device = RefPtr<Device>(new EntropyDevice(virtio_device, move(interrupts)));
           break;
         case VirtIODeviceIDs::BlockDevice:
-          device = RefPtr<Device>(new BlockDevice(virtio_device));
+          device = RefPtr<Device>(new BlockDevice(virtio_device, move(interrupts)));
           break;
         default:
-          device = RefPtr<Device>(new Device(virtio_device));
+          device = RefPtr<Device>(new Device(virtio_device, move(interrupts)));
       }
       m_devices.add(device);
       return ErrorOr<RefPtr<Device>>::create(move(device));
@@ -62,6 +63,10 @@ namespace Kernel {
       return ErrorOr<RefPtr<Device>>::create_error(Error::create_from_string("Not a VirtIO device."));
     }
   }
+  ErrorOr<void> DeviceManager::add_device(const RefPtr<Device>& device) {
+    m_devices.add(device);
+    return ErrorOr<void>::create({});
+  }
   ErrorOr<void> EntropyDevice::init() {
     return m_underlying_device->init(0, [](VirtQueue*) {
       DebugConsole::println("EntropyDevice: Initialising VirtQueue.");
@@ -69,6 +74,10 @@ namespace Kernel {
   }
   ErrorOr<void> Device::init() {
     return ErrorOr<void>::create_error(Error::create_from_string("Device slot is empty."));
+  }
+  ErrorOr<void> Device::handle_interrupt(u64 interrupt_id) {
+    DebugConsole::println("Device: Default device interrupt handler called");
+    return ErrorOr<void>::create({});
   }
   // https://docs.oasis-open.org/virtio/virtio/v1.2/csd01/virtio-v1.2-csd01.html#x1-1070001
   // 3.1.1 Driver Requirements: Device Initialization
@@ -133,5 +142,15 @@ namespace Kernel {
     return m_underlying_device->init(0, [](VirtQueue*) {
       DebugConsole::println("BlockDevice: Initialising VirtQueue.");
     });
+  }
+  ErrorOr<void> ConsoleDevice::init() {
+    return Device::init();
+  }
+  ErrorOr<void> ConsoleDevice::handle_interrupt(u64 interrupt_id) {
+    return Device::handle_interrupt(interrupt_id);
+  }
+  ErrorOr<void> SBIConsoleDevice::init(u32 features, Function<void, VirtQueue*> init_virt_queue) {
+  }
+  void SBIConsoleDevice::reset() {
   }
 }// namespace Kernel
