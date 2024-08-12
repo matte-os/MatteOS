@@ -8,7 +8,10 @@
 #pragma once
 #include <Kernel/Memory/MemoryRegion.h>
 #include <Utils/DebugConsole.h>
+#include <Utils/Errors/ErrorOr.h>
+#include <Utils/Forwards.h>
 #include <Utils/Function.h>
+#include <Utils/Callable.h>
 #include <Utils/Memory.h>
 #include <Utils/Pointers/RefCounted.h>
 #include <Utils/Types.h>
@@ -161,6 +164,26 @@ namespace Utils {
       return *this;
     }
 
+    ErrorOr<T> find_first_match(Callable<bool, const T&> predicate) {
+      for(size_t i = 0; i < size(); i++) {
+        if(predicate(get(i))) {
+          return ErrorOr<T>::create(get(i));
+        }
+      }
+
+      return ErrorOr<T>::create_error(Error::create_from_string("No match found!"));
+    }
+
+    ArrayList<T> find_all_matches(Function<bool, const T&> predicate) {
+      ArrayList<T> matches;
+      for(size_t i = 0; i < size(); i++) {
+        if(predicate(get(i))) {
+          matches.add(get(i));
+        }
+      }
+
+      return matches;
+    }
   private:
     /**
      * @brief Grows the array.

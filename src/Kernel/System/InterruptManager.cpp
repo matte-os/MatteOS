@@ -21,6 +21,10 @@ namespace Kernel {
     runtime_assert(s_interruptManager, "InterruptManager: Not initialized.");
     return *s_interruptManager;
   }
-  void InterruptManager::register_device_interrupt(InterruptId interrupt_id, const RefPtr<Device>& device) {
+  ErrorOr<void> InterruptManager::handle_interrupt(InterruptId interrupt_id) {
+    return ErrorOr<void>::create_error(Error::create_from_string("InterruptManager: Not implemented."));
+  }
+  ErrorOr<void> InterruptManager::delegate_device_interrupt(InterruptId interrupt_id) {
+    return DeviceManager::the().delegate_device_interrupt(interrupt_id);
   }
 }// namespace Kernel

@@ -16,8 +16,10 @@ namespace Kernel {
     RefPtr<Device> m_device;
     RefPtr<DevFileSystem> m_file_system;
     HashMap<String, RefPtr<Inode>> m_inodes;
+    bool m_is_directory;
 
   public:
+
   };
 
 }// namespace Kernel

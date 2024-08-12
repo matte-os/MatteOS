@@ -7,14 +7,13 @@
 
 #pragma once
 
-#include "Utils/Variant.h"
+#include <Utils/Forwards.h>
 #include <Utils/Strings/String.h>
 #include <Utils/Traits.h>
+#include <Utils/Variant.h>
 
 namespace Utils {
   using namespace Utils;
-
-#define PROPAGATE_IF_ERROR(maybe_error) return maybe_error;
 
   class Error {
   protected:
@@ -44,7 +43,7 @@ namespace Utils {
     ~Error() = default;
   };
 
-  template<typename T, typename E = Error>
+  template<typename T, typename E>
   class ErrorOr {
   public:
     using ResultType = T;

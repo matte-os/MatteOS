@@ -17,7 +17,7 @@ namespace Utils {
     Unique(T* value) : m_value(value) {}
 
   public:
-    Unique(Unique<T>&& other) : m_value(other.m_value) {
+    Unique(Unique<T>&& other) : m_value(other.m_value)  {
       other.m_value = nullptr;
     }
 
@@ -34,6 +34,17 @@ namespace Utils {
 
     T& operator*() {
       return *m_value;
+    }
+
+    Unique<T>& operator=(Unique<T> const& ptr) = delete;
+
+    Unique<T>& operator=(Unique<T>&& ptr) noexcept {
+      if(this == &ptr)
+        return *this;
+      delete m_value;
+      m_value = ptr.m_value;
+      ptr.m_value = nullptr;
+      return *this;
     }
 
     template<typename... Args>

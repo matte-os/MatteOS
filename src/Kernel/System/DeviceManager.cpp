@@ -10,8 +10,8 @@
 #include <Utils/DebugConsole.h>
 
 namespace Kernel {
-  using Kernel::get_device_type;
   using Kernel::EntryBits;
+  using Kernel::get_device_type;
   using Kernel::MemoryManager;
   using Utils::DebugConsole;
 
@@ -67,6 +67,18 @@ namespace Kernel {
     m_devices.add(device);
     return ErrorOr<void>::create({});
   }
+  ErrorOr<void> DeviceManager::delegate_device_interrupt(u64 interrupt_id) {
+    auto device_or_error = m_devices.find_first_match([interrupt_id](const RefPtr<Device>& device) -> bool {
+      return device->handles_interrupt(interrupt_id);
+    });
+
+    if(device_or_error.has_error()) {
+      return ErrorOr<void>::create_error(Error::create_from_string("Couldn't delegate interrupt. No device found!."));
+    }
+
+    auto device = device_or_error.get_value();
+    return device->handle_interrupt(interrupt_id);
+  }
   ErrorOr<void> EntropyDevice::init() {
     return m_underlying_device->init(0, [](VirtQueue*) {
       DebugConsole::println("EntropyDevice: Initialising VirtQueue.");
@@ -78,6 +90,13 @@ namespace Kernel {
   ErrorOr<void> Device::handle_interrupt(u64 interrupt_id) {
     DebugConsole::println("Device: Default device interrupt handler called");
     return ErrorOr<void>::create({});
+  }
+  bool Device::handles_interrupt(u64 interrupt_id) {
+    auto interrupt_or_error = m_interrupts.find_first_match([interrupt_id](auto interrupt) -> bool {
+      return interrupt_id == interrupt;
+    });
+
+    return interrupt_or_error.has_value();
   }
   // https://docs.oasis-open.org/virtio/virtio/v1.2/csd01/virtio-v1.2-csd01.html#x1-1070001
   // 3.1.1 Driver Requirements: Device Initialization

@@ -10,7 +10,7 @@ namespace Utils {
   using Utils::RefPtr;
 
   template<typename ReturnType, typename... Args>
-  class Function {
+  class Callable {
   private:
     struct AnonymousFunction : public RefCounted<AnonymousFunction> {
       virtual ReturnType invoke(Args...) = 0;
@@ -29,7 +29,7 @@ namespace Utils {
 
   public:
     template<typename F>
-    Function(F function) : m_function(new FunctionWrapper<F>(function)) {}
+    Callable(F function) : m_function(new FunctionWrapper<F>(function)) {}
     ReturnType operator()(Args... args) {
       return m_function->invoke(forward<Args...>(args...));
     }

@@ -17,15 +17,11 @@ namespace Kernel {
   using InterruptId = u64;
 
   class InterruptManager {
-  private:
-    HashMap<InterruptId, RefPtr<Device>> m_device_interrupts;
-
   public:
     static void init();
     static InterruptManager& the();
-    void register_device_interrupt(InterruptId interrupt_id, const RefPtr<Device>& device);
-    void unregister_device_interrupt(InterruptId interrupt_id);
-    void handle_interrupt(InterruptId interrupt_id);
+    ErrorOr<void> handle_interrupt(InterruptId interrupt_id);
+    ErrorOr<void> delegate_device_interrupt(InterruptId interrupt_id);
   };
 
 }// namespace Kernel

@@ -7,6 +7,7 @@
 #include <Utils/DebugConsole.h>
 #include <Utils/Traits.h>
 #include <Utils/Types.h>
+#include <Utils/kmalloc.h>
 
 namespace Utils {
   template<typename T, typename... Types>
@@ -46,7 +47,7 @@ namespace Utils {
     Variant() : m_type_id(invalid_type()), m_has_value(false) {}
     Variant(Variant<Types...>& other) {
     }
-    Variant(Variant<Types...>&& other)  noexcept {
+    Variant(Variant<Types...>&& other) noexcept {
     }
     template<typename T>
     T& as() {

@@ -1,6 +1,7 @@
 #include <Kernel/Arch/riscv64/CSR.h>
 #include <Kernel/Arch/riscv64/Interrupts/Interrupts.h>
 #include <Kernel/Syscalls/SyscallManager.h>
+#include <Kernel/System/InterruptManager.h>
 #include <Utils/DebugConsole.h>
 
 namespace Kernel {
@@ -18,6 +19,9 @@ namespace Kernel {
 
   size_t handle_external_interrupt(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus) {
     DebugConsole::println("Interrupts: Handling external interrupt");
+    // FIXME: Interrupt id should not be scause, it should be the actual interrupt id
+    // from PLIC.
+    InterruptManager::the().delegate_device_interrupt(scause);
     return sepc;
   }
 

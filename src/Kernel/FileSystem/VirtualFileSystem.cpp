@@ -1,6 +1,7 @@
 #include <Kernel/FileSystem/VirtualFileSystem.h>
 #include <Utils/Assertions.h>
 #include <Utils/Errors/ErrorOr.h>
+#include <Utils/Arrays/ArrayList.h>
 
 using Utils::Error;
 using Utils::ErrorOr;

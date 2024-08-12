@@ -106,6 +106,7 @@ namespace Kernel {
     [[nodiscard]] DeviceType get_device_type() const {
       return m_device_type;
     }
+    bool handles_interrupt(u64);
     virtual ErrorOr<void> handle_interrupt(u64 interrupt_id);
     virtual ErrorOr<void> init();
     virtual ~Device() = default;
@@ -142,6 +143,7 @@ namespace Kernel {
     static DeviceManager& the();
     ErrorOr<RefPtr<Device>> try_to_load_mmio_device(uintptr_t address, ArrayList<u64>&& interrupts);
     ErrorOr<void> add_device(const RefPtr<Device>& device);
+    ErrorOr<void> delegate_device_interrupt(u64 interrupt_id);
     ~DeviceManager() = default;
   };
 }// namespace Kernel

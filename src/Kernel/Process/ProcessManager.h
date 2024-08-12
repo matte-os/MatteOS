@@ -7,6 +7,7 @@
 #include <Kernel/Process/Process.h>
 #include <Utils/Arrays/Queue.h>
 #include <Utils/Locks/Lock.h>
+#include <Kernel/Locking/Locked.h>
 
 using Utils::LinkedQueue;
 using Utils::Locks::SpinLock;
