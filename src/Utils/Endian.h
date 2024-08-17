@@ -23,16 +23,18 @@ namespace Utils {
 
   public:
     Endian() = default;
-    explicit Endian(T value) : value(value) {}
+    Endian(T value) {
+      if(E == Endianness::Big && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__) {
+        this->value = swap_endian(value);
+      } else if(E == Endianness::Little && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__) {
+        this->value = swap_endian(value);
+      } else {
+        this->value = value;
+      }
+    }
 
     T operator*() {
-      if(E == Endianness::Big && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__) {
-        return swap_endian(value);
-      } else if(E == Endianness::Little && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__) {
-        return swap_endian(value);
-      } else {
-        return value;
-      }
+      return in_system_endian();
     }
 
     Endian<T, E>& operator=(T val) {
@@ -44,6 +46,79 @@ namespace Utils {
         value = val;
       }
       return *this;
+    }
+
+    void emplace(T value) {
+      this->value = value;
+    }
+
+    operator T() {
+      return **this;
+    }
+
+    operator T() const {
+      return **this;
+    }
+
+    void operator++() {
+      auto value = in_system_endian() + 1;
+      this->value = to_specific_endian(value);
+    }
+
+    void operator++(int) {
+      auto value = in_system_endian() + 1;
+      this->value = to_specific_endian(value);
+    }
+
+    void operator--(int) {
+      auto value = in_system_endian() - 1;
+      this->value = to_specific_endian(value);
+    }
+
+    void operator--() {
+      auto value = in_system_endian() - 1;
+      this->value = to_specific_endian(value);
+    }
+
+    T operator+(T val) {
+      return in_system_endian() + val;
+    }
+
+    T operator-(T val) {
+      return in_system_endian() - val;
+    }
+
+    T operator%(T val) {
+      return in_system_endian() % val;
+    }
+
+    T operator/(T val) {
+      return in_system_endian() / val;
+    }
+
+  private:
+    T in_system_endian() {
+      if(E == Endianness::Big && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__) {
+        return swap_endian(value);
+      } else if(E == Endianness::Little && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__) {
+        return swap_endian(value);
+      } else {
+        return value;
+      }
+    }
+
+    T in_specified_endian() {
+      return value;
+    }
+
+    T to_specific_endian(T value) {
+      if(E == Endianness::Big && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__) {
+        return swap_endian(value);
+      } else if(E == Endianness::Little && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__) {
+        return swap_endian(value);
+      } else {
+        return value;
+      }
     }
   };
 

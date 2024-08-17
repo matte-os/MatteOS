@@ -1,0 +1,1 @@
+add_executable(Console src/Console.cpp)

@@ -1,4 +1,4 @@
-#include <Kernel/Sbi/sbi.h>
+#include <Kernel/SBI/SBI.h>
 #include <Kernel/Uart.h>
 #include <Utils/Basic.h>
 #include <Utils/DebugConsole.h>

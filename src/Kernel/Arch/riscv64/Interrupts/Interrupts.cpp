@@ -1,3 +1,4 @@
+#include "Plic.h"
 #include <Kernel/Arch/riscv64/CSR.h>
 #include <Kernel/Arch/riscv64/Interrupts/Interrupts.h>
 #include <Kernel/Syscalls/SyscallManager.h>
@@ -19,9 +20,10 @@ namespace Kernel {
 
   size_t handle_external_interrupt(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus) {
     DebugConsole::println("Interrupts: Handling external interrupt");
-    // FIXME: Interrupt id should not be scause, it should be the actual interrupt id
-    // from PLIC.
-    InterruptManager::the().delegate_device_interrupt(scause);
+    auto next_interrupt = Plic::the().next(System::the().get_current_kernel_trap_frame()->cpu_id);
+    if(next_interrupt.has_value()) {
+      InterruptManager::the().handle_interrupt(next_interrupt.get_value());
+    }
     return sepc;
   }
 

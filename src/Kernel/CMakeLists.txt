@@ -7,7 +7,6 @@ set(SOURCE
         Init.cpp
         Arch/riscv64/CPU.cpp
         Arch/riscv64/Interrupts/Interrupts.cpp
-        Console/Console.cpp
         FileSystem/DEVFS/DevFileSystem.cpp
         FileSystem/DEVFS/DevInode.cpp
         FileSystem/RAMFS/RamFileSystem.cpp
@@ -38,9 +37,10 @@ set(SOURCE
         Process/Process.cpp
         Process/ProcessManager.cpp
         Process/Scheduler.cpp
-        Sbi/sbi.cpp
+        SBI/SBI.cpp
         VirtIO/VirtIODeviceIDs.cpp
         VirtIO/VirtQueue.cpp
+        VirtIO/BlockIO.cpp
 )
 
 include_directories(SYSTEM ${SOURCE_DIRECTORY})

@@ -1,7 +1,9 @@
 #pragma once
+
 #include <Utils/Types.h>
+
 namespace Kernel {
-  enum sbi_ext_id {
+  enum SBIExtensionIDs {
     SBI_EXT_0_1_SET_TIMER = 0x0,
     SBI_EXT_0_1_CONSOLE_PUTCHAR = 0x1,
     SBI_EXT_0_1_CONSOLE_GETCHAR = 0x2,

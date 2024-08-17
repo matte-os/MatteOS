@@ -7,7 +7,7 @@
 #include <Kernel/Firmware/FDT/FDT.h>
 #include <Kernel/Firmware/FDT/FDTParser.h>
 #include <Kernel/Memory/MemoryRegion.h>
-#include <Kernel/Sbi/sbi.h>
+#include <Kernel/SBI/SBI.h>
 #include <Kernel/System/KernelTrapFrame.h>
 #include <Kernel/System/TrapFrame.h>
 #include <Utils/Arrays/ArrayList.h>

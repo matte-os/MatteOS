@@ -39,7 +39,7 @@ namespace Utils {
       return m_value;
     }
 
-    RefPtr<T>& operator=(RefPtr<T> const& ptr) {
+    RefPtr<T>& operator=(const RefPtr<T>& ptr) {
       if(this == &ptr)
         return *this;
       if(m_value)
@@ -80,12 +80,17 @@ namespace Utils {
       return m_value != nullptr;
     }
 
+    T& operator*() const {
+      return *m_value;
+    }
+
     template<typename U>
     operator RefPtr<U>() const {
       static_assert(IsBaseOf<U, T>::value, "Cannot convert to a non-base class!");
       return RefPtr<U>(static_cast<U*>(m_value));
     }
   };
+
   template<typename T>
   RefPtr<T> adopt_ref();
 }// namespace Utils

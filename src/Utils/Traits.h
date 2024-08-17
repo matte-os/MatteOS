@@ -131,4 +131,66 @@ namespace Utils {
   struct EnableIf<true, T> {
     typedef T type;
   };
+
+  template<typename T>
+  struct AddRValueReference {
+    using type = T&&;
+  };
+
+  template<typename T>
+  struct AddRValueReference<T&> {
+    using type = T&;
+  };
+
+  template<typename T>
+  struct AddRValueReference<T&&> {
+    using type = T&&;
+  };
+
+  template<>
+  struct AddRValueReference<void> {
+    using type = void;
+  };
+
+  template<>
+  struct AddRValueReference<const void> {
+    using type = const void;
+  };
+
+  template<>
+  struct AddRValueReference<volatile void> {
+    using type = volatile void;
+  };
+
+  template<>
+  struct AddRValueReference<const volatile void> {
+    using type = const volatile void;
+  };
+
+  template<typename T>
+  typename AddRValueReference<T>::type declval() noexcept;
+
+  template <typename T>
+  struct IsEnum {
+    static const bool value = __is_enum(T);
+  };
+
+  template<typename T>
+  constexpr bool IsEnumValue = IsEnum<T>::value;
+
+  template<typename T, bool value = IsEnum<T>::value>
+  struct UnderlyingType;
+
+  template<typename T>
+  struct UnderlyingType<T, true> {
+    using type = __underlying_type(T);
+  };
+
+  template<typename T>
+  using UnderlyingTypeValue = typename UnderlyingType<T, IsEnum<T>::value>::type;
+
+  template <typename T>
+  typename UnderlyingType<T, IsEnum<T>::value>::type as_underlying(T value) {
+    return static_cast<typename UnderlyingType<T, IsEnum<T>::value>::type>(value);
+  }
 }// namespace Utils

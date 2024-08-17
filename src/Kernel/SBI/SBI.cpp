@@ -1,4 +1,4 @@
-#include <Kernel/Sbi/sbi.h>
+#include <Kernel/SBI/SBI.h>
 
 namespace Kernel {
   struct SBIRet SBI::sbi_ecall(int ext, int fid, unsigned long arg0,

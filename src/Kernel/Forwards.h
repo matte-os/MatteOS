@@ -9,4 +9,5 @@ namespace Kernel {
   class RamInode;
   class DeviceManager;
   class Device;
+  class VirtIODevice;
 }// namespace Kernel

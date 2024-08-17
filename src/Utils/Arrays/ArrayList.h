@@ -6,12 +6,14 @@
  */
 
 #pragma once
+
 #include <Kernel/Memory/MemoryRegion.h>
+#include <Utils/Assertions.h>
+#include <Utils/Callable.h>
 #include <Utils/DebugConsole.h>
 #include <Utils/Errors/ErrorOr.h>
 #include <Utils/Forwards.h>
 #include <Utils/Function.h>
-#include <Utils/Callable.h>
 #include <Utils/Memory.h>
 #include <Utils/Pointers/RefCounted.h>
 #include <Utils/Types.h>
@@ -107,12 +109,8 @@ namespace Utils {
     }
 
     const T& get(size_t index) const {
-      if(m_size > index) {
-        return m_array[index];
-      }
-
-      DebugConsole::println("Index out of bounds!");
-      return m_array[0];
+      runtime_assert(index < m_size, "Array: Index out of bounds!");
+      return m_array[index];
     }
 
     /**
@@ -123,6 +121,7 @@ namespace Utils {
     //TODO: Implement remove method
     void remove(size_t index) {
     }
+
     //T operator[](size_t i) { return get(i); };
 
     /**
@@ -142,6 +141,7 @@ namespace Utils {
     T* to_array() { return m_array; }
 
     T& operator[](size_t i) { return get(i); }
+
     const T& operator[](size_t i) const { return get(i); }
 
     ArrayList<T>& operator=(const ArrayList<T>& other) {
@@ -174,7 +174,7 @@ namespace Utils {
       return ErrorOr<T>::create_error(Error::create_from_string("No match found!"));
     }
 
-    ArrayList<T> find_all_matches(Function<bool, const T&> predicate) {
+    ArrayList<T> find_all_matches(Callable<bool, const T&> predicate) {
       ArrayList<T> matches;
       for(size_t i = 0; i < size(); i++) {
         if(predicate(get(i))) {
@@ -184,6 +184,7 @@ namespace Utils {
 
       return matches;
     }
+
   private:
     /**
      * @brief Grows the array.

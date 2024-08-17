@@ -2,7 +2,7 @@
 // Created by matejbucek on 13.5.24.
 //
 
-#include <Kernel/Sbi/sbi.h>
+#include <Kernel/SBI/SBI.h>
 #include <Kernel/System/Timer.h>
 #include <Utils/Assertions.h>
 

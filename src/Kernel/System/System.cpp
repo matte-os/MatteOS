@@ -6,7 +6,7 @@
 #include <Kernel/Firmware/DeviceTree.h>
 #include <Kernel/Memory/MemoryManager.h>
 #include <Kernel/Process/ProcessManager.h>
-#include <Kernel/Sbi/sbi.h>
+#include <Kernel/SBI/SBI.h>
 #include <Kernel/System/DeviceManager.h>
 #include <Kernel/System/System.h>
 #include <Kernel/System/TrapFrame.h>

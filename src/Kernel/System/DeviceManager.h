@@ -6,6 +6,7 @@
 
 #include <Kernel/VirtIO/MMIODevice.h>
 #include <Kernel/VirtIO/VirtQueue.h>
+#include <Utils/Arrays/Array.h>
 #include <Utils/Arrays/ArrayList.h>
 #include <Utils/Errors/ErrorOr.h>
 #include <Utils/Function.h>
@@ -17,13 +18,14 @@
 
 namespace Kernel {
   using Utils::ArrayList;
-  using Utils::move;
   using Utils::Error;
   using Utils::ErrorOr;
+  using Utils::Function;
+  using Utils::move;
   using Utils::RefCounted;
   using Utils::RefPtr;
-  using Utils::Function;
   using Utils::String;
+  using Utils::Array;
 
   enum class UnderlyingDeviceType {
     VirtIO,
@@ -39,31 +41,42 @@ namespace Kernel {
     [[nodiscard]] UnderlyingDeviceType get_device_type() const {
       return m_device_type;
     }
+
     virtual u32 get_device_id() = 0;
     virtual u32 get_vendor_id() = 0;
-    virtual ErrorOr<void> init(u32 features, Function<void, VirtQueue*> init_virt_queue) = 0;
     virtual void reset() = 0;
+
+    template<typename T>
+    T* as() {
+      return static_cast<T*>(this);
+    }
+
     virtual ~UnderlyingDevice() = default;
   };
 
   class VirtIODevice : public UnderlyingDevice {
   private:
     MMIODevice* m_mmio_device;
-    // FIXME: Add support for multiple VirtQueues
-    // We should have a member variable that specifies the number of VirtQueues
-    // to be initialized.
-    VirtQueue* m_virt_queue;
+    u32 m_features;
+    VirtQueueArray m_virt_queues;
+    RefPtr<Array<u64>> m_queue_indexes;
+    RefPtr<Array<u64>> m_queue_acks;
 
   public:
-    explicit VirtIODevice(MMIODevice* mmio_device) : UnderlyingDevice(UnderlyingDeviceType::VirtIO), m_mmio_device(mmio_device), m_virt_queue(nullptr) {}
+    explicit VirtIODevice(MMIODevice* mmio_device) : UnderlyingDevice(UnderlyingDeviceType::VirtIO), m_mmio_device(mmio_device), m_virt_queues(), m_queue_indexes(), m_queue_acks() {}
     u32 get_device_id() override {
       return m_mmio_device->get_device_id();
     }
     u32 get_vendor_id() override {
       return m_mmio_device->get_vendor_id();
     }
-    ErrorOr<void> init(u32 features, Function<void, VirtQueue*> init_virt_queue) override;
+    virtual ErrorOr<void> init(u32 features, u64 number_of_virt_queues, Function<void, VirtQueue*, u64> init_virt_queue);
     void reset() override;
+
+    u64 get_next_queue_index(u32 selected_queue);
+    ErrorOr<u32> add_to_queue(VirtQueueDescriptor&& descriptor);
+    ErrorOr<void> add_to_available(u32 descriptor_index);
+    ErrorOr<void> notify();
   };
 
   class SBIConsoleDevice : public UnderlyingDevice {
@@ -75,7 +88,6 @@ namespace Kernel {
     u32 get_vendor_id() override {
       return 0;
     }
-    ErrorOr<void> init(u32 features, Function<void, VirtQueue*> init_virt_queue = nullptr) override;
     void reset() override;
   };
 
@@ -105,6 +117,12 @@ namespace Kernel {
     }
     [[nodiscard]] DeviceType get_device_type() const {
       return m_device_type;
+    }
+    RefPtr<UnderlyingDevice> get_underlying_device() const {
+      return m_underlying_device;
+    }
+    [[nodiscard]] const ArrayList<u64>& get_interrupts() const {
+      return m_interrupts;
     }
     bool handles_interrupt(u64);
     virtual ErrorOr<void> handle_interrupt(u64 interrupt_id);

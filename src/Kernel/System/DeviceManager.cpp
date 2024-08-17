@@ -3,17 +3,22 @@
 //
 
 #include <Kernel/Memory/MemoryManager.h>
+#include <Kernel/SBI/SBI.h>
 #include <Kernel/System/DeviceManager.h>
 #include <Kernel/VirtIO/MMIODevice.h>
 #include <Kernel/VirtIO/VirtIODeviceIDs.h>
 #include <Utils/Assertions.h>
 #include <Utils/DebugConsole.h>
+#include <Utils/Traits.h>
 
 namespace Kernel {
   using Kernel::EntryBits;
   using Kernel::get_device_type;
   using Kernel::MemoryManager;
+  using Utils::as_underlying;
   using Utils::DebugConsole;
+  using Utils::Error;
+  using Utils::ErrorOr;
 
   static DeviceManager* s_device_manager = nullptr;
 
@@ -29,6 +34,7 @@ namespace Kernel {
     runtime_assert(s_device_manager, "DeviceManager is not initialised.");
     return *s_device_manager;
   }
+
   ErrorOr<RefPtr<Device>> DeviceManager::try_to_load_mmio_device(uintptr_t address, ArrayList<u64>&& interrupts) {
     DebugConsole::print("DeviceManager: Trying to load MMIO device at address ");
     DebugConsole::print_number(address, 16);
@@ -63,10 +69,12 @@ namespace Kernel {
       return ErrorOr<RefPtr<Device>>::create_error(Error::create_from_string("Not a VirtIO device."));
     }
   }
+
   ErrorOr<void> DeviceManager::add_device(const RefPtr<Device>& device) {
     m_devices.add(device);
     return ErrorOr<void>::create({});
   }
+
   ErrorOr<void> DeviceManager::delegate_device_interrupt(u64 interrupt_id) {
     auto device_or_error = m_devices.find_first_match([interrupt_id](const RefPtr<Device>& device) -> bool {
       return device->handles_interrupt(interrupt_id);
@@ -79,18 +87,22 @@ namespace Kernel {
     auto device = device_or_error.get_value();
     return device->handle_interrupt(interrupt_id);
   }
+
   ErrorOr<void> EntropyDevice::init() {
-    return m_underlying_device->init(0, [](VirtQueue*) {
+    return m_underlying_device->as<VirtIODevice>()->init(0, 1, [](VirtQueue*, u64 queue_id) {
       DebugConsole::println("EntropyDevice: Initialising VirtQueue.");
     });
   }
+
   ErrorOr<void> Device::init() {
     return ErrorOr<void>::create_error(Error::create_from_string("Device slot is empty."));
   }
+
   ErrorOr<void> Device::handle_interrupt(u64 interrupt_id) {
     DebugConsole::println("Device: Default device interrupt handler called");
     return ErrorOr<void>::create({});
   }
+
   bool Device::handles_interrupt(u64 interrupt_id) {
     auto interrupt_or_error = m_interrupts.find_first_match([interrupt_id](auto interrupt) -> bool {
       return interrupt_id == interrupt;
@@ -98,9 +110,13 @@ namespace Kernel {
 
     return interrupt_or_error.has_value();
   }
+
   // https://docs.oasis-open.org/virtio/virtio/v1.2/csd01/virtio-v1.2-csd01.html#x1-1070001
   // 3.1.1 Driver Requirements: Device Initialization
-  ErrorOr<void> VirtIODevice::init(u32 features, Function<void, VirtQueue*> init_virt_queue) {
+  ErrorOr<void> VirtIODevice::init(u32 features, u64 number_of_virt_queues, Function<void, VirtQueue*, u64> init_virt_queue) {
+    m_queue_indexes = RefPtr<Array<u64>>(new Array<u64>(number_of_virt_queues));
+    m_queue_acks = RefPtr<Array<u64>>(new Array<u64>(number_of_virt_queues));
+
     // The driver MUST follow this sequence to initialize the device:
     // 1. Reset the device.
     reset();
@@ -138,38 +154,87 @@ namespace Kernel {
     m_mmio_device->set_queue_sel(0);
 
     auto number_of_pages = (sizeof(VirtQueue) + PAGE_SIZE - 1) / PAGE_SIZE;
-    auto queue_address = MemoryManager::the().zalloc(number_of_pages);
     m_mmio_device->set_guest_page_size(PAGE_SIZE);
-    // Store the address of the VirtQueue for quick access.
-    m_virt_queue = reinterpret_cast<VirtQueue*>(queue_address);
-    // Set the address of the VirtQueue in the device.
-    auto queue_address_value = reinterpret_cast<size_t>(queue_address);
-    m_mmio_device->set_queue_pfn(static_cast<u32>(queue_address_value) / PAGE_SIZE);
 
-    // Callback to the driver to populate the VirtQueue.
-    init_virt_queue(m_virt_queue);
+    // Allocate memory for the VirtQueues and initialize them.
+    m_virt_queues = VirtQueueArray(number_of_virt_queues);
+    for(u64 i = 0; i < number_of_virt_queues; i++) {
+      auto queue_address = MemoryManager::the().zalloc(number_of_pages);
+      // Store the address of the VirtQueue for quick access.
+      m_virt_queues[i] = reinterpret_cast<VirtQueue*>(queue_address);
+      init_virt_queue(m_virt_queues[i], i);
+    }
+
+    // Set the address of the VirtQueue in the device.
+    auto queue_address_value = reinterpret_cast<size_t>(m_virt_queues[0]);
+    m_mmio_device->set_queue_pfn(static_cast<u32>(queue_address_value) / PAGE_SIZE);
 
     // 8. Set the DRIVER_OK status bit. At this point the device is “live”.
     status |= static_cast<u32>(StatusField::DriverOK);
     m_mmio_device->set_status(status);
     return ErrorOr<void>::create({});
   }
+
   void VirtIODevice::reset() {
     m_mmio_device->set_status(0);
   }
+
+  ErrorOr<u32> VirtIODevice::add_to_queue(VirtQueueDescriptor&& descriptor) {
+    auto selected_queue = m_mmio_device->get_queue_sel();
+    auto queue = m_virt_queues[selected_queue];
+
+    auto available_index = get_next_queue_index(selected_queue);
+    queue->descriptors[available_index] = descriptor;
+    if(*descriptor.flags & as_underlying(VirtQueueDescriptorFlags::Next)) {
+      queue->descriptors[available_index].next = (available_index + 1) % VIRTIO_RING_SIZE;
+    }
+
+    return ErrorOr<u32>::create(available_index);
+  }
+
+  u64 VirtIODevice::get_next_queue_index(u32 selected_queue) {
+    auto index = (*m_queue_indexes)[selected_queue];
+    (*m_queue_indexes)[selected_queue] = (index + 1) % VIRTIO_RING_SIZE;
+  }
+
+  ErrorOr<void> VirtIODevice::add_to_available(u32 descriptor_index) {
+    auto selected_queue = m_mmio_device->get_queue_sel();
+    auto queue = m_virt_queues[selected_queue];
+
+    queue->available.ring[*queue->available.index % VIRTIO_RING_SIZE] = descriptor_index;
+    queue->available.index++;
+
+    return ErrorOr<void>::create({});
+  }
+
+  ErrorOr<void> VirtIODevice::notify() {
+    m_mmio_device->set_queue_notify(m_mmio_device->get_queue_sel());
+    return ErrorOr<void>::create({});
+  }
+
   ErrorOr<void> BlockDevice::init() {
-    return m_underlying_device->init(0, [](VirtQueue*) {
+    return m_underlying_device->as<VirtIODevice>()->init(0, 1, [](VirtQueue*, u64) {
       DebugConsole::println("BlockDevice: Initialising VirtQueue.");
     });
   }
+
   ErrorOr<void> ConsoleDevice::init() {
     return Device::init();
   }
+
   ErrorOr<void> ConsoleDevice::handle_interrupt(u64 interrupt_id) {
     return Device::handle_interrupt(interrupt_id);
   }
-  ErrorOr<void> SBIConsoleDevice::init(u32 features, Function<void, VirtQueue*> init_virt_queue) {
+
+  ErrorOr<void> ConsoleDevice::write(String message) {
+    DebugConsole::println(message.to_cstring());
+    return ErrorOr<void>::create({});
   }
+
+  ErrorOr<String> ConsoleDevice::read() {
+    return ErrorOr<String>::create_error(Error::create_from_string("ConsoleDevice: Not implemented."));
+  }
+
   void SBIConsoleDevice::reset() {
   }
 }// namespace Kernel
