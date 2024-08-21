@@ -76,6 +76,12 @@ namespace Utils {
       return *this;
     }
 
+    void fill(T value) {
+      for(size_t i = 0; i < m_size; i++) {
+        m_array[i] = value;
+      }
+    }
+
     /**
          * @brief Destructor
          */

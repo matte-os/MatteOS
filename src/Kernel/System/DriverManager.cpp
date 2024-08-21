@@ -49,13 +49,20 @@ namespace Kernel {
   }
 
   ErrorOr<void> BlockIODriver::block_operation(u8* buffer, u64 size, u64 offset, bool is_write) {
+    if(size % 512 != 0) {
+      return ErrorOr<void>::create_error(Error::create_from_string("BlockIODriver: Size must be a multiple of 512 bytes."));
+    }
+
     auto* request = new BlockIO::Request {
             .header = BlockIO::Header {
                     .type = is_write ? as_underlying(BlockIO::RequestType::Write) : as_underlying(BlockIO::RequestType::Read),
                     .reserved = 0,
                     .sector = offset / 512},
             .data = buffer,
-            .status = 111};
+            .status = 0x111};
+
+    DebugConsole::print("BlockIODriver: Request address: ");
+    DebugConsole::print_ln_number(reinterpret_cast<u64>(request), 16);
 
     // The first VirtQueue descriptor that will tell the drive
     // that we want to read/write data from/to the disk.
@@ -73,7 +80,7 @@ namespace Kernel {
     descriptor = VirtQueueDescriptor {
             .address = reinterpret_cast<u64>(buffer),
             .length = size,
-            .flags = as_underlying(VirtQueueDescriptorFlags::Next) | (is_write ? as_underlying(VirtQueueDescriptorFlags::Write) : 0),
+            .flags = as_underlying(VirtQueueDescriptorFlags::Next) | (!is_write ? as_underlying(VirtQueueDescriptorFlags::Write) : 0),
             .next = 0};
 
     // Move the descriptor to the VirtQueue and link next.
@@ -83,7 +90,7 @@ namespace Kernel {
     descriptor = VirtQueueDescriptor {
             .address = reinterpret_cast<u64>(&request->status),
             .length = sizeof(request->status),
-            .flags = as_underlying(VirtQueueDescriptorFlags::Next),
+            .flags = as_underlying(VirtQueueDescriptorFlags::Write),
             .next = 0};
 
     // Move the descriptor to the VirtQueue.

@@ -10,4 +10,5 @@ namespace Kernel {
   class DeviceManager;
   class Device;
   class VirtIODevice;
+  class BlockDevice;
 }// namespace Kernel

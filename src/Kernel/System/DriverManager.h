@@ -18,6 +18,11 @@ namespace Kernel {
   public:
     virtual void init(RefPtr<Device> device) = 0;
     virtual void shutdown() = 0;
+
+    template<typename T>
+    T* as() {
+      return static_cast<T*>(this);
+    }
   };
 
   class BlockIODriver : public Driver {

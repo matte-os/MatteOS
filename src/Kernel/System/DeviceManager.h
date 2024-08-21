@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "DriverManager.h"
 #include <Kernel/VirtIO/MMIODevice.h>
 #include <Kernel/VirtIO/VirtQueue.h>
 #include <Utils/Arrays/Array.h>
@@ -17,6 +18,7 @@
 #include <Utils/Types.h>
 
 namespace Kernel {
+  using Utils::Array;
   using Utils::ArrayList;
   using Utils::Error;
   using Utils::ErrorOr;
@@ -25,7 +27,6 @@ namespace Kernel {
   using Utils::RefCounted;
   using Utils::RefPtr;
   using Utils::String;
-  using Utils::Array;
 
   enum class UnderlyingDeviceType {
     VirtIO,
@@ -38,6 +39,7 @@ namespace Kernel {
 
   public:
     explicit UnderlyingDevice(UnderlyingDeviceType device_type) : m_device_type(device_type) {}
+
     [[nodiscard]] UnderlyingDeviceType get_device_type() const {
       return m_device_type;
     }
@@ -61,15 +63,19 @@ namespace Kernel {
     VirtQueueArray m_virt_queues;
     RefPtr<Array<u64>> m_queue_indexes;
     RefPtr<Array<u64>> m_queue_acks;
+    u32 m_selected_queue = 0;
 
   public:
     explicit VirtIODevice(MMIODevice* mmio_device) : UnderlyingDevice(UnderlyingDeviceType::VirtIO), m_mmio_device(mmio_device), m_virt_queues(), m_queue_indexes(), m_queue_acks() {}
+
     u32 get_device_id() override {
       return m_mmio_device->get_device_id();
     }
+
     u32 get_vendor_id() override {
       return m_mmio_device->get_vendor_id();
     }
+
     virtual ErrorOr<void> init(u32 features, u64 number_of_virt_queues, Function<void, VirtQueue*, u64> init_virt_queue);
     void reset() override;
 
@@ -82,12 +88,15 @@ namespace Kernel {
   class SBIConsoleDevice : public UnderlyingDevice {
   public:
     explicit SBIConsoleDevice() : UnderlyingDevice(UnderlyingDeviceType::SBIConsole) {}
+
     u32 get_device_id() override {
       return 0;
     }
+
     u32 get_vendor_id() override {
       return 0;
     }
+
     void reset() override;
   };
 
@@ -106,24 +115,52 @@ namespace Kernel {
   private:
     DeviceType m_device_type;
     ArrayList<u64> m_interrupts;
+    bool m_needs_driver;
 
   protected:
+    RefPtr<Driver> m_driver;
     RefPtr<UnderlyingDevice> m_underlying_device;
 
   public:
-    explicit Device(RefPtr<UnderlyingDevice> underlying_device, ArrayList<u64>&& interrupts, DeviceType device_type = DeviceType::None) : m_device_type(device_type), m_interrupts(move(interrupts)), m_underlying_device(move(underlying_device)) {}
+    explicit Device(RefPtr<UnderlyingDevice> underlying_device,
+                    ArrayList<u64>&& interrupts,
+                    DeviceType device_type = DeviceType::None,
+                    bool needs_driver = false) : m_device_type(device_type), m_interrupts(move(interrupts)), m_underlying_device(move(underlying_device)), m_needs_driver(needs_driver) {}
+
     u32 get_device_id() {
       return m_underlying_device->get_device_id();
     }
+
     [[nodiscard]] DeviceType get_device_type() const {
       return m_device_type;
     }
+
     RefPtr<UnderlyingDevice> get_underlying_device() const {
       return m_underlying_device;
     }
+
     [[nodiscard]] const ArrayList<u64>& get_interrupts() const {
       return m_interrupts;
     }
+
+    [[nodiscard]] bool needs_driver() const {
+      return m_needs_driver;
+    }
+
+    void set_driver(RefPtr<Driver> driver) {
+      m_driver = move(driver);
+    }
+
+    [[nodiscard]] bool has_driver() const {
+      return m_driver;
+    }
+
+    template<typename T>
+    T* as() {
+      return static_cast<T*>(this);
+    }
+
+    [[nodiscard]]
     bool handles_interrupt(u64);
     virtual ErrorOr<void> handle_interrupt(u64 interrupt_id);
     virtual ErrorOr<void> init();
@@ -133,18 +170,22 @@ namespace Kernel {
   class EntropyDevice : public Device {
   public:
     explicit EntropyDevice(RefPtr<UnderlyingDevice> underlying_device, ArrayList<u64>&& interrupts) : Device(move(underlying_device), move(interrupts), DeviceType::Entropy) {}
+
     ErrorOr<void> init() override;
   };
 
   class BlockDevice : public Device {
   public:
-    explicit BlockDevice(RefPtr<UnderlyingDevice> underlying_device, ArrayList<u64>&& interrupts) : Device(move(underlying_device), move(interrupts), DeviceType::Block) {}
+    explicit BlockDevice(RefPtr<UnderlyingDevice> underlying_device, ArrayList<u64>&& interrupts) : Device(move(underlying_device), move(interrupts), DeviceType::Block, true) {}
+
+    ErrorOr<void> write(u8* buffer, u64 size, u64 offset);
     ErrorOr<void> init() override;
   };
 
   class ConsoleDevice : public Device {
   public:
     explicit ConsoleDevice(RefPtr<UnderlyingDevice> underlying_device, ArrayList<u64>&& interrupts) : Device(move(underlying_device), move(interrupts), DeviceType::Console) {}
+
     ErrorOr<void> init() override;
     ErrorOr<void> write(String message);
     ErrorOr<String> read();
@@ -162,6 +203,13 @@ namespace Kernel {
     ErrorOr<RefPtr<Device>> try_to_load_mmio_device(uintptr_t address, ArrayList<u64>&& interrupts);
     ErrorOr<void> add_device(const RefPtr<Device>& device);
     ErrorOr<void> delegate_device_interrupt(u64 interrupt_id);
+    void load_drivers();
+
+    ArrayList<RefPtr<Device>>& get_devices() {
+      return m_devices;
+    }
+
+    ArrayList<RefPtr<Device>> get_devices_of_type(DeviceType type);
     ~DeviceManager() = default;
   };
 }// namespace Kernel

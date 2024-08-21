@@ -78,10 +78,6 @@ namespace Kernel {
       set_register_value(MMIODeviceRegisterLayout::QueueSel, value);
     }
 
-    u32 get_queue_sel() {
-      return get_register_value<u32>(MMIODeviceRegisterLayout::QueueSel);
-    }
-
     u32 get_queue_pfn() {
       return get_register_value<u32>(MMIODeviceRegisterLayout::QueuePfn);
     }

@@ -82,9 +82,9 @@ namespace Kernel {
   }
 
   void System::set_trap_vector(void(trap_vector)()) {
-    CPU::write_sstatus((0b01 << 11) | (1 << 7) | (1 << 5));
+    //CPU::write_sstatus((0b01 << 11) | (1 << 7) | (1 << 5));
     CPU::write_stvec(trap_vector);
-    CPU::write_sie(0x888);
+    //CPU::write_sie(0x888);
   }
 
   void System::set_default_trap_vector() {

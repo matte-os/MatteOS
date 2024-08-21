@@ -88,6 +88,34 @@ namespace Kernel {
     return device->handle_interrupt(interrupt_id);
   }
 
+  void DeviceManager::load_drivers() {
+    for(size_t i = 0; i < m_devices.size(); i++) {
+      auto device = m_devices[i];
+      if(device->has_driver() || !device->needs_driver()) {
+        continue;
+      }
+
+      auto drivers = DriverManager::the().find_compatible_drivers(device);
+      if(drivers.size() > 0) {
+        auto driver_or_error = drivers[0]->instantiate_driver(device);
+        if(driver_or_error.has_error()) {
+          DebugConsole::println("DeviceManager: Could not instantiate driver.");
+        } else {
+          auto driver = driver_or_error.get_value();
+          device->set_driver(driver);
+          driver->init(device);
+          DebugConsole::println("DeviceManager: Driver loaded.");
+        }
+      }
+    }
+  }
+
+  ArrayList<RefPtr<Device>> DeviceManager::get_devices_of_type(DeviceType type) {
+    return m_devices.find_all_matches([type](const RefPtr<Device>& device) -> bool {
+      return device->get_device_type() == type;
+    });
+  }
+
   ErrorOr<void> EntropyDevice::init() {
     return m_underlying_device->as<VirtIODevice>()->init(0, 1, [](VirtQueue*, u64 queue_id) {
       DebugConsole::println("EntropyDevice: Initialising VirtQueue.");
@@ -115,7 +143,9 @@ namespace Kernel {
   // 3.1.1 Driver Requirements: Device Initialization
   ErrorOr<void> VirtIODevice::init(u32 features, u64 number_of_virt_queues, Function<void, VirtQueue*, u64> init_virt_queue) {
     m_queue_indexes = RefPtr<Array<u64>>(new Array<u64>(number_of_virt_queues));
+    m_queue_indexes->fill(0);
     m_queue_acks = RefPtr<Array<u64>>(new Array<u64>(number_of_virt_queues));
+    m_queue_acks->fill(0);
 
     // The driver MUST follow this sequence to initialize the device:
     // 1. Reset the device.
@@ -180,11 +210,11 @@ namespace Kernel {
   }
 
   ErrorOr<u32> VirtIODevice::add_to_queue(VirtQueueDescriptor&& descriptor) {
-    auto selected_queue = m_mmio_device->get_queue_sel();
+    auto selected_queue = m_selected_queue;
     auto queue = m_virt_queues[selected_queue];
 
     auto available_index = get_next_queue_index(selected_queue);
-    queue->descriptors[available_index] = descriptor;
+    queue->descriptors[available_index] = move(descriptor);
     if(*descriptor.flags & as_underlying(VirtQueueDescriptorFlags::Next)) {
       queue->descriptors[available_index].next = (available_index + 1) % VIRTIO_RING_SIZE;
     }
@@ -195,10 +225,11 @@ namespace Kernel {
   u64 VirtIODevice::get_next_queue_index(u32 selected_queue) {
     auto index = (*m_queue_indexes)[selected_queue];
     (*m_queue_indexes)[selected_queue] = (index + 1) % VIRTIO_RING_SIZE;
+    return index;
   }
 
   ErrorOr<void> VirtIODevice::add_to_available(u32 descriptor_index) {
-    auto selected_queue = m_mmio_device->get_queue_sel();
+    auto selected_queue = m_selected_queue;
     auto queue = m_virt_queues[selected_queue];
 
     queue->available.ring[*queue->available.index % VIRTIO_RING_SIZE] = descriptor_index;
@@ -208,7 +239,7 @@ namespace Kernel {
   }
 
   ErrorOr<void> VirtIODevice::notify() {
-    m_mmio_device->set_queue_notify(m_mmio_device->get_queue_sel());
+    m_mmio_device->set_queue_notify(m_selected_queue);
     return ErrorOr<void>::create({});
   }
 
@@ -216,6 +247,15 @@ namespace Kernel {
     return m_underlying_device->as<VirtIODevice>()->init(0, 1, [](VirtQueue*, u64) {
       DebugConsole::println("BlockDevice: Initialising VirtQueue.");
     });
+  }
+
+  ErrorOr<void> BlockDevice::write(u8* buffer, u64 size, u64 offset) {
+    if(!has_driver()) {
+      return ErrorOr<void>::create_error(Error::create_from_string("BlockDevice: No driver loaded."));
+    }
+
+    auto driver = m_driver->as<BlockIODriver>();
+    return driver->write(buffer, size, offset);
   }
 
   ErrorOr<void> ConsoleDevice::init() {
