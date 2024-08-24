@@ -28,8 +28,8 @@ set(SOURCE
         Uart.cpp
         Syscalls/SyscallManager.cpp
         Syscalls/SyscallOpen.cpp
-        System/DeviceManager.cpp
-        System/DriverManager.cpp
+        Devices/DeviceManager.cpp
+        Drivers/DriverManager.cpp
         System/InterruptManager.cpp
         Arch/riscv64/Interrupts/Plic.cpp
         System/System.cpp
@@ -38,9 +38,12 @@ set(SOURCE
         Process/ProcessManager.cpp
         Process/Scheduler.cpp
         SBI/SBI.cpp
-        VirtIO/VirtIODeviceIDs.cpp
-        VirtIO/VirtQueue.cpp
-        VirtIO/BlockIO.cpp
+        Drivers/VirtIO/VirtIODeviceIDs.cpp
+        Drivers/VirtIO/VirtQueue.cpp
+        Drivers/VirtIO/BlockIO.cpp
+        Drivers/VirtIO/BlockIODriver.cpp
+        Drivers/Driver.cpp
+        Devices/Device.cpp
 )
 
 include_directories(SYSTEM ${SOURCE_DIRECTORY})

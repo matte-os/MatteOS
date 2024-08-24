@@ -20,9 +20,11 @@ namespace Kernel {
 
   size_t handle_external_interrupt(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus) {
     DebugConsole::println("Interrupts: Handling external interrupt");
-    auto next_interrupt = Plic::the().next(System::the().get_current_kernel_trap_frame()->cpu_id);
+    auto context_id = System::the().get_current_kernel_trap_frame()->cpu_id;
+    auto next_interrupt = Plic::the().next(context_id);
     if(next_interrupt.has_value()) {
       InterruptManager::the().handle_interrupt(next_interrupt.get_value());
+      Plic::the().complete(context_id);
     }
     return sepc;
   }
@@ -42,9 +44,31 @@ namespace Kernel {
     return sepc;
   }
 
+  [[noreturn]] void kernel_panic(size_t sepc, size_t scause) {
+    DebugConsole::println("Kernel panic!");
+    DebugConsole::print("sepc: ");
+    DebugConsole::print_ln_number(sepc, 16);
+    DebugConsole::print("scause: ");
+    DebugConsole::print_ln_number(scause, 16);
+    asm volatile("wfi");
+  }
+
 }// namespace Kernel
 
-extern "C" size_t handle_interrupt(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus) {
+extern "C" size_t handle_interrupt(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus, bool kernel_flag) {
+  if(kernel_flag) {
+    DebugConsole::println("Interrupts: Kernel flag is set");
+    auto cause = static_cast<Kernel::Interrupts>(scause);
+    if(cause == Kernel::Interrupts::InstructionPageFault || cause == Kernel::Interrupts::LoadPageFault || cause == Kernel::Interrupts::StorePageFault) {
+      Kernel::kernel_panic(sepc, scause);
+    }
+
+    if(cause == Kernel::Interrupts::ExternalInterrupt) {
+      return Kernel::handle_external_interrupt(sepc, stval, scause, cpu_id, sstatus);
+    }
+    return sepc;
+  }
+
   switch(static_cast<Kernel::Interrupts>(scause)) {
     case Kernel::Interrupts::SoftwareInterrupt: {
       return Kernel::handle_software_interrupt(sepc, stval, scause, cpu_id, sstatus);

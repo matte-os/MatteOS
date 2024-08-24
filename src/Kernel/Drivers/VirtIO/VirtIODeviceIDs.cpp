@@ -1,4 +1,4 @@
-#include <Kernel/VirtIO/VirtIODeviceIDs.h>
+#include <Kernel/Drivers/VirtIO/VirtIODeviceIDs.h>
 
 namespace Kernel {
   VirtIODeviceIDs get_device_type(u32 device_id) {

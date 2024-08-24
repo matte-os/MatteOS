@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Utils/Types.h>
+
 namespace Kernel {
   namespace Arch::RISCV64::SCAUSE {
     enum class Async : size_t {
@@ -34,7 +35,10 @@ namespace Kernel {
   F(TimerInterrupt, Arch::RISCV64::SCAUSE::Async::TimerInterrupt)                     \
   F(ExternalInterrupt, Arch::RISCV64::SCAUSE::Async::ExternalInterrupt)               \
   F(CounterOverflowInterrupt, Arch::RISCV64::SCAUSE::Async::CounterOverflowInterrupt) \
-  F(SystemCall, Arch::RISCV64::SCAUSE::Sync::EnvironmentCallFromUMode)
+  F(SystemCall, Arch::RISCV64::SCAUSE::Sync::EnvironmentCallFromUMode)                \
+  F(InstructionPageFault, Arch::RISCV64::SCAUSE::Sync::InstructionPageFault)          \
+  F(LoadPageFault, Arch::RISCV64::SCAUSE::Sync::LoadPageFault)                        \
+  F(StorePageFault, Arch::RISCV64::SCAUSE::Sync::StoreAMOPageFault)
 
   enum class Interrupts : size_t {
 #undef __ENUMERATE_INTERRUPT
@@ -51,4 +55,4 @@ namespace Kernel {
   }
 }// namespace Kernel
 
-extern "C" size_t handle_interrupt(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus);
+extern "C" size_t handle_interrupt(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus, bool kernel_flag);

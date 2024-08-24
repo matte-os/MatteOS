@@ -12,8 +12,8 @@
 #include <Kernel/Process/ProcessManager.h>
 #include <Kernel/Process/Scheduler.h>
 #include <Kernel/Syscalls/SyscallManager.h>
-#include <Kernel/System/DeviceManager.h>
-#include <Kernel/System/DriverManager.h>
+#include <Kernel/Devices/DeviceManager.h>
+#include <Kernel/Drivers/DriverManager.h>
 #include <Kernel/System/InterruptManager.h>
 #include <Kernel/System/System.h>
 #include <Kernel/System/Timer.h>
@@ -52,10 +52,12 @@ extern "C" void kmain([[maybe_unused]] int a0, FDTHeader* header) {
   DebugConsole::println("RiscVOS: v0.0.1, U-Boot + OpenSBI, SPL configuration");
   auto* page_table = init_memory();
   System::init();
+
   //FIXME: We should have a trap handler setup here
   //so when we get a trap we can handle it/halt the system.
   KernelMemoryAllocator::the().debug();
   auto& system = System::the();
+  system.set_default_trap_vector();
 
   DebugConsole::println("MemoryManager: Mapping the FDT.");
   MemoryManager::the().identity_map_range(*page_table, reinterpret_cast<uintptr_t>(header), reinterpret_cast<uintptr_t>(header) + *header->totalsize,
@@ -95,16 +97,18 @@ extern "C" void kmain([[maybe_unused]] int a0, FDTHeader* header) {
   auto* dummy_root = ProcessManager::the().create_dummy_process(MemoryManager::get_text_start(), MemoryManager::get_text_end());
   MemoryManager::the().identity_map_range(*dummy_root, MemoryManager::get_context_switching_start(), MemoryManager::get_context_switching_end(), (u64) Kernel::EntryBits::READ_EXECUTE);
 
+  //TODO: Here we should try to load the init process from the rootfs
+
   DebugConsole::println("RiscVOS: Setting up interrupts.");
   InterruptManager::init();
-  system.setup_interrupts();
-  system.set_default_trap_vector();
-
+  //TODO: Enable device (external) interrupts
 
   Timer::init();
   Scheduler::init();
   SyscallManager::init();
   DebugConsole::println("Initialization completed");
+
+  //TODO: Here we should start the init process and the scheduler
   Scheduler::the().start_scheduling();
 }
 

@@ -1,12 +1,12 @@
 //
-// Created by matejbucek on 4.7.24.
+// Created by matejbucek on 24.8.24.
 //
 
 #pragma once
 
-#include "DriverManager.h"
-#include <Kernel/VirtIO/MMIODevice.h>
-#include <Kernel/VirtIO/VirtQueue.h>
+#include <Kernel/Drivers/Driver.h>
+#include <Kernel/Drivers/VirtIO/MMIODevice.h>
+#include <Kernel/Drivers/VirtIO/VirtQueue.h>
 #include <Utils/Arrays/Array.h>
 #include <Utils/Arrays/ArrayList.h>
 #include <Utils/Errors/ErrorOr.h>
@@ -192,24 +192,4 @@ namespace Kernel {
     ErrorOr<void> handle_interrupt(u64 interrupt_id) override;
   };
 
-  class DeviceManager {
-  private:
-    ArrayList<RefPtr<Device>> m_devices;
-    DeviceManager() = default;
-
-  public:
-    static void init();
-    static DeviceManager& the();
-    ErrorOr<RefPtr<Device>> try_to_load_mmio_device(uintptr_t address, ArrayList<u64>&& interrupts);
-    ErrorOr<void> add_device(const RefPtr<Device>& device);
-    ErrorOr<void> delegate_device_interrupt(u64 interrupt_id);
-    void load_drivers();
-
-    ArrayList<RefPtr<Device>>& get_devices() {
-      return m_devices;
-    }
-
-    ArrayList<RefPtr<Device>> get_devices_of_type(DeviceType type);
-    ~DeviceManager() = default;
-  };
 }// namespace Kernel

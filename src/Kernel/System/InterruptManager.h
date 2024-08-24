@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Kernel/Arch/Interrupts.h>
-#include <Kernel/System/DeviceManager.h>
+#include <Kernel/Devices/DeviceManager.h>
 #include <Utils/Arrays/Array.h>
 #include <Utils/Errors/ErrorOr.h>
 #include <Utils/Function.h>

@@ -1,56 +1,22 @@
 //
-// Created by matejbucek on 6.7.24.
+// Created by matejbucek on 24.8.24.
 //
 
-#include <Kernel/System/DeviceManager.h>
-#include <Kernel/System/DriverManager.h>
-#include <Kernel/VirtIO/BlockIO.h>
-#include <Kernel/VirtIO/VirtQueue.h>
-#include <Utils/Assertions.h>
-#include <Utils/DebugConsole.h>
-#include <Utils/Errors/ErrorOr.h>
 
-using Utils::DebugConsole;
+#include <Kernel/Drivers/VirtIO/BlockIODriver.h>
+#include <Kernel/Drivers/VirtIO/VirtQueue.h>
+#include <Kernel/Devices/Device.h>
+#include <Utils/Types.h>
 
 namespace Kernel {
-  DriverManager* s_driver_manager = nullptr;
-
   using Utils::as_underlying;
   using Utils::Error;
+  using Utils::move;
 
-  void DriverManager::init() {
-    if(s_driver_manager == nullptr) {
-      s_driver_manager = new DriverManager;
-    } else {
-      DebugConsole::println("DriverManager: Already initialised.");
-    }
 
-    s_driver_manager->register_default_drivers();
-  }
-
-  DriverManager& Kernel::DriverManager::the() {
-    runtime_assert(s_driver_manager, "DriverManager: Not initialised.");
-    return *s_driver_manager;
-  }
-
-  void DriverManager::register_default_drivers() {
-    register_driver(RefPtr<DriverDescriptor>(new VirtIODriverDescriptor()));
-  }
-
-  void DriverManager::register_driver(RefPtr<DriverDescriptor> driver_descriptor) {
-    m_driver_descriptors.add(move(driver_descriptor));
-    DebugConsole::println("DriverManager: Registered driver.");
-  }
-
-  ArrayList<RefPtr<DriverDescriptor>> DriverManager::find_compatible_drivers(RefPtr<Device> device) {
-    return m_driver_descriptors.find_all_matches([device](auto descriptor) -> bool {
-      return descriptor->is_compatible_with(device);
-    });
-  }
-
-  ErrorOr<void> BlockIODriver::block_operation(u8* buffer, u64 size, u64 offset, bool is_write) {
+  ErrorOr<BlockIO::Request*> BlockIODriver::block_operation(u8* buffer, u64 size, u64 offset, bool is_write) {
     if(size % 512 != 0) {
-      return ErrorOr<void>::create_error(Error::create_from_string("BlockIODriver: Size must be a multiple of 512 bytes."));
+      return ErrorOr<BlockIO::Request*>::create_error(Error::create_from_string("BlockIODriver: Size must be a multiple of 512 bytes."));
     }
 
     auto* request = new BlockIO::Request {
@@ -59,7 +25,7 @@ namespace Kernel {
                     .reserved = 0,
                     .sector = offset / 512},
             .data = buffer,
-            .status = 0x111};
+            .status = status_value};
 
     DebugConsole::print("BlockIODriver: Request address: ");
     DebugConsole::print_ln_number(reinterpret_cast<u64>(request), 16);
@@ -97,14 +63,15 @@ namespace Kernel {
     virtio_device()->add_to_queue(move(descriptor));
 
     if(head_or_error.has_error()) {
-      return ErrorOr<void>::create_error(head_or_error.get_error());
+      delete request;
+      return ErrorOr<BlockIO::Request*>::create_error(head_or_error.get_error());
     }
 
     auto head = head_or_error.get_value();
     virtio_device()->add_to_available(head);
     virtio_device()->notify();
 
-    return ErrorOr<void>::create({});
+    return ErrorOr<BlockIO::Request*>::create(request);
   }
 
   BlockIODriver::BlockIODriver(RefPtr<BlockDevice> device) {
@@ -118,15 +85,68 @@ namespace Kernel {
   }
 
   ErrorOr<void> BlockIODriver::write(u8* buffer, u64 size, u64 offset) {
-    return block_operation(buffer, size, offset, true);
+    auto result = block_operation(buffer, size, offset, true);
+    if(result.has_error()) {
+      return ErrorOr<void>::create_error(result.get_error());
+    }
+    return ErrorOr<void>::create({});
   }
 
   ErrorOr<void> BlockIODriver::read(u8* buffer, u64 size, u64 offset) {
-    return block_operation(buffer, size, offset, false);
+    auto result = block_operation(buffer, size, offset, false);
+    if(result.has_error()) {
+      return ErrorOr<void>::create_error(result.get_error());
+    }
+    return ErrorOr<void>::create({});
   }
 
   RefPtr<VirtIODevice> BlockIODriver::virtio_device() const {
     return m_device->get_underlying_device();
+  }
+
+  ErrorOr<void> BlockIODriver::write_poll(u8* buffer, u64 size, u64 offset) {
+    auto result = block_operation(buffer, size, offset, true);
+    if(result.has_error()) {
+      return ErrorOr<void>::create_error(result.get_error());
+    }
+
+    auto* request = result.get_value();
+    while(true) {
+      if(request->status == status_value) {
+        continue;
+      }
+
+
+      if(request->status == 0) {
+        delete request;
+        return ErrorOr<void>::create({});
+      }
+
+      delete request;
+      return ErrorOr<void>::create_error(Error::create_from_string("BlockIODriver: Write failed."));
+    }
+  }
+
+  ErrorOr<void> BlockIODriver::read_poll(u8* buffer, u64 size, u64 offset) {
+    auto result = block_operation(buffer, size, offset, false);
+    if(result.has_error()) {
+      return ErrorOr<void>::create_error(result.get_error());
+    }
+
+    auto* request = result.get_value();
+    while(true) {
+      if(request->status == status_value) {
+        continue;
+      }
+
+      if(request->status == 0) {
+        delete request;
+        return ErrorOr<void>::create({});
+      }
+
+      delete request;
+      return ErrorOr<void>::create_error(Error::create_from_string("BlockIODriver: Read failed."));
+    }
   }
 
   bool VirtIODriverDescriptor::is_compatible_with(RefPtr<Device> device) {

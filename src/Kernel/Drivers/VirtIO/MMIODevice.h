@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Kernel/VirtIO/MMIODeviceRegisterLayout.h>
+#include <Kernel/Drivers/VirtIO/MMIODeviceRegisterLayout.h>
 #include <Utils/Types.h>
 
 namespace Kernel {

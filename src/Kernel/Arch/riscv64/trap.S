@@ -77,7 +77,14 @@ m_trap_vector:
     # If kernel SATP(t4) & userland SATP(t5)
     # are the same, trap occurred in the
     # kernel itself.
-    # TODO: In such a case we should panic the kernel.
+    beq t4, t5, set_kernel_flag
+    li a5, 0
+    j skip_kernel_flag
+
+    set_kernel_flag:
+    li a5, 1
+
+    skip_kernel_flag:
 
     # Load the kernel trap frame
     li t6, 0x1000

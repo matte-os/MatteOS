@@ -3,11 +3,11 @@
 //
 
 #include <Kernel/Arch/riscv64/CPU.h>
+#include <Kernel/Devices/DeviceManager.h>
 #include <Kernel/Firmware/DeviceTree.h>
 #include <Kernel/Memory/MemoryManager.h>
 #include <Kernel/Process/ProcessManager.h>
 #include <Kernel/SBI/SBI.h>
-#include <Kernel/System/DeviceManager.h>
 #include <Kernel/System/System.h>
 #include <Kernel/System/TrapFrame.h>
 #include <Utils/Assertions.h>
@@ -101,6 +101,7 @@ namespace Kernel {
     DebugConsole::print_ln_number(frame_to_apply->program_counter, 16);
     switch_to_user(frame_to_apply);
   }
+
   void System::install_from_device_tree() {
     auto& device_tree = DeviceTree::the();
     auto result = device_tree.find_node(String("/memory"));
@@ -126,6 +127,7 @@ namespace Kernel {
       install_serial_device(serial_result.get_value());
     }
   }
+
   void System::install_virtio_devices(ArrayList<const FDTNode*>& virtio_nodes) {
     DebugConsole::println("System: Found /soc/virtio_mmio node in FDT.");
     DebugConsole::print("Found node count: ");
@@ -162,6 +164,7 @@ namespace Kernel {
       }
     }
   }
+
   void System::install_serial_device(const FDTNode* serial) {
     auto interrupt_or_error = serial->find_property("interrupts");
     ArrayList<u64> interrupts;

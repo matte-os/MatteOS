@@ -2,7 +2,7 @@
 
 #include <Kernel/FileSystem/Inode.h>
 #include <Kernel/Forwards.h>
-#include <Kernel/System/DeviceManager.h>
+#include <Kernel/Devices/Device.h>
 #include <Utils/Maps/HashMap.h>
 #include <Utils/Strings/String.h>
 
