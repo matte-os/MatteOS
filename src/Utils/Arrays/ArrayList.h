@@ -100,12 +100,8 @@ namespace Utils {
      * @return T Element at the index.
      */
     T& get(size_t index) {
-      if(m_size > index) {
-        return m_array[index];
-      }
-
-      DebugConsole::println("Index out of bounds!");
-      return m_array[0];
+      runtime_assert(index < m_size, "Array: Index out of bounds!");
+      return m_array[index];
     }
 
     const T& get(size_t index) const {
@@ -184,6 +180,43 @@ namespace Utils {
 
       return matches;
     }
+
+    void for_each(Callable<void, const T&> func) const {
+      for(size_t i = 0; i < size(); i++) {
+        func(get(i));
+      }
+    }
+
+    class Iterator {
+    private:
+      T* m_ptr;
+    public:
+      Iterator(T* ptr) : m_ptr(ptr) {}
+
+      T& operator*() const { return *m_ptr; }
+      T* operator->() { return m_ptr; }
+
+      Iterator& operator++() {
+        m_ptr++;
+        return *this;
+      }
+
+      Iterator operator++(int) {
+        Iterator tmp = *this;
+        ++(*this);
+        return tmp;
+      }
+
+      bool operator==(const Iterator& other) const { return m_ptr == other.m_ptr; }
+      bool operator!=(const Iterator& other) const { return m_ptr != other.m_ptr; }
+    };
+
+    Iterator begin() { return Iterator(m_array); }
+    Iterator end() { return Iterator(m_array + m_ptr); }
+
+    // Const versions
+    Iterator begin() const { return Iterator(m_array); }
+    Iterator end() const { return Iterator(m_array + m_ptr); }
 
   private:
     /**

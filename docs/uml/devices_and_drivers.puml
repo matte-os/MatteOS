@@ -1,0 +1,32 @@
+@startuml
+abstract class UnderlyingDevice {}
+abstract class Device {}
+abstract class Driver {}
+abstract class DriverDescriptor {}
+abstract class DeviceDriver {}
+abstract class DeviceDriverDescriptor {}
+
+class DeviceManager {}
+class DriverManager {}
+
+class VirtIODevice {}
+class BlockDevice {}
+class EntropyDevice {}
+
+UnderlyingDevice <|-- VirtIODevice
+UnderlyingDevice <-- Device
+
+Device <|-- BlockDevice
+Device <|-- EntropyDevice
+
+Driver <-- DriverDescriptor
+DeviceDriver <-- DeviceDriverDescriptor
+
+DeviceDriver <-- Device
+
+Device <-- DeviceManager
+Driver <-- DriverManager
+DeviceDriver <-- DriverManager
+
+
+@enduml

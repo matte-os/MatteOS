@@ -1,3 +1,4 @@
+#include <Kernel/Arch/PLIC.h>
 #include <Kernel/System/InterruptManager.h>
 #include <Utils/Assertions.h>
 #include <Utils/DebugConsole.h>
@@ -12,6 +13,7 @@ namespace Kernel {
   void InterruptManager::init() {
     if(s_interruptManager == nullptr) {
       s_interruptManager = new InterruptManager();
+      Plic::init();
     } else {
       DebugConsole::println("InterruptManager: Already initialised.");
     }
@@ -21,10 +23,30 @@ namespace Kernel {
     runtime_assert(s_interruptManager, "InterruptManager: Not initialized.");
     return *s_interruptManager;
   }
+
   ErrorOr<void> InterruptManager::handle_interrupt(InterruptId interrupt_id) {
     return ErrorOr<void>::create_error(Error::create_from_string("InterruptManager: Not implemented."));
   }
+
   ErrorOr<void> InterruptManager::delegate_device_interrupt(InterruptId interrupt_id) {
     return DeviceManager::the().delegate_device_interrupt(interrupt_id);
+  }
+
+  void InterruptManager::enable_interrupt(ContextId context_id, InterruptId interrupt_id) {
+    Plic::the().enable(context_id, interrupt_id);
+  }
+
+  void InterruptManager::disable_interrupt(ContextId context_id, InterruptId interrupt_id) {
+    Plic::the().disable(context_id, interrupt_id);
+  }
+
+  void InterruptManager::enable_device_interrupts() {
+    for(auto& device: DeviceManager::the().get_devices()) {
+      device->get_interrupts().for_each([&](auto interrupt_id) {
+        //FIXME: The context_id should be based on the number of harts
+        Plic::the().enable(0, interrupt_id);
+        Plic::the().set_priority(interrupt_id, 1);
+      });
+    }
   }
 }// namespace Kernel

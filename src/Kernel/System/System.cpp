@@ -3,6 +3,7 @@
 //
 
 #include <Kernel/Arch/riscv64/CPU.h>
+#include <Kernel/Devices/ConsoleDevice.h>
 #include <Kernel/Devices/DeviceManager.h>
 #include <Kernel/Firmware/DeviceTree.h>
 #include <Kernel/Memory/MemoryManager.h>
@@ -111,57 +112,11 @@ namespace Kernel {
       DebugConsole::println("System: Found /memory node in FDT.");
     }
 
-    auto virtio_result = device_tree.find_nodes("/soc/virtio_mmio");
-
-    if(virtio_result.has_error()) {
-      DebugConsole::println("System: Could not find /soc/virtio_mmio node in FDT.");
-    } else {
-      auto virtio_nodes = virtio_result.get_value();
-      install_virtio_devices(virtio_nodes);
-    }
-
     auto serial_result = device_tree.find_node("/soc/serial");
     if(serial_result.has_error()) {
       DebugConsole::println("System: Could not find /soc/serial node in FDT.");
     } else {
       install_serial_device(serial_result.get_value());
-    }
-  }
-
-  void System::install_virtio_devices(ArrayList<const FDTNode*>& virtio_nodes) {
-    DebugConsole::println("System: Found /soc/virtio_mmio node in FDT.");
-    DebugConsole::print("Found node count: ");
-    DebugConsole::print_ln_number(virtio_nodes.size(), 10);
-
-    for(size_t i = 0; i < virtio_nodes.size(); i++) {
-      auto node = virtio_nodes[i];
-      auto string_address = node->get_address();
-      auto address = string_address.to_uint(16);
-
-      ArrayList<u64> interrupts;
-      auto node_interrupts_or_error = node->find_property("interrupts");
-      if(node_interrupts_or_error.has_value()) {
-        auto node_interrupts = node_interrupts_or_error.get_value();
-        for(size_t j = 0; j < node_interrupts->number_of_u32_values(); j++) {
-          interrupts.add(node_interrupts->get_value_as_u32(j));
-        }
-      }
-
-      auto result = DeviceManager::the().try_to_load_mmio_device(address, move(interrupts));
-      if(result.has_error()) {
-        DebugConsole::println("System: Could not load MMIO device.");
-      } else {
-        DebugConsole::println("System: Loaded MMIO device.");
-        DebugConsole::print("System: The device type is: ");
-        DebugConsole::print_ln_number(static_cast<size_t>(result.get_value()->get_device_type()), 10);
-        auto init_or_error = result.get_value()->init();
-        if(init_or_error.has_error()) {
-          DebugConsole::print("System: Could not initialise device. Error: ");
-          DebugConsole::println(init_or_error.get_error().get_message().value());
-        } else {
-          DebugConsole::println("System: Initialised device.");
-        }
-      }
     }
   }
 

@@ -2,6 +2,8 @@
 
 #include <Kernel/Arch/riscv64//CPU.h>
 #include <Kernel/Arch/riscv64/Satp.h>
+#include <Kernel/Devices/DeviceManager.h>
+#include <Kernel/Drivers/DriverManager.h>
 #include <Kernel/FileSystem/VirtualFileSystem.h>
 #include <Kernel/Firmware/DeviceTree.h>
 #include <Kernel/Firmware/FDT/FDT.h>
@@ -12,8 +14,6 @@
 #include <Kernel/Process/ProcessManager.h>
 #include <Kernel/Process/Scheduler.h>
 #include <Kernel/Syscalls/SyscallManager.h>
-#include <Kernel/Devices/DeviceManager.h>
-#include <Kernel/Drivers/DriverManager.h>
 #include <Kernel/System/InterruptManager.h>
 #include <Kernel/System/System.h>
 #include <Kernel/System/Timer.h>
@@ -70,13 +70,17 @@ extern "C" void kmain([[maybe_unused]] int a0, FDTHeader* header) {
   DeviceTree::init(header);
   DeviceManager::init();
   system.install_from_device_tree();
-  DriverManager::init();
 
-  DebugConsole::println("RiscVOS: Loading drivers.");
+  DriverManager::init();
+  DebugConsole::println("RiscVOS: Initializing drivers.");
+  DriverManager::the().init_drivers();
+
+  DebugConsole::println("RiscVOS: Loading the device drivers.");
   DeviceManager::the().load_drivers();
 
-  DebugConsole::println("RiscVOS: Block Device write test.");
   auto block_devices = DeviceManager::the().get_devices_of_type(Kernel::DeviceType::Block);
+  /*
+  DebugConsole::println("RiscVOS: Block Device write test.");
   for(size_t i = 0; i < block_devices.size(); i++) {
     auto device = block_devices[i];
     auto block_device = device->as<Kernel::BlockDevice>();
@@ -90,6 +94,21 @@ extern "C" void kmain([[maybe_unused]] int a0, FDTHeader* header) {
     if(write_result.has_error()) {
       DebugConsole::println("RiscVOS: Block Device write failed.");
     }
+  }*/
+
+  //FIXME: We should have a way to load the rootfs from the block device
+  //and mount it as the root filesystem.
+
+  if(block_devices.size() == 0) {
+    DebugConsole::println("RiscVOS: No block devices found.");
+  } else {
+    DebugConsole::println("RiscVOS: Setting up the root filesystem.");
+    auto root_inode = VirtualFileSystem::the().device_load_filesystem(block_devices[0]);
+    if(root_inode.has_error()) {
+      DebugConsole::println("RiscVOS: Failed to load root filesystem.");
+    } else {
+      DebugConsole::println("RiscVOS: Root filesystem loaded.");
+    }
   }
 
   DebugConsole::println("RiscVOS: Setting up processes.");
@@ -101,7 +120,7 @@ extern "C" void kmain([[maybe_unused]] int a0, FDTHeader* header) {
 
   DebugConsole::println("RiscVOS: Setting up interrupts.");
   InterruptManager::init();
-  //TODO: Enable device (external) interrupts
+  InterruptManager::the().enable_device_interrupts();
 
   Timer::init();
   Scheduler::init();

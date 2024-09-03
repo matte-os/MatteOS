@@ -9,6 +9,9 @@ set(SOURCE
         Arch/riscv64/Interrupts/Interrupts.cpp
         FileSystem/DEVFS/DevFileSystem.cpp
         FileSystem/DEVFS/DevInode.cpp
+        FileSystem/BlockBackedFileSystem.cpp
+        FileSystem/FATFS/FATFileSystem.cpp
+        FileSystem/FATFS/FATInode.cpp
         FileSystem/RAMFS/RamFileSystem.cpp
         FileSystem/RAMFS/RamInode.cpp
         FileSystem/VirtualFileSystem.cpp
@@ -30,6 +33,7 @@ set(SOURCE
         Syscalls/SyscallOpen.cpp
         Devices/DeviceManager.cpp
         Drivers/DriverManager.cpp
+        Drivers/DeviceDriver.cpp
         System/InterruptManager.cpp
         Arch/riscv64/Interrupts/Plic.cpp
         System/System.cpp
@@ -44,6 +48,10 @@ set(SOURCE
         Drivers/VirtIO/BlockIODriver.cpp
         Drivers/Driver.cpp
         Devices/Device.cpp
+        Devices/BlockDevice.cpp
+        Devices/EntropyDevice.cpp
+        Devices/ConsoleDevice.cpp
+        Drivers/VirtIO/VirtIODriver.cpp
 )
 
 include_directories(SYSTEM ${SOURCE_DIRECTORY})

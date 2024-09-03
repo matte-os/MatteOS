@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Kernel/Drivers/Driver.h>
+#include <Kernel/Drivers/DeviceDriver.h>
 #include <Kernel/Drivers/VirtIO/MMIODevice.h>
 #include <Kernel/Drivers/VirtIO/VirtQueue.h>
 #include <Utils/Arrays/Array.h>
@@ -118,7 +118,7 @@ namespace Kernel {
     bool m_needs_driver;
 
   protected:
-    RefPtr<Driver> m_driver;
+    RefPtr<DeviceDriver> m_driver;
     RefPtr<UnderlyingDevice> m_underlying_device;
 
   public:
@@ -147,7 +147,7 @@ namespace Kernel {
       return m_needs_driver;
     }
 
-    void set_driver(RefPtr<Driver> driver) {
+    void set_driver(RefPtr<DeviceDriver> driver) {
       m_driver = move(driver);
     }
 
@@ -166,30 +166,4 @@ namespace Kernel {
     virtual ErrorOr<void> init();
     virtual ~Device() = default;
   };
-
-  class EntropyDevice : public Device {
-  public:
-    explicit EntropyDevice(RefPtr<UnderlyingDevice> underlying_device, ArrayList<u64>&& interrupts) : Device(move(underlying_device), move(interrupts), DeviceType::Entropy) {}
-
-    ErrorOr<void> init() override;
-  };
-
-  class BlockDevice : public Device {
-  public:
-    explicit BlockDevice(RefPtr<UnderlyingDevice> underlying_device, ArrayList<u64>&& interrupts) : Device(move(underlying_device), move(interrupts), DeviceType::Block, true) {}
-
-    ErrorOr<void> write(u8* buffer, u64 size, u64 offset);
-    ErrorOr<void> init() override;
-  };
-
-  class ConsoleDevice : public Device {
-  public:
-    explicit ConsoleDevice(RefPtr<UnderlyingDevice> underlying_device, ArrayList<u64>&& interrupts) : Device(move(underlying_device), move(interrupts), DeviceType::Console) {}
-
-    ErrorOr<void> init() override;
-    ErrorOr<void> write(String message);
-    ErrorOr<String> read();
-    ErrorOr<void> handle_interrupt(u64 interrupt_id) override;
-  };
-
 }// namespace Kernel

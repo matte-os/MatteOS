@@ -34,6 +34,8 @@ namespace Kernel {
     m_base = node->get_address().to_uint(16);
     DebugConsole::print("Plic: Base address: ");
     DebugConsole::print_ln_number(m_base, 16);
+    DebugConsole::print("Plic: String base address: ");
+    DebugConsole::println(node->get_address().to_cstring());
   }
 
   void Plic::enable(u32 context_id, u32 id) {

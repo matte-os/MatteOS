@@ -22,6 +22,8 @@ namespace Kernel {
     static VirtualFileSystem& the();
     ~VirtualFileSystem() = default;
 
+    ErrorOr<RefPtr<FileSystem>> device_load_filesystem(RefPtr<Device> device);
+
     ErrorOr<void> mount(const StringView& path, RefPtr<Inode> inode);
     ErrorOr<void> unmount(const StringView& path);
     ErrorOr<RefPtr<Inode>> open(const Credentials& credentials, const String& path, FileOpenMode mode);

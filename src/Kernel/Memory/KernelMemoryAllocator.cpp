@@ -56,6 +56,7 @@ namespace Kernel {
         ptr = (AllocHeader*) (((u8*) ptr) + ptr->get_size());
       }
     }
+
     return nullptr;
   }
 

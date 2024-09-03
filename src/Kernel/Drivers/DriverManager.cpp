@@ -2,9 +2,10 @@
 // Created by matejbucek on 6.7.24.
 //
 
+#include <Kernel/Devices/Device.h>
 #include <Kernel/Drivers/DriverManager.h>
 #include <Kernel/Drivers/VirtIO/BlockIODriver.h>
-#include <Kernel/Devices/Device.h>
+#include <Kernel/Drivers/VirtIO/VirtIODriver.h>
 #include <Utils/Assertions.h>
 #include <Utils/DebugConsole.h>
 #include <Utils/Errors/ErrorOr.h>
@@ -22,6 +23,7 @@ namespace Kernel {
       s_driver_manager = new DriverManager;
     } else {
       DebugConsole::println("DriverManager: Already initialised.");
+      return;
     }
 
     s_driver_manager->register_default_drivers();
@@ -33,7 +35,19 @@ namespace Kernel {
   }
 
   void DriverManager::register_default_drivers() {
+    register_device_driver(RefPtr<DeviceDriverDescriptor>(new VirtIODeviceDriverDescriptor()));
     register_driver(RefPtr<DriverDescriptor>(new VirtIODriverDescriptor()));
+  }
+
+  void DriverManager::register_device_driver(RefPtr<DeviceDriverDescriptor> driver_descriptor) {
+    m_device_driver_descriptors.add(move(driver_descriptor));
+    DebugConsole::println("DriverManager: Registered device driver.");
+  }
+
+  ArrayList<RefPtr<DeviceDriverDescriptor>> DriverManager::find_compatible_drivers(RefPtr<Device> device) {
+    return m_device_driver_descriptors.find_all_matches([device](auto descriptor) -> bool {
+      return descriptor->is_compatible_with(device);
+    });
   }
 
   void DriverManager::register_driver(RefPtr<DriverDescriptor> driver_descriptor) {
@@ -41,9 +55,16 @@ namespace Kernel {
     DebugConsole::println("DriverManager: Registered driver.");
   }
 
-  ArrayList<RefPtr<DriverDescriptor>> DriverManager::find_compatible_drivers(RefPtr<Device> device) {
-    return m_driver_descriptors.find_all_matches([device](auto descriptor) -> bool {
-      return descriptor->is_compatible_with(device);
-    });
+  void DriverManager::init_drivers() {
+    for(auto& driver_descriptor: m_driver_descriptors) {
+      auto driver_or_error = driver_descriptor->instantiate_driver();
+      if(driver_or_error.has_error()) {
+        DebugConsole::println("DriverManager: Failed to instantiate driver.");
+        continue;
+      }
+      auto driver = driver_or_error.get_value();
+      driver->init();
+      m_drivers.add(move(driver));
+    }
   }
 }// namespace Kernel

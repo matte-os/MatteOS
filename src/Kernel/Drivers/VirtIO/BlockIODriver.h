@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include <Kernel/Drivers/Driver.h>
+#include <Kernel/Drivers/DeviceDriver.h>
 #include <Kernel/Drivers/VirtIO/BlockIO.h>
 #include <Utils/Errors/ErrorOr.h>
 
 namespace Kernel {
   using Utils::ErrorOr;
 
-  class BlockIODriver : public Driver {
+  class BlockIODriver : public DeviceDriver {
     RefPtr<BlockDevice> m_device;
 
   public:
@@ -29,10 +29,10 @@ namespace Kernel {
     const u8 status_value = 0x111;
   };
 
-  class VirtIODriverDescriptor : public DriverDescriptor {
+  class VirtIODeviceDriverDescriptor : public DeviceDriverDescriptor {
   public:
     bool is_compatible_with(RefPtr<Device> device) override;
-    ErrorOr<RefPtr<Driver>> instantiate_driver(RefPtr<Device> device) override;
+    ErrorOr<RefPtr<DeviceDriver>> instantiate_driver(RefPtr<Device> device) override;
   };
 
 }// namespace Kernel

@@ -53,6 +53,18 @@ namespace Kernel {
     return 0 INTERRUPT_GENERATOR(__ENUMERATE_INTERRUPT);
 #undef __ENUMERATE_INTERRUPT
   }
+
+  static const char* interrupt_to_string(Interrupts interrupt) {
+    switch(interrupt) {
+#undef __ENUMERATE_INTERRUPT
+#define __ENUMERATE_INTERRUPT(name, value) \
+  case Interrupts::name:                   \
+    return #name;
+      INTERRUPT_GENERATOR(__ENUMERATE_INTERRUPT)
+#undef __ENUMERATE_INTERRUPT
+    }
+    return "Unknown interrupt";
+  }
 }// namespace Kernel
 
 extern "C" size_t handle_interrupt(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus, bool kernel_flag);

@@ -1,7 +1,10 @@
+#include <Kernel/Devices/Device.h>
+#include <Kernel/FileSystem/FATFS/FATFileSystem.h>
+#include <Kernel/FileSystem/FileSystem.h>
 #include <Kernel/FileSystem/VirtualFileSystem.h>
+#include <Utils/Arrays/ArrayList.h>
 #include <Utils/Assertions.h>
 #include <Utils/Errors/ErrorOr.h>
-#include <Utils/Arrays/ArrayList.h>
 
 using Utils::Error;
 using Utils::ErrorOr;
@@ -53,8 +56,16 @@ namespace Kernel {
 
     return ErrorOr<RefPtr<Inode>>::create(inode);
   }
+
   ErrorOr<void> VirtualFileSystem::close(RefPtr<Inode> inode) {
     return ErrorOr<void>::create_error(Error::create_from_string("Not implemented"));
+  }
 
+  ErrorOr<RefPtr<FileSystem>> VirtualFileSystem::device_load_filesystem(RefPtr<Device> device) {
+    if(device->get_device_type() != DeviceType::Block) {
+      return ErrorOr<RefPtr<FileSystem>>::create_error(Error::create_from_string("Device is not a block device!"));
+    }
+
+    return FATFileSystem::try_create(device);
   }
 }// namespace Kernel

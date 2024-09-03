@@ -23,7 +23,7 @@ namespace Kernel {
     auto context_id = System::the().get_current_kernel_trap_frame()->cpu_id;
     auto next_interrupt = Plic::the().next(context_id);
     if(next_interrupt.has_value()) {
-      InterruptManager::the().handle_interrupt(next_interrupt.get_value());
+      InterruptManager::the().delegate_device_interrupt(next_interrupt.get_value());
       Plic::the().complete(context_id);
     }
     return sepc;
@@ -50,6 +50,8 @@ namespace Kernel {
     DebugConsole::print_ln_number(sepc, 16);
     DebugConsole::print("scause: ");
     DebugConsole::print_ln_number(scause, 16);
+    DebugConsole::print("Interrupt: ");
+    DebugConsole::println(interrupt_to_string(static_cast<Interrupts>(scause)));
     asm volatile("wfi");
   }
 

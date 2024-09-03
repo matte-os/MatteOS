@@ -15,6 +15,7 @@ namespace Kernel {
   using Utils::HashMap;
 
   using InterruptId = u64;
+  using ContextId = u64;
 
   class InterruptManager {
   public:
@@ -22,6 +23,9 @@ namespace Kernel {
     static InterruptManager& the();
     ErrorOr<void> handle_interrupt(InterruptId interrupt_id);
     ErrorOr<void> delegate_device_interrupt(InterruptId interrupt_id);
+    void enable_interrupt(ContextId context_id, InterruptId interrupt_id);
+    void disable_interrupt(ContextId context_id, InterruptId interrupt_id);
+    void enable_device_interrupts();
   };
 
 }// namespace Kernel

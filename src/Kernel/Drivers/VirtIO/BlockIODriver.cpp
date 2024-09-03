@@ -3,16 +3,16 @@
 //
 
 
+#include <Kernel/Devices/BlockDevice.h>
+#include <Kernel/Devices/Device.h>
 #include <Kernel/Drivers/VirtIO/BlockIODriver.h>
 #include <Kernel/Drivers/VirtIO/VirtQueue.h>
-#include <Kernel/Devices/Device.h>
 #include <Utils/Types.h>
 
 namespace Kernel {
   using Utils::as_underlying;
   using Utils::Error;
   using Utils::move;
-
 
   ErrorOr<BlockIO::Request*> BlockIODriver::block_operation(u8* buffer, u64 size, u64 offset, bool is_write) {
     if(size % 512 != 0) {
@@ -149,7 +149,7 @@ namespace Kernel {
     }
   }
 
-  bool VirtIODriverDescriptor::is_compatible_with(RefPtr<Device> device) {
+  bool VirtIODeviceDriverDescriptor::is_compatible_with(RefPtr<Device> device) {
     if(device->get_underlying_device()->get_device_type() != UnderlyingDeviceType::VirtIO) {
       return false;
     }
@@ -161,15 +161,15 @@ namespace Kernel {
     return false;
   }
 
-  ErrorOr<RefPtr<Driver>> VirtIODriverDescriptor::instantiate_driver(RefPtr<Device> device) {
+  ErrorOr<RefPtr<DeviceDriver>> VirtIODeviceDriverDescriptor::instantiate_driver(RefPtr<Device> device) {
     if(!is_compatible_with(device)) {
-      return ErrorOr<RefPtr<Driver>>::create_error(Error::create_from_string("Device is not compatible."));
+      return ErrorOr<RefPtr<DeviceDriver>>::create_error(Error::create_from_string("Device is not compatible."));
     }
 
     if(device->get_device_type() == DeviceType::Block) {
-      return ErrorOr<RefPtr<Driver>>::create(RefPtr<Driver>(new BlockIODriver(device)));
+      return ErrorOr<RefPtr<DeviceDriver>>::create(RefPtr<DeviceDriver>(new BlockIODriver(device)));
     }
 
-    return ErrorOr<RefPtr<Driver>>::create_error(Error::create_from_string("Device is not compatible. Driver could not be instantiated."));
+    return ErrorOr<RefPtr<DeviceDriver>>::create_error(Error::create_from_string("Device is not compatible. Driver could not be instantiated."));
   }
 }// namespace Kernel

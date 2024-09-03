@@ -16,7 +16,7 @@ namespace Kernel {
   }
   void File::close() {
     auto vfs = VirtualFileSystem::the();
-    vfs.close(m_inode);
-    m_inode = {};
+    //vfs.close(m_inode);
+    //m_inode = {};
   }
 }// namespace Kernel

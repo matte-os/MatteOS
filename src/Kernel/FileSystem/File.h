@@ -1,17 +1,19 @@
 #pragma once
 
 #include <Kernel/FileSystem/FileDescriptor.h>
-#include <Kernel/FileSystem/Inode.h>
+#include <Kernel/FileSystem/FileOpenMode.h>
+#include <Kernel/FileSystem/OpenFileDescriptor.h>
 
 namespace Kernel {
   class File : public FileDescriptor {
   private:
-    RefPtr<Inode> m_inode;
+    RefPtr<OpenFileDescriptor> m_open_file_descriptor;
     size_t m_offset;
     FileOpenMode m_mode;
 
   public:
-    explicit File(RefPtr<Inode> inode, FileOpenMode mode) : m_inode(inode), m_offset(0), m_mode(mode) {}
+    explicit File(RefPtr<OpenFileDescriptor> descriptor, FileOpenMode mode) : m_open_file_descriptor(descriptor), m_offset(0), m_mode(mode) {}
+
     virtual ~File() = default;
 
     virtual bool can_read() const override;

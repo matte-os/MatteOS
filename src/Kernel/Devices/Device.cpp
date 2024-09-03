@@ -8,12 +8,6 @@
 namespace Kernel {
   using Utils::as_underlying;
 
-  ErrorOr<void> EntropyDevice::init() {
-    return m_underlying_device->as<VirtIODevice>()->init(0, 1, [](VirtQueue*, u64 queue_id) {
-      DebugConsole::println("EntropyDevice: Initialising VirtQueue.");
-    });
-  }
-
   ErrorOr<void> Device::init() {
     return ErrorOr<void>::create_error(Error::create_from_string("Device slot is empty."));
   }
@@ -133,38 +127,6 @@ namespace Kernel {
   ErrorOr<void> VirtIODevice::notify() {
     m_mmio_device->set_queue_notify(m_selected_queue);
     return ErrorOr<void>::create({});
-  }
-
-  ErrorOr<void> BlockDevice::init() {
-    return m_underlying_device->as<VirtIODevice>()->init(0, 1, [](VirtQueue*, u64) {
-      DebugConsole::println("BlockDevice: Initialising VirtQueue.");
-    });
-  }
-
-  ErrorOr<void> BlockDevice::write(u8* buffer, u64 size, u64 offset) {
-    if(!has_driver()) {
-      return ErrorOr<void>::create_error(Error::create_from_string("BlockDevice: No driver loaded."));
-    }
-
-    auto driver = m_driver->as<BlockIODriver>();
-    return driver->write(buffer, size, offset);
-  }
-
-  ErrorOr<void> ConsoleDevice::init() {
-    return Device::init();
-  }
-
-  ErrorOr<void> ConsoleDevice::handle_interrupt(u64 interrupt_id) {
-    return Device::handle_interrupt(interrupt_id);
-  }
-
-  ErrorOr<void> ConsoleDevice::write(String message) {
-    DebugConsole::println(message.to_cstring());
-    return ErrorOr<void>::create({});
-  }
-
-  ErrorOr<String> ConsoleDevice::read() {
-    return ErrorOr<String>::create_error(Error::create_from_string("ConsoleDevice: Not implemented."));
   }
 
   void SBIConsoleDevice::reset() {

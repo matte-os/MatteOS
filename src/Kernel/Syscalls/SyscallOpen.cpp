@@ -14,7 +14,8 @@ namespace Kernel {
       DebugConsole::println(file_inode_or_error.get_error().get_message().value());
     }
 
-    auto open_or_error = m_fd_table.open(RefPtr<File>(new File(file_inode_or_error.get_value(), flags)));
+    auto open_or_error = ErrorOr<size_t>::create(0);
+    //auto open_or_error = m_fd_table.open(RefPtr<File>(new File(file_inode_or_error.get_value(), flags)));
     if(open_or_error.has_error()) {
       DebugConsole::print("Failed to open file: ");
       DebugConsole::println(open_or_error.get_error().get_message().value());

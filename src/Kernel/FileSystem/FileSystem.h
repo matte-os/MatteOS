@@ -2,6 +2,7 @@
 
 #include <Kernel/FileSystem/Inode.h>
 #include <Utils/Strings/String.h>
+
 namespace Kernel {
   using Utils::String;
 

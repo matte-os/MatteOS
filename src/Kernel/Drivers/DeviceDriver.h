@@ -1,7 +1,3 @@
-//
-// Created by matejbucek on 24.8.24.
-//
-
 #pragma once
 
 #include <Kernel/Forwards.h>
@@ -15,9 +11,9 @@ namespace Kernel {
   using Utils::RefCounted;
   using Utils::RefPtr;
 
-  class Driver : public RefCounted<Driver> {
+  class DeviceDriver : public RefCounted<DeviceDriver> {
   public:
-    virtual void init() = 0;
+    virtual void init(RefPtr<Device> device) = 0;
     virtual void shutdown() = 0;
 
     template<typename T>
@@ -26,9 +22,10 @@ namespace Kernel {
     }
   };
 
-  class DriverDescriptor : public RefCounted<DriverDescriptor> {
+  class DeviceDriverDescriptor : public RefCounted<DeviceDriverDescriptor> {
   public:
-    virtual ErrorOr<RefPtr<Driver>> instantiate_driver() = 0;
+    virtual bool is_compatible_with(RefPtr<Device> device) = 0;
+    virtual ErrorOr<RefPtr<DeviceDriver>> instantiate_driver(RefPtr<Device> device) = 0;
   };
 
 }// namespace Kernel

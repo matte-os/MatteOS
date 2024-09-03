@@ -31,7 +31,17 @@ size_t atoi(const char* str, size_t base) {
   }
 
   for(; str[i] != 0; i++) {
-    result = result * base + str[i] - '0';
+    if(str[i] >= '0' && str[i] <= '9') {
+      result = result * base + (str[i] - '0');
+    } else if(str[i] >= 'a' && str[i] <= 'f') {
+      result = result * base + (str[i] - 'a' + 10);
+    } else if(str[i] >= 'A' && str[i] <= 'F') {
+      result = result * base + (str[i] - 'A' + 10);
+    } else {
+      // Handle invalid character for the base
+      // (You may want to return an error code or handle it differently)
+      return sign * result;
+    }
   }
 
   return sign * result;

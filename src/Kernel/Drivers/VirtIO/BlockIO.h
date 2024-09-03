@@ -66,6 +66,7 @@ namespace Kernel {
       Header header;
       u8* data;
       u8 status;
+      s64 watcher_pid;
     };
 
     struct DiscardWriteZeroes {
