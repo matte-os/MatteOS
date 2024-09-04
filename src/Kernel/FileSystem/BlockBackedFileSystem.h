@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kernel/Devices/BlockDevice.h>
+#include <Kernel/Devices/Storage/BlockDevice.h>
 #include <Kernel/FileSystem/FileSystem.h>
 #include <Utils/Arrays/Array.h>
 

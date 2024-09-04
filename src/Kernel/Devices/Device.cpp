@@ -3,7 +3,7 @@
 //
 
 #include <Kernel/Devices/Device.h>
-#include <Kernel/Drivers/VirtIO/BlockIODriver.h>
+#include <Kernel/Drivers/Storage/VirtIO/BlockIODriver.h>
 
 namespace Kernel {
   using Utils::as_underlying;
@@ -106,6 +106,20 @@ namespace Kernel {
     }
 
     return ErrorOr<u32>::create(available_index);
+  }
+
+  ErrorOr<VirtQueueDescriptor*> VirtIODevice::get_next_used_descriptor() {
+    auto selected_queue = m_selected_queue;
+    auto queue = m_virt_queues[selected_queue];
+
+    if((*m_queue_acks)[selected_queue] == *queue->used.index) {
+      return ErrorOr<VirtQueueDescriptor*>::create_error(Error::create_from_string("No used descriptor available."));
+    }
+
+    auto index = *queue->used.index % VIRTIO_RING_SIZE;
+    (*m_queue_acks)[selected_queue]++;
+    auto* descriptor = &queue->descriptors[index];
+    return ErrorOr<VirtQueueDescriptor*>::create(descriptor);
   }
 
   u64 VirtIODevice::get_next_queue_index(u32 selected_queue) {

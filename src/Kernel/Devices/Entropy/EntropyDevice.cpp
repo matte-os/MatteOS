@@ -2,7 +2,7 @@
 // Created by matejbucek on 3.9.24.
 //
 
-#include <Kernel/Devices/EntropyDevice.h>
+#include <Kernel/Devices/Entropy/EntropyDevice.h>
 
 namespace Kernel {
   ErrorOr<void> EntropyDevice::init() {

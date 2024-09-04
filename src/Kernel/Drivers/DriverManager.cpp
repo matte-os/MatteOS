@@ -4,7 +4,7 @@
 
 #include <Kernel/Devices/Device.h>
 #include <Kernel/Drivers/DriverManager.h>
-#include <Kernel/Drivers/VirtIO/BlockIODriver.h>
+#include <Kernel/Drivers/Storage/VirtIO/BlockIODriver.h>
 #include <Kernel/Drivers/VirtIO/VirtIODriver.h>
 #include <Utils/Assertions.h>
 #include <Utils/DebugConsole.h>

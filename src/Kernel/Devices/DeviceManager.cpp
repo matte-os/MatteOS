@@ -2,10 +2,10 @@
 // Created by matejbucek on 4.7.24.
 //
 
-#include <Kernel/Devices/BlockDevice.h>
 #include <Kernel/Devices/Device.h>
 #include <Kernel/Devices/DeviceManager.h>
-#include <Kernel/Devices/EntropyDevice.h>
+#include <Kernel/Devices/Entropy/EntropyDevice.h>
+#include <Kernel/Devices/Storage/BlockDevice.h>
 #include <Kernel/Drivers/DriverManager.h>
 #include <Kernel/Drivers/VirtIO/MMIODevice.h>
 #include <Kernel/Drivers/VirtIO/VirtIODeviceIDs.h>

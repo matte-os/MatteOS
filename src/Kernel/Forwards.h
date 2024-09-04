@@ -13,4 +13,9 @@ namespace Kernel {
   class BlockDevice;
   class Driver;
   class DeviceDriver;
+  class BlockDeviceDriver;
+  class AsyncRequest;
+  class AsyncResult;
+  class BlockDeviceAsyncRequest;
+  class BlockDeviceAsyncResult;
 }// namespace Kernel

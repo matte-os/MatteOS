@@ -45,12 +45,13 @@ set(SOURCE
         Drivers/VirtIO/VirtIODeviceIDs.cpp
         Drivers/VirtIO/VirtQueue.cpp
         Drivers/VirtIO/BlockIO.cpp
-        Drivers/VirtIO/BlockIODriver.cpp
+        Drivers/Storage/VirtIO/BlockIODriver.cpp
         Drivers/Driver.cpp
         Devices/Device.cpp
-        Devices/BlockDevice.cpp
-        Devices/EntropyDevice.cpp
-        Devices/ConsoleDevice.cpp
+        Devices/Storage/BlockDevice.cpp
+        Devices/Entropy/EntropyDevice.cpp
+        Devices/Console/ConsoleDevice.cpp
+        Devices/AsyncRequest.cpp
         Drivers/VirtIO/VirtIODriver.cpp
 )
 

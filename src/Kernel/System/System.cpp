@@ -3,7 +3,7 @@
 //
 
 #include <Kernel/Arch/riscv64/CPU.h>
-#include <Kernel/Devices/ConsoleDevice.h>
+#include <Kernel/Devices/Console/ConsoleDevice.h>
 #include <Kernel/Devices/DeviceManager.h>
 #include <Kernel/Firmware/DeviceTree.h>
 #include <Kernel/Memory/MemoryManager.h>

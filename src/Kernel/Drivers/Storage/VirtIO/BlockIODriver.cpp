@@ -3,9 +3,9 @@
 //
 
 
-#include <Kernel/Devices/BlockDevice.h>
 #include <Kernel/Devices/Device.h>
-#include <Kernel/Drivers/VirtIO/BlockIODriver.h>
+#include <Kernel/Devices/Storage/BlockDevice.h>
+#include <Kernel/Drivers/Storage/VirtIO/BlockIODriver.h>
 #include <Kernel/Drivers/VirtIO/VirtQueue.h>
 #include <Utils/Types.h>
 
@@ -14,7 +14,7 @@ namespace Kernel {
   using Utils::Error;
   using Utils::move;
 
-  ErrorOr<BlockIO::Request*> BlockIODriver::block_operation(u8* buffer, u64 size, u64 offset, bool is_write) {
+  ErrorOr<BlockIO::Request*> BlockIODriver::block_operation(s64 request_id, u8* buffer, u64 size, u64 offset, bool is_write) {
     if(size % 512 != 0) {
       return ErrorOr<BlockIO::Request*>::create_error(Error::create_from_string("BlockIODriver: Size must be a multiple of 512 bytes."));
     }
@@ -25,7 +25,8 @@ namespace Kernel {
                     .reserved = 0,
                     .sector = offset / 512},
             .data = buffer,
-            .status = status_value};
+            .status = status_value,
+            .request_id = request_id};
 
     DebugConsole::print("BlockIODriver: Request address: ");
     DebugConsole::print_ln_number(reinterpret_cast<u64>(request), 16);
@@ -84,16 +85,16 @@ namespace Kernel {
   void BlockIODriver::shutdown() {
   }
 
-  ErrorOr<void> BlockIODriver::write(u8* buffer, u64 size, u64 offset) {
-    auto result = block_operation(buffer, size, offset, true);
+  ErrorOr<void> BlockIODriver::write_async(s64 request_id, u8* buffer, u64 size, u64 offset) {
+    auto result = block_operation(request_id, buffer, size, offset, true);
     if(result.has_error()) {
       return ErrorOr<void>::create_error(result.get_error());
     }
     return ErrorOr<void>::create({});
   }
 
-  ErrorOr<void> BlockIODriver::read(u8* buffer, u64 size, u64 offset) {
-    auto result = block_operation(buffer, size, offset, false);
+  ErrorOr<void> BlockIODriver::read_async(s64 request_id, u8* buffer, u64 size, u64 offset) {
+    auto result = block_operation(request_id, buffer, size, offset, false);
     if(result.has_error()) {
       return ErrorOr<void>::create_error(result.get_error());
     }
@@ -105,7 +106,7 @@ namespace Kernel {
   }
 
   ErrorOr<void> BlockIODriver::write_poll(u8* buffer, u64 size, u64 offset) {
-    auto result = block_operation(buffer, size, offset, true);
+    auto result = block_operation(0, buffer, size, offset, true);
     if(result.has_error()) {
       return ErrorOr<void>::create_error(result.get_error());
     }
@@ -128,7 +129,7 @@ namespace Kernel {
   }
 
   ErrorOr<void> BlockIODriver::read_poll(u8* buffer, u64 size, u64 offset) {
-    auto result = block_operation(buffer, size, offset, false);
+    auto result = block_operation(0, buffer, size, offset, false);
     if(result.has_error()) {
       return ErrorOr<void>::create_error(result.get_error());
     }
@@ -147,6 +148,30 @@ namespace Kernel {
       delete request;
       return ErrorOr<void>::create_error(Error::create_from_string("BlockIODriver: Read failed."));
     }
+  }
+
+  ErrorOr<ArrayList<RefPtr<BlockDeviceAsyncResult>>> BlockIODriver::notify() {
+    ArrayList<RefPtr<BlockDeviceAsyncResult>> results;
+
+    while(true) {
+      auto descriptor_or_error = virtio_device()->get_next_used_descriptor();
+      if(descriptor_or_error.has_error()) {
+        break;
+      }
+
+      auto descriptor = descriptor_or_error.get_value();
+      auto* request = reinterpret_cast<BlockIO::Request*>(*descriptor->address);
+
+      results.add(RefPtr<BlockDeviceAsyncResult>(new BlockDeviceAsyncResult(
+              request->request_id,
+              request->status == 0 ? BlockDeviceAsyncRequestType::Ok : BlockDeviceAsyncRequestType::Failed)));
+
+
+      delete request;
+      descriptor->address = 0;
+    }
+
+    return ErrorOr<ArrayList<RefPtr<BlockDeviceAsyncResult>>>::create(results);
   }
 
   bool VirtIODeviceDriverDescriptor::is_compatible_with(RefPtr<Device> device) {

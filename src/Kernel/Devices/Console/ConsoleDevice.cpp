@@ -1,4 +1,4 @@
-#include <Kernel/Devices/ConsoleDevice.h>
+#include <Kernel/Devices/Console/ConsoleDevice.h>
 
 namespace Kernel {
   ErrorOr<void> ConsoleDevice::init() {

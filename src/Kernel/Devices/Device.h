@@ -83,6 +83,7 @@ namespace Kernel {
     ErrorOr<u32> add_to_queue(VirtQueueDescriptor&& descriptor);
     ErrorOr<void> add_to_available(u32 descriptor_index);
     ErrorOr<void> notify();
+    ErrorOr<VirtQueueDescriptor*> get_next_used_descriptor();
   };
 
   class SBIConsoleDevice : public UnderlyingDevice {
