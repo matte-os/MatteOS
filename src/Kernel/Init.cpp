@@ -4,6 +4,7 @@
 #include <Kernel/Arch/riscv64/Satp.h>
 #include <Kernel/Devices/DeviceManager.h>
 #include <Kernel/Drivers/DriverManager.h>
+#include <Kernel/FileSystem/FileSystem.h>
 #include <Kernel/FileSystem/VirtualFileSystem.h>
 #include <Kernel/Firmware/DeviceTree.h>
 #include <Kernel/Firmware/FDT/FDT.h>
@@ -96,9 +97,6 @@ extern "C" void kmain([[maybe_unused]] int a0, FDTHeader* header) {
     }
   }*/
 
-  //FIXME: We should have a way to load the rootfs from the block device
-  //and mount it as the root filesystem.
-
   if(block_devices.size() == 0) {
     DebugConsole::println("RiscVOS: No block devices found.");
   } else {
@@ -107,7 +105,12 @@ extern "C" void kmain([[maybe_unused]] int a0, FDTHeader* header) {
     if(root_inode.has_error()) {
       DebugConsole::println("RiscVOS: Failed to load root filesystem.");
     } else {
-      DebugConsole::println("RiscVOS: Root filesystem loaded.");
+      auto error_or_mount = VirtualFileSystem::the().mount_root_fs(root_inode.get_value());
+      if(error_or_mount.has_error()) {
+        DebugConsole::println("RiscVOS: Unable to mount the root filesystem.");
+      } else {
+        DebugConsole::println("RiscVOS: Root filesystem loaded and mounted.");
+      }
     }
   }
 

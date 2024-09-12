@@ -7,7 +7,7 @@ using Utils::ErrorOr;
 
 namespace Kernel {
   ErrorOr<uintptr_t, SysError> Process::handle_open(SyscallString path, u64 flags) {
-    auto vfs = VirtualFileSystem::the();
+    auto& vfs = VirtualFileSystem::the();
     auto file_inode_or_error = vfs.open(m_credentials, "", flags);
     if(file_inode_or_error.has_error()) {
       DebugConsole::print("Failed to open file: ");

@@ -89,6 +89,10 @@ namespace Utils {
     bool operator!=(const char* other) const { return !(*this == other); }
     bool operator==(const StringView& other) const;
     bool operator!=(const StringView& other) const { return !(*this == other); }
+
+    operator String() const {
+      return String(m_value);
+    }
   };
 
   char to_lower(char c);

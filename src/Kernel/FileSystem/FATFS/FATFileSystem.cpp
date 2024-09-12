@@ -15,6 +15,7 @@ namespace Kernel {
   }
 
   ErrorOr<RefPtr<Inode>> FATFileSystem::open() {
+
   }
 
   ErrorOr<void> FATFileSystem::close(RefPtr<Inode> inode) {
@@ -49,8 +50,13 @@ namespace Kernel {
       delete buffer;
       return ErrorOr<RefPtr<FileSystem>>::create_error(Error::create_from_string("FAT16 is not supported"));
     } else {
+      auto boot_sector = reinterpret_cast<BootSector32*>(buffer);
       delete buffer;
-      return ErrorOr<RefPtr<FileSystem>>::create(RefPtr<FATFileSystem>(new FATFileSystem(device, FATType::FAT32)));
+      return ErrorOr<RefPtr<FileSystem>>::create(RefPtr<FATFileSystem>(new FATFileSystem(device, FATType::FAT32, boot_sector)));
     }
+  }
+
+  FATFileSystem::~FATFileSystem() {
+    delete m_fat_boot_sector;
   }
 }// namespace Kernel

@@ -68,4 +68,33 @@ namespace Kernel {
 
     return FATFileSystem::try_create(device);
   }
+
+  ErrorOr<void> VirtualFileSystem::mount(const StringView& mount_point, const StringView& filesystem_path) {
+
+    return ErrorOr<void>::create_error(Error::create_from_string("Not implemented"));
+  }
+
+  ErrorOr<void> VirtualFileSystem::unmount(const StringView& mount_point) {
+    return ErrorOr<void>::create_error(Error::create_from_string("Not implemented"));
+  }
+
+  ErrorOr<void> VirtualFileSystem::fs_mount(const StringView& mount_point, RefPtr<FileSystem> file_system, u64 mount_flags) {
+    if(m_mounts.has_key(mount_point)) {
+      return ErrorOr<void>::create_error(Error::create_from_string("A filesystem already mounted here!"));
+    }
+
+    m_mounts.set(mount_point, RefPtr<MountContext>(new MountContext(move(file_system), mount_flags)));
+    return ErrorOr<void>::create({});
+  }
+
+  ErrorOr<void> VirtualFileSystem::mount_root_fs(RefPtr<FileSystem> file_system) {
+    auto error_or_fs = file_system->root();
+    if(error_or_fs.has_error()) {
+      return ErrorOr<void>::create_error(error_or_fs.get_error());
+    }
+
+    m_root_inode = move(error_or_fs.get_value());
+    fs_mount("/", file_system, MountFlags::implicit());
+    return ErrorOr<void>::create({});
+  }
 }// namespace Kernel

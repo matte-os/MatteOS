@@ -13,7 +13,7 @@ namespace Utils {
   public:
     RefPtr() : RefPtr(nullptr) {}
 
-    explicit RefPtr(T* ptr) : m_value(ptr) {
+    RefPtr(T* ptr) : m_value(ptr) {
       if(m_value) m_value->ref();
     }
 

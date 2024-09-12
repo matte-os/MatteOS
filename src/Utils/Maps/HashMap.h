@@ -99,6 +99,21 @@ namespace Utils {
         entry = entry->next;
       }
     }
+
+    bool has_key(const Key& key) {
+      u32 index = Function(key) % DefaultSize;
+      RefPtr<Entry> entry = m_entries[index];
+
+      while(!entry) {
+        if(entry->key == key) {
+          return true;
+        }
+
+        entry = entry->next;
+      }
+
+      return false;
+    }
   };
 
 }// namespace Utils

@@ -15,7 +15,7 @@ namespace Kernel {
     return 0;
   }
   void File::close() {
-    auto vfs = VirtualFileSystem::the();
+    auto& vfs = VirtualFileSystem::the();
     //vfs.close(m_inode);
     //m_inode = {};
   }
