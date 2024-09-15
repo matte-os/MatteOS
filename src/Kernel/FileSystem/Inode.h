@@ -13,10 +13,13 @@ namespace Kernel {
   using Utils::Array;
   using Utils::ErrorOr;
   using Utils::String;
+  using Utils::StringView;
 
   class Inode : public RefCounted<Inode> {
-  public:
+  protected:
     Inode() = default;
+
+  public:
     virtual ~Inode() = default;
 
     virtual ErrorOr<void> check_credentials(const Credentials& credentials, const FileOpenMode& mode) = 0;
@@ -27,5 +30,6 @@ namespace Kernel {
 
     virtual ErrorOr<RefPtr<Inode>> lookup(const String& name) = 0;
     virtual ErrorOr<Array<RefPtr<Inode>>> list_dir() = 0;
+    virtual ErrorOr<StringView> name() = 0;
   };
 }// namespace Kernel

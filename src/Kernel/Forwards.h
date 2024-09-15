@@ -18,4 +18,6 @@ namespace Kernel {
   class AsyncResult;
   class BlockDeviceAsyncRequest;
   class BlockDeviceAsyncResult;
+  class FATInode;
+  class FATFileSystem;
 }// namespace Kernel

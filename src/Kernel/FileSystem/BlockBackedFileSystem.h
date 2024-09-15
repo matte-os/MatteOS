@@ -43,6 +43,6 @@ namespace Kernel {
     ErrorOr<void> write_block_poll(RefPtr<DataBlock> block);
     ErrorOr<void> read_request();
     ErrorOr<void> write_request();
-
+    RefPtr<BlockDevice> get_device();
   };
 }// namespace Kernel

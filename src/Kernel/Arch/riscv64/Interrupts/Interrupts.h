@@ -38,7 +38,9 @@ namespace Kernel {
   F(SystemCall, Arch::RISCV64::SCAUSE::Sync::EnvironmentCallFromUMode)                \
   F(InstructionPageFault, Arch::RISCV64::SCAUSE::Sync::InstructionPageFault)          \
   F(LoadPageFault, Arch::RISCV64::SCAUSE::Sync::LoadPageFault)                        \
-  F(StorePageFault, Arch::RISCV64::SCAUSE::Sync::StoreAMOPageFault)
+  F(StorePageFault, Arch::RISCV64::SCAUSE::Sync::StoreAMOPageFault)                   \
+  F(IllegalInstruction, Arch::RISCV64::SCAUSE::Sync::IllegalInstruction)
+
 
   enum class Interrupts : size_t {
 #undef __ENUMERATE_INTERRUPT

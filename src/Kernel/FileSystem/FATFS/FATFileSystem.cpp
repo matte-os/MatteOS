@@ -12,13 +12,19 @@ namespace Kernel {
   }
 
   ErrorOr<RefPtr<Inode>> FATFileSystem::root() {
+    if(m_root) {
+      return ErrorOr<RefPtr<Inode>>::create(m_root);
+    }
+
+    return ErrorOr<RefPtr<Inode>>::create_error(Error::create_from_string("Root inode not found"));
   }
 
   ErrorOr<RefPtr<Inode>> FATFileSystem::open() {
-
+    return ErrorOr<RefPtr<Inode>>::create_error(Error::create_from_string("Not implemented"));
   }
 
   ErrorOr<void> FATFileSystem::close(RefPtr<Inode> inode) {
+    return ErrorOr<void>::create_error(Error::create_from_string("Not implemented"));
   }
 
   ErrorOr<RefPtr<FileSystem>> FATFileSystem::try_create(RefPtr<Device> device) {
@@ -50,7 +56,7 @@ namespace Kernel {
       delete buffer;
       return ErrorOr<RefPtr<FileSystem>>::create_error(Error::create_from_string("FAT16 is not supported"));
     } else {
-      auto boot_sector = reinterpret_cast<BootSector32*>(buffer);
+      auto boot_sector = new BootSector32(*reinterpret_cast<BootSector32*>(buffer));
       delete buffer;
       return ErrorOr<RefPtr<FileSystem>>::create(RefPtr<FATFileSystem>(new FATFileSystem(device, FATType::FAT32, boot_sector)));
     }
@@ -58,5 +64,73 @@ namespace Kernel {
 
   FATFileSystem::~FATFileSystem() {
     delete m_fat_boot_sector;
+  }
+
+  ErrorOr<DirectoryEntry*> FATFileSystem::get_root_directory() {
+    if(m_fat_type != FATType::FAT32) {
+      return ErrorOr<DirectoryEntry*>::create_error(Error::create_from_string("Only FAT32 is supported"));
+    }
+
+    auto fat32 = reinterpret_cast<BootSector32*>(m_fat_boot_sector);
+
+    auto bytes_per_cluster = fat32->sectors_per_cluster * fat32->bytes_per_sector;
+    auto reserved_and_fat_offset = fat32->reserved_sectors * fat32->bytes_per_sector + fat32->fat_count * fat32->sectors_per_fat32 * fat32->bytes_per_sector;
+
+    auto root_cluster_offset = reserved_and_fat_offset + (fat32->root_cluster - 2) * bytes_per_cluster;
+
+    DebugConsole::print("Root cluster offset: ");
+    DebugConsole::print_ln_number(root_cluster_offset, 16);
+
+    auto buffer = new u8[bytes_per_cluster];
+    auto read_result = get_device()->read_poll(buffer, bytes_per_cluster, root_cluster_offset);
+    if(read_result.has_error()) {
+      delete buffer;
+      return ErrorOr<DirectoryEntry*>::create_error(read_result.get_error());
+    }
+
+    auto root_dir = reinterpret_cast<DirectoryEntry*>(buffer);
+    return ErrorOr<DirectoryEntry*>::create(root_dir);
+  }
+
+  ErrorOr<String> FATFileSystem::get_name(DirectoryEntry* entry) {
+    if(!entry->is_long_name()) {
+      return ErrorOr<String>::create(String(reinterpret_cast<char*>(entry->name), 11));
+    }
+
+    String name;
+    auto* long_entry = entry->as_long_name();
+    while(true) {
+      String tmp;
+      for(size_t i = 0; i < 5; i++) {
+        if(long_entry->name1[i] == 0 || long_entry->name1[i] == 0xFFFF) {
+          break;
+        }
+        tmp += static_cast<char>(long_entry->name1[i] & 0xFF00 >> 8);
+      }
+
+      for(size_t i = 0; i < 6; i++) {
+        if(long_entry->name2[i] == 0 || long_entry->name2[i] == 0xFFFF) {
+          break;
+        }
+        tmp += static_cast<char>(long_entry->name2[i] & 0xFF00 >> 8);
+      }
+
+      for(size_t i = 0; i < 2; i++) {
+        if(long_entry->name3[i] == 0 || long_entry->name3[i] == 0xFFFF) {
+          break;
+        }
+        tmp += static_cast<char>(long_entry->name3[i] & 0xFF00 >> 8);
+      }
+
+      name = tmp + name;
+
+      if((long_entry->order & 0x40)) {
+        break;
+      }
+
+      long_entry++;
+    }
+
+    return ErrorOr<String>::create(name);
   }
 }// namespace Kernel

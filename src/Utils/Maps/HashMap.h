@@ -104,7 +104,7 @@ namespace Utils {
       u32 index = Function(key) % DefaultSize;
       RefPtr<Entry> entry = m_entries[index];
 
-      while(!entry) {
+      while(entry) {
         if(entry->key == key) {
           return true;
         }

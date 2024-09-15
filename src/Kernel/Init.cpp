@@ -105,6 +105,7 @@ extern "C" void kmain([[maybe_unused]] int a0, FDTHeader* header) {
     if(root_inode.has_error()) {
       DebugConsole::println("RiscVOS: Failed to load root filesystem.");
     } else {
+      DebugConsole::println("RiscVOS: Mounting the root filesystem.");
       auto error_or_mount = VirtualFileSystem::the().mount_root_fs(root_inode.get_value());
       if(error_or_mount.has_error()) {
         DebugConsole::println("RiscVOS: Unable to mount the root filesystem.");

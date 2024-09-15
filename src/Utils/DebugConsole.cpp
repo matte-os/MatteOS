@@ -2,6 +2,7 @@
 #include <Kernel/Uart.h>
 #include <Utils/Basic.h>
 #include <Utils/DebugConsole.h>
+#include <Utils/Strings/String.h>
 
 using Kernel::Uart;
 
@@ -39,6 +40,19 @@ namespace Utils {
 
   void DebugConsole::print_ln_number(u64 number, u32 base) {
     print_number(number, base);
+    print('\n');
+  }
+
+  void DebugConsole::print(String value) {
+    for(size_t i = 0; i < value.length(); i++) {
+      print(value[i]);
+    }
+  }
+
+  void DebugConsole::println(String value) {
+    for(size_t i = 0; i < value.length(); i++) {
+      print(value[i]);
+    }
     print('\n');
   }
 

@@ -61,7 +61,7 @@ extern "C" size_t handle_interrupt(size_t sepc, size_t stval, size_t scause, siz
   if(kernel_flag) {
     DebugConsole::println("Interrupts: Kernel flag is set");
     auto cause = static_cast<Kernel::Interrupts>(scause);
-    if(cause == Kernel::Interrupts::InstructionPageFault || cause == Kernel::Interrupts::LoadPageFault || cause == Kernel::Interrupts::StorePageFault) {
+    if(cause == Kernel::Interrupts::InstructionPageFault || cause == Kernel::Interrupts::LoadPageFault || cause == Kernel::Interrupts::StorePageFault || cause == Kernel::Interrupts::IllegalInstruction) {
       Kernel::kernel_panic(sepc, scause);
     }
 

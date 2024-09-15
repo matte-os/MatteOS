@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Utils/Forwards.h>
 #include <Utils/Types.h>
 
 namespace Utils {
@@ -8,7 +9,9 @@ namespace Utils {
     //static void dprintf(const char *, ...);
     static void print(char);
     static void print(const char*);
+    static void print(String);
     static void println(const char*);
+    static void println(String);
     /*
     template<typename T, typename... Args>
     static void printf(const char* format, T arg, Args&&... args) {

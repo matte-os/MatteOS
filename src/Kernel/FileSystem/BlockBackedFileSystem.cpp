@@ -12,4 +12,8 @@ namespace Kernel {
 
   ErrorOr<void> BlockBackedFileSystem::write_request() {
   }
+
+  RefPtr<BlockDevice> BlockBackedFileSystem::get_device() {
+    return m_device;
+  }
 }// namespace Kernel
