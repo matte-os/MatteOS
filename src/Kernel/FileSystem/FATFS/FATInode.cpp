@@ -32,4 +32,12 @@ namespace Kernel {
 
   }
 
+  bool FATInode::is_directory() {
+    return m_entry.attributes & as_underlying(DirectoryEntryAttributes::Directory);
+  }
+
+  bool FATInode::is_file() {
+    return !is_directory();
+  }
+
 }// namespace Kernel

@@ -30,6 +30,8 @@ namespace Kernel {
     RefPtr<FileSystem> fs() override;
     ErrorOr<RefPtr<Inode>> lookup(const String& name) override;
     ErrorOr<Array<RefPtr<Inode>>> list_dir() override;
+    bool is_directory() override;
+    bool is_file() override;
   };
 
 }// namespace Kernel

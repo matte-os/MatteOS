@@ -31,5 +31,8 @@ namespace Kernel {
     virtual ErrorOr<RefPtr<Inode>> lookup(const String& name) = 0;
     virtual ErrorOr<Array<RefPtr<Inode>>> list_dir() = 0;
     virtual ErrorOr<StringView> name() = 0;
+
+    virtual bool is_directory() = 0;
+    virtual bool is_file() = 0;
   };
 }// namespace Kernel

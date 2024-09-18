@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "FATInode.h"
+#include <Kernel/FileSystem/FATFS/FATInode.h>
 #include <Kernel/FileSystem/BlockBackedFileSystem.h>
 #include <Kernel/FileSystem/FATFS/FAT.h>
 #include <Kernel/FileSystem/FileSystem.h>
@@ -25,12 +25,19 @@ namespace Kernel {
     BootSector* m_fat_boot_sector;
     RefPtr<FATInode> m_root;
 
-
     FATFileSystem(RefPtr<Device> device, FATType fat_type, BootSector* fat_boot_sector) : BlockBackedFileSystem(device), m_fat_type(fat_type), m_fat_boot_sector(fat_boot_sector) {
-      m_root = {new FATInode({this}, DirectoryEntry(), "")};
+      if(m_fat_type == FATType::FAT32) {
+        auto fat32 = reinterpret_cast<BootSector32*>(fat_boot_sector);
+        m_root = {new FATInode({this}, {
+                                               .attributes = as_underlying(DirectoryEntryAttributes::Directory),
+                                               .name = {0},
+                                               .first_cluster_high = 0,
+                                               .first_cluster_low = fat32->root_cluster - 2,
+                                       },
+                               "")};
+      }
 
       auto error_or_root = get_root_directory();
-
 
       if(error_or_root.has_error()) {
         DebugConsole::print("Failed to get root directory: ");
@@ -56,6 +63,7 @@ namespace Kernel {
     ErrorOr<RefPtr<Inode>> root() override;
     ErrorOr<RefPtr<Inode>> open() override;
     ErrorOr<void> close(RefPtr<Inode> inode) override;
+    ErrorOr<void> flush();
     ~FATFileSystem() override;
 
   private:
