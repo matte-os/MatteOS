@@ -15,7 +15,7 @@ namespace Kernel {
     virtual String name() const override { return "ramfs"; };
     virtual ErrorOr<RefPtr<Inode>> root() override;
 
-    virtual ErrorOr<RefPtr<Inode>> open() override;
-    virtual ErrorOr<void> close(RefPtr<Inode> inode) override;
+    ErrorOr<RefPtr<OpenFileDescriptor>> open(const Credentials& credentials, StringView path, FileOpenMode mode) override;
+    virtual ErrorOr<void> close(RefPtr<OpenFileDescriptor> inode) override;
   };
 }// namespace Kernel

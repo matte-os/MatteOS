@@ -23,41 +23,51 @@ namespace Kernel {
     return *s_instance;
   }
 
-  ErrorOr<RefPtr<Inode>> VirtualFileSystem::open(const Credentials& credentials, const String& path, FileOpenMode mode) {
+  ErrorOr<RefPtr<OpenFileDescriptor>> VirtualFileSystem::open(const Credentials& credentials, const String& path, FileOpenMode mode) {
     auto path_parts = path.split("/");
-    auto inode = m_root_inode;
 
-    if(!inode) {
-      return ErrorOr<RefPtr<Inode>>::create_error(Error::create_from_string("No root fs mounted!"));
+    //This traverses all the mount points and finds the one with the longest common prefix
+    auto error_or_mount = longest_common_prefix(path_parts);
+    if(error_or_mount.has_error()) {
+      return ErrorOr<RefPtr<OpenFileDescriptor>>::create_error(error_or_mount.get_error());
     }
 
-    for(size_t i = 0; i < path_parts.size(); i++) {
-      auto error_or_next = inode->lookup(path_parts[i]);
-      if(error_or_next.has_error()) {
-        if(i == path_parts.size() - 1 && (mode.is<FileOperationMode::Create>() && mode.is<FileOperationMode::Exclusive>())) {
-          // TODO: Create a new file
-          return ErrorOr<RefPtr<Inode>>::create_error(Error::create_from_string("Not implemented"));
-        } else {
-          return error_or_next;
-        }
+    auto mount = error_or_mount.get_value();
+    auto& fs = mount.first;
+    auto longest = mount.second;
+
+    String relative_path;
+    for(u32 i = longest; i < path_parts.size(); i++) {
+      relative_path += path_parts[i];
+      if(i < path_parts.size() - 1) {
+        relative_path += "/";
       }
-
-      inode = error_or_next.get_value();
     }
 
-    auto can_access = inode->check_credentials(credentials, mode);
-    if(can_access.has_error()) {
-      return ErrorOr<RefPtr<Inode>>::create_error(can_access.get_error());
+    if(!fs) {
+      return ErrorOr<RefPtr<OpenFileDescriptor>>::create_error(Error::create_from_string("No filesystem mounted at this path!"));
     }
 
-    if(mode.is<FileOperationMode::Exclusive>()) {
-      return ErrorOr<RefPtr<Inode>>::create_error(Error::create_from_string("Cannot open file in exclusive mode! File already exists!"));
+    if(!fs->exists(relative_path)) {
+      if(mode.is<FileOperationMode::Create>()) {
+        //TODO: Implement create
+      }
+    } else {
+      if(mode.is<FileOperationMode::Exclusive>()) {
+        return ErrorOr<RefPtr<OpenFileDescriptor>>::create_error(Error::create_from_string("Cannot open file in exclusive mode! File already exists!"));
+      }
     }
 
-    return ErrorOr<RefPtr<Inode>>::create(inode);
+    auto error_or_open = fs->open(credentials, relative_path, mode);
+
+    if(error_or_open.has_error()) {
+      return ErrorOr<RefPtr<OpenFileDescriptor>>::create_error(error_or_open.get_error());
+    }
+
+    return ErrorOr<RefPtr<OpenFileDescriptor>>::create(error_or_open.get_value());
   }
 
-  ErrorOr<void> VirtualFileSystem::close(RefPtr<Inode> inode) {
+  ErrorOr<void> VirtualFileSystem::close(RefPtr<OpenFileDescriptor> file) {
     return ErrorOr<void>::create_error(Error::create_from_string("Not implemented"));
   }
 
@@ -70,7 +80,6 @@ namespace Kernel {
   }
 
   ErrorOr<void> VirtualFileSystem::mount(const StringView& mount_point, const StringView& filesystem_path) {
-
     return ErrorOr<void>::create_error(Error::create_from_string("Not implemented"));
   }
 
@@ -96,5 +105,28 @@ namespace Kernel {
     m_root_inode = move(error_or_fs.get_value());
     fs_mount("/", file_system, MountFlags::implicit());
     return ErrorOr<void>::create({});
+  }
+
+  ErrorOr<Pair<RefPtr<FileSystem>, u32>> VirtualFileSystem::longest_common_prefix(const ArrayList<String>& path) {
+    RefPtr<FileSystem> fs;
+    u32 longest = 0;
+    m_mounts.for_each([&](const String& mount_point, const RefPtr<MountContext>& context) {
+      auto mount_parts = mount_point.split("/");
+      for(u32 i = 0; i < path.size(); i++) {
+        if(path[i] != mount_parts[i]) {
+          break;
+        }
+        if(i > longest) {
+          longest = i;
+          fs = context->fs();
+        }
+      }
+    });
+
+    if(!fs) {
+      return ErrorOr<Pair<RefPtr<FileSystem>, u32>>::create_error(Error::create_from_string("No filesystem mounted at this path!"));
+    }
+
+    return ErrorOr<Pair<RefPtr<FileSystem>, u32>>::create({fs, longest});
   }
 }// namespace Kernel

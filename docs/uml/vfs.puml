@@ -1,0 +1,30 @@
+@startuml
+
+class VirtualFileSystem
+class Inode
+class FileSystem
+
+class OpenFileDescriptor
+
+class FileDescriptorTable
+class FileDescriptor
+class File
+
+class Process
+
+Inode <-- VirtualFileSystem
+Inode <-- FileSystem
+FileSystem <-- Inode
+
+FileDescriptor <-- FileDescriptorTable
+FileDescriptor <|-- File
+
+OpenFileDescriptor <-- File
+
+OpenFileDescriptor <-- VirtualFileSystem
+
+FileDescriptorTable <-- Process
+FileDescriptor <-- Process
+VirtualFileSystem <-- Process
+
+@enduml

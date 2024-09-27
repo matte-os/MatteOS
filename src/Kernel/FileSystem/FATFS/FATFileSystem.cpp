@@ -19,11 +19,11 @@ namespace Kernel {
     return ErrorOr<RefPtr<Inode>>::create_error(Error::create_from_string("Root inode not found"));
   }
 
-  ErrorOr<RefPtr<Inode>> FATFileSystem::open() {
-    return ErrorOr<RefPtr<Inode>>::create_error(Error::create_from_string("Not implemented"));
+  ErrorOr<RefPtr<OpenFileDescriptor>> FATFileSystem::open(const Credentials& credentials, StringView path, FileOpenMode mode) {
+    return ErrorOr<RefPtr<OpenFileDescriptor>>::create_error(Error::create_from_string("Not implemented"));
   }
 
-  ErrorOr<void> FATFileSystem::close(RefPtr<Inode> inode) {
+  ErrorOr<void> FATFileSystem::close(RefPtr<OpenFileDescriptor> inode) {
     return ErrorOr<void>::create_error(Error::create_from_string("Not implemented"));
   }
 
@@ -132,5 +132,9 @@ namespace Kernel {
     }
 
     return ErrorOr<String>::create(name);
+  }
+
+  bool FATFileSystem::exists(StringView path) {
+    return false;
   }
 }// namespace Kernel

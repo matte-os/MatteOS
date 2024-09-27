@@ -14,10 +14,11 @@ namespace Utils {
   class Unique {
   private:
     T* m_value;
+
     Unique(T* value) : m_value(value) {}
 
   public:
-    Unique(Unique<T>&& other) : m_value(other.m_value)  {
+    Unique(Unique<T>&& other) noexcept : m_value(other.m_value) {
       other.m_value = nullptr;
     }
 
@@ -34,6 +35,18 @@ namespace Utils {
 
     T& operator*() {
       return *m_value;
+    }
+
+    const T* operator->() const {
+      return m_value;
+    }
+
+    const T& operator*() const {
+      return *m_value;
+    }
+
+    operator bool() const {
+      return m_value != nullptr;
     }
 
     Unique<T>& operator=(Unique<T> const& ptr) = delete;

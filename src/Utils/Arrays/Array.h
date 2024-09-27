@@ -110,6 +110,11 @@ namespace Utils {
       return m_array[index];
     }
 
+    T& get(size_t index) const {
+      runtime_assert(index < m_size, "Array: Index out of bounds!");
+      return m_array[index];
+    }
+
     /**
          * @brief Gets the underlying array
          *
@@ -120,6 +125,8 @@ namespace Utils {
     }
 
     T& operator[](size_t i) { return get(i); };
+
+    T& operator[](size_t i) const { return get(i); };
 
     /**
          * @brief Gets the size of the array

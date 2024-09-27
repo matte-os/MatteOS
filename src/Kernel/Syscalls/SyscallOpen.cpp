@@ -8,14 +8,14 @@ using Utils::ErrorOr;
 namespace Kernel {
   ErrorOr<uintptr_t, SysError> Process::handle_open(SyscallString path, u64 flags) {
     auto& vfs = VirtualFileSystem::the();
-    auto file_inode_or_error = vfs.open(m_credentials, "", flags);
-    if(file_inode_or_error.has_error()) {
+    auto file_or_error = vfs.open(m_credentials, "", flags);
+    if(file_or_error.has_error()) {
       DebugConsole::print("Failed to open file: ");
-      DebugConsole::println(file_inode_or_error.get_error().get_message().value());
+      DebugConsole::println(file_or_error.get_error().get_message().value());
     }
 
-    auto open_or_error = ErrorOr<size_t>::create(0);
-    //auto open_or_error = m_fd_table.open(RefPtr<File>(new File(file_inode_or_error.get_value(), flags)));
+    //auto open_or_error = ErrorOr<size_t>::create(0);
+    auto open_or_error = m_fd_table.open(RefPtr<File>(new File(file_or_error.get_value(), flags)));
     if(open_or_error.has_error()) {
       DebugConsole::print("Failed to open file: ");
       DebugConsole::println(open_or_error.get_error().get_message().value());

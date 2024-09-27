@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Utils/Arrays/Array.h>
+#include <Utils/Callable.h>
 #include <Utils/Hashing/HashFunctions.h>
 #include <Utils/Maps/Map.h>
 #include <Utils/Pointers/RefPtr.h>
@@ -100,7 +101,7 @@ namespace Utils {
       }
     }
 
-    bool has_key(const Key& key) {
+    bool has_key(const Key& key) const {
       u32 index = Function(key) % DefaultSize;
       RefPtr<Entry> entry = m_entries[index];
 
@@ -113,6 +114,16 @@ namespace Utils {
       }
 
       return false;
+    }
+
+    void for_each(Callable<void, const Key&, const Value&> callback) const {
+      for(size_t i = 0; i < DefaultSize; i++) {
+        RefPtr<Entry> entry = m_entries[i];
+        while(entry) {
+          callback(entry->key, entry->value);
+          entry = entry->next;
+        }
+      }
     }
   };
 

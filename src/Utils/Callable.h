@@ -22,7 +22,7 @@ namespace Utils {
       F m_function;
       explicit FunctionWrapper(F function) : m_function(function) {}
       ReturnType invoke(Args... args) {
-        return m_function(forward<Args...>(args...));
+        return m_function(forward<Args>(args)...);
       }
     };
     RefPtr<AnonymousFunction> m_function;
@@ -31,7 +31,7 @@ namespace Utils {
     template<typename F>
     Callable(F function) : m_function(new FunctionWrapper<F>(function)) {}
     ReturnType operator()(Args... args) {
-      return m_function->invoke(forward<Args...>(args...));
+      return m_function->invoke(forward<Args>(args)...);
     }
   };
 }// namespace Utils

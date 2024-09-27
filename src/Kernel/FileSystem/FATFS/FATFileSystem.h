@@ -61,8 +61,9 @@ namespace Kernel {
 
     String name() const override;
     ErrorOr<RefPtr<Inode>> root() override;
-    ErrorOr<RefPtr<Inode>> open() override;
-    ErrorOr<void> close(RefPtr<Inode> inode) override;
+    ErrorOr<RefPtr<OpenFileDescriptor>> open(const Credentials& credentials, StringView path, FileOpenMode mode) override;
+    ErrorOr<void> close(RefPtr<OpenFileDescriptor> inode) override;
+    bool exists(StringView path) override;
     ErrorOr<void> flush();
     ~FATFileSystem() override;
 

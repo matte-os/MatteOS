@@ -11,11 +11,11 @@ namespace Kernel {
     return ErrorOr<RefPtr<Inode>>::create(static_cast<RefPtr<Inode>>(m_root));
   }
 
-  ErrorOr<RefPtr<Inode>> RamFileSystem::open() {
-    return ErrorOr<RefPtr<Inode>>::create_error(Error::create_from_string("Not implemented!"));
+  ErrorOr<RefPtr<OpenFileDescriptor>> RamFileSystem::open(const Credentials& credentials, StringView path, FileOpenMode mode) {
+    return ErrorOr<RefPtr<OpenFileDescriptor>>::create_error(Error::create_from_string("Not implemented!"));
   }
 
-  ErrorOr<void> RamFileSystem::close(RefPtr<Inode> inode) {
+  ErrorOr<void> RamFileSystem::close(RefPtr<OpenFileDescriptor> inode) {
     return ErrorOr<void>::create_error(Error::create_from_string("Not implemented!"));
   }
 }// namespace Kernel
