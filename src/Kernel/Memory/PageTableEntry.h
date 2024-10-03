@@ -13,7 +13,7 @@ namespace Kernel {
         u64 accessed: 1; //Page was read/written to since last A = 0
         u64 dirty   : 1; //Page was written to since last D = 0
         u64 rsw     : 2; //The RSW field is reserved for use by supervisor software
-        u64 ppn0    : 9; //First phisical page number
+        u64 ppn0    : 9; //First physical page number
         u64 ppn1    : 9; //Second -||-
         u64 ppn2    : 26;//Third -||-
         u64 reserved: 10;//Reserved for future use

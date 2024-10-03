@@ -17,10 +17,12 @@ namespace Kernel {
   bool PageTableEntry::is_valid() {
     return valid == 1;
   }
+
   bool PageTableEntry::is_leaf() {
     return read || write || execute;
   }
+
   uintptr_t PageTableEntry::get_ppn() {
-    return ppn0 | ppn1 << 9 | ppn2 << 18;
+    return ((get_value() & ~0x1ff) << 2);
   }
 };// namespace Kernel

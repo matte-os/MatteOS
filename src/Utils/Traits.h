@@ -30,6 +30,16 @@ namespace Utils {
   };
 
   template<typename T>
+  struct RemovePointer {
+    using type = T;
+  };
+
+  template<typename T>
+  struct RemovePointer<T*> {
+    using type = T;
+  };
+
+  template<typename T>
   struct IsLValueReference {
     static constexpr bool value = false;
   };

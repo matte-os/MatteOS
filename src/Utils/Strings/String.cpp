@@ -80,27 +80,33 @@ namespace Utils {
   ArrayList<String> String::split(const String& separator) const {
     ArrayList<String> result;
     size_t last_index = 0;
-    for(size_t i = 0; i < m_value->length(); i++) {
-      if(m_value->value()[i] == separator[0]) {
-        if(i == 0 || i == m_value->length() - 1) {
+
+    for (size_t i = 0; i < m_value->length(); i++) {
+      if (m_value->value()[i] == separator[0]) {
+        // Skip if it's at the start or end
+        if (i == 0 || i == m_value->length() - 1) {
           last_index = i + 1;
           continue;
         }
         bool found = true;
-        for(size_t j = i + 1; j < m_value->length() && separator.length() > 1; j++) {
-          if(m_value->value()[j] != separator[j - i]) {
+        for (size_t j = i + 1; j < m_value->length() && separator.length() > 1; j++) {
+          if (m_value->value()[j] != separator[j - i]) {
             found = false;
             break;
           }
         }
-        if(found) {
-          result.add(String(m_value->value() + last_index, i - last_index));
+        if (found) {
+          // Add the substring only if it's not empty
+          if (i - last_index > 0) {
+            result.add(String(m_value->value() + last_index, i - last_index));
+          }
           last_index = i + separator.length();
         }
       }
     }
 
-    if(last_index < m_value->length()) {
+    // Add the last part, if it's not empty
+    if (last_index < m_value->length() && (m_value->length() - last_index > 0)) {
       result.add(String(m_value->value() + last_index, m_value->length() - last_index));
     }
 

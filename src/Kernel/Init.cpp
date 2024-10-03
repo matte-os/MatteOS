@@ -38,6 +38,7 @@ using Kernel::SATP;
 using Kernel::SatpMode;
 using Kernel::Scheduler;
 using Kernel::SyscallManager;
+using Kernel::System;
 using Kernel::Timer;
 using Kernel::TrapFrame;
 using Kernel::VirtualAddress;

@@ -4,8 +4,8 @@
 
 #pragma once
 
+#include "Userspace.h"
 #include <Kernel/API/Syscall.h>
-#include <Kernel/API/SyscallString.h>
 #include <Kernel/Arch/riscv64/CPU.h>
 #include <Kernel/FileSystem/FileDescriptorTable.h>
 #include <Kernel/Memory/MemoryManager.h>
@@ -20,7 +20,7 @@
 #include <Utils/Pointers/RefPtr.h>
 #include <Utils/Types.h>
 
-using Kernel::System;
+using Kernel::MemoryManager;
 using Kernel::MemoryManager;
 using Kernel::MemoryRegion;
 using Kernel::PageTable;
@@ -55,8 +55,9 @@ namespace Kernel {
     [[nodiscard]] ProcessState get_state() const { return m_state; }
     [[nodiscard]] Thread* get_thread() const { return m_thread; }
 
-    ErrorOr<uintptr_t, SysError> handle_open(SyscallString path, u64 flags);
+    ErrorOr<uintptr_t, SysError> handle_open(Userspace<char*> path, u64 flags);
     ErrorOr<uintptr_t, SysError> handle_close(u64);
+    ErrorOr<uintptr_t, SysError> handle_dbgln(Userspace<char*> message);
 
     void map_memory_region(MemoryRegion&);
     void unmap_memory_region(MemoryRegion&);

@@ -39,9 +39,15 @@ namespace Kernel {
   }
 
   extern "C" [[noreturn]] void dummy_process_main() {
-    for(;;) {
-      auto result = syscall(Syscalls::Sys$close, 1);
+    syscall(Syscalls::Sys$dbgln, reinterpret_cast<uintptr_t>("Hello from dummy process!"));
+    auto fd = static_cast<int>(syscall(Syscalls::Sys$open, reinterpret_cast<uintptr_t>("/hello.txt"), 0));
+    if(fd != -1) {
+      syscall(Syscalls::Sys$dbgln, reinterpret_cast<uintptr_t>("Opened file successfully"));
+    } else {
+      syscall(Syscalls::Sys$dbgln, reinterpret_cast<uintptr_t>("Failed to open file"));
     }
+
+    for(;;) {}
   }
 
   PageTable* ProcessManager::create_dummy_process(uintptr_t text_start,
