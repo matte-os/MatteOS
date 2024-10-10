@@ -118,11 +118,15 @@ namespace Kernel {
   }
 
   ErrorOr<Pair<RefPtr<FileSystem>, u32>> VirtualFileSystem::longest_common_prefix(const ArrayList<String>& path) {
-    RefPtr<FileSystem> fs;
+    if(!m_root_inode) {
+      return ErrorOr<Pair<RefPtr<FileSystem>, u32>>::create_error(Error::create_from_string("No root filesystem mounted!"));
+    }
+
+    RefPtr<FileSystem> fs = m_root_inode->fs();
     u32 longest = 0;
     m_mounts.for_each([&](const String& mount_point, const RefPtr<MountContext>& context) {
       auto mount_parts = mount_point.split("/");
-      for(u32 i = 0; i < path.size(); i++) {
+      for(u32 i = 0; i < path.size() && i < mount_parts.size(); i++) {
         if(path[i] != mount_parts[i]) {
           break;
         }
