@@ -24,9 +24,7 @@ namespace Kernel {
   }
 
   ErrorOr<RefPtr<OpenFileDescriptor>> VirtualFileSystem::open(const Credentials& credentials, const String& path, FileOpenMode mode) {
-    DebugConsole::println("Before split");
     auto path_parts = path.split("/");
-    DebugConsole::println("After split");
 
     //This traverses all the mount points and finds the one with the longest common prefix
     auto error_or_mount = longest_common_prefix(path_parts);
@@ -34,20 +32,13 @@ namespace Kernel {
       DebugConsole::println("Error in longest common prefix");
       return ErrorOr<RefPtr<OpenFileDescriptor>>::create_error(error_or_mount.get_error());
     }
-    DebugConsole::println("After longest common prefix");
-
 
     auto mount = error_or_mount.get_value();
-    DebugConsole::println("After mount");
     auto& fs = mount.first;
-    DebugConsole::println("After fs");
     auto longest = mount.second;
-    DebugConsole::println("After longest");
 
     String relative_path;
-    DebugConsole::println("Before for loop");
     for(u32 i = longest; i < path_parts.size(); i++) {
-      DebugConsole::println("In for loop");
       relative_path += path_parts[i];
       if(i < path_parts.size() - 1) {
         relative_path += "/";
