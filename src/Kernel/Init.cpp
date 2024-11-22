@@ -135,6 +135,9 @@ extern "C" void kmain([[maybe_unused]] int a0, FDTHeader* header) {
   SyscallManager::init();
   DebugConsole::println("Initialization completed");
 
+  DebugConsole::print("RiscVOS: The state of SIE is ");
+  DebugConsole::print_ln_number(CPU::read_sie(), 16);
+
   //TODO: Here we should start the init process and the scheduler
   Scheduler::the().start_scheduling();
 }

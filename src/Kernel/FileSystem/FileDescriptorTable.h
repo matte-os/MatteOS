@@ -7,6 +7,8 @@
 #include <Utils/Pointers/RefPtr.h>
 
 namespace Kernel {
+  using Utils::Array;
+
   class FileDescriptorTable {
   private:
     static const size_t MAX_FDS = 256;

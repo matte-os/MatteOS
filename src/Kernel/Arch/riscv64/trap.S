@@ -139,9 +139,15 @@ switch_to_user:
 	# 1 << 7 is MPIE
 	# Since user mode is 00, we don't need to set anything
 	# in MPP (bits 12:11)
+	# 1 << 5 is SPIE
+	# 1 << 13 is FS
+	# 1 << 18 is SUM
 	li		t0, 1 << 5 | 1 << 13 | 1 << 18 
 	csrw	sstatus, t0
     csrw	sepc, a1
+    # 1 << 1 is Supervisor Interrupt Enable
+    # 1 << 5 is Supervisor Timer Interrupt Enable
+    # 1 << 9 is Supervisor External Interrupt Enable
     li		t1, 1 << 1 | 1 << 5 | 1 << 9
     csrw	sie, t1
     la		t2, m_trap_vector

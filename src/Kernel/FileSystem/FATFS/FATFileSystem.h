@@ -12,6 +12,10 @@
 
 namespace Kernel {
 
+  using FAT::BootSector;
+  using FAT::BootSector32;
+  using FAT::DirectoryEntryAttributes;
+
   enum class FATType {
     FAT12,
     FAT16,
@@ -68,8 +72,8 @@ namespace Kernel {
     ~FATFileSystem() override;
 
   private:
-    ErrorOr<DirectoryEntry*> get_root_directory();
-    ErrorOr<String> get_name(DirectoryEntry* entry);
+    ErrorOr<FAT::DirectoryEntry*> get_root_directory();
+    ErrorOr<String> get_name(FAT::DirectoryEntry* entry);
   };
 
 }// namespace Kernel

@@ -3,17 +3,19 @@
 #include <Kernel/FileSystem/FileOpenMode.h>
 #include <Kernel/Forwards.h>
 #include <Kernel/Security/Credentials.h>
-#include <Utils/Arrays/Array.h>
+#include <Utils/Arrays/ArrayList.h>
 #include <Utils/Errors/ErrorOr.h>
 #include <Utils/Pointers/RefCounted.h>
 #include <Utils/Strings/String.h>
 #include <Utils/Types.h>
 
 namespace Kernel {
-  using Utils::Array;
+  using Utils::ArrayList;
   using Utils::ErrorOr;
   using Utils::String;
   using Utils::StringView;
+
+  class DirectoryEntry;
 
   class Inode : public RefCounted<Inode> {
   protected:
@@ -29,10 +31,23 @@ namespace Kernel {
     virtual RefPtr<FileSystem> fs() = 0;
 
     virtual ErrorOr<RefPtr<Inode>> lookup(const String& name) = 0;
-    virtual ErrorOr<Array<RefPtr<Inode>>> list_dir() = 0;
+    virtual ErrorOr<ArrayList<RefPtr<DirectoryEntry>>> list_dir() = 0;
     virtual ErrorOr<StringView> name() = 0;
 
     virtual bool is_directory() = 0;
     virtual bool is_file() = 0;
+  };
+
+  class DirectoryEntry : public RefCounted<DirectoryEntry> {
+  private:
+    String m_name;
+  public:
+    DirectoryEntry(String name) : m_name(name) {}
+
+    virtual ~DirectoryEntry() = default;
+
+    StringView get_name() {
+      return m_name;
+    }
   };
 }// namespace Kernel

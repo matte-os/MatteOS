@@ -13,11 +13,11 @@ namespace Kernel {
   class FATInode final : public Inode {
   private:
     RefPtr<FATFileSystem> m_fs;
-    DirectoryEntry m_entry;
+    FAT::DirectoryEntry m_entry;
     String m_name;
 
   public:
-    FATInode(RefPtr<FATFileSystem>&& fs, DirectoryEntry entry, String&& name);
+    FATInode(RefPtr<FATFileSystem>&& fs, FAT::DirectoryEntry entry, String&& name);
 
     ErrorOr<StringView> name() override {
       return ErrorOr<StringView>::create(m_name);
@@ -29,7 +29,7 @@ namespace Kernel {
     ErrorOr<size_t> write(const u8* buffer, size_t size, size_t offset) override;
     RefPtr<FileSystem> fs() override;
     ErrorOr<RefPtr<Inode>> lookup(const String& name) override;
-    ErrorOr<Array<RefPtr<Inode>>> list_dir() override;
+    ErrorOr<ArrayList<RefPtr<DirectoryEntry>>> list_dir() override;
     bool is_directory() override;
     bool is_file() override;
   };

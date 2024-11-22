@@ -97,9 +97,6 @@ namespace Kernel {
   }
 
   void System::switch_to_user_mode(TrapFrame* frame_to_apply) {
-    DebugConsole::println("About switching to usermode");
-    DebugConsole::print_ln_number(MY_OFFSETOF(TrapFrame, program_counter), 10);
-    DebugConsole::print_ln_number(frame_to_apply->program_counter, 16);
     switch_to_user(frame_to_apply);
   }
 

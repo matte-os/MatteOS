@@ -8,7 +8,7 @@ namespace Kernel {
   }
 
   SATP CPU::build_satp(SatpMode mode, u64 asid, u64 addr) {
-    SATP satp{.ppn = (addr >> 12), .asid = asid, .mode = (u8) mode};
+    SATP satp {.ppn = (addr >> 12), .asid = asid, .mode = (u8) mode};
     return satp;
   }
 
@@ -57,5 +57,11 @@ namespace Kernel {
   }
 
   void CPU::write_sie(u64 sie) { asm volatile("csrw sie, %0" ::"r"(sie)); }
+
+  u64 CPU::read_sie() {
+    u64 rval;
+    asm volatile("csrr %0, sie" : "=r"(rval));
+    return rval;
+  }
 
 };// namespace Kernel

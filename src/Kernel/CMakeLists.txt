@@ -20,6 +20,7 @@ set(SOURCE
         FileSystem/FileDescriptor.cpp
         FileSystem/FileDescriptorTable.cpp
         FileSystem/File.cpp
+        FileSystem/OpenFileDescriptor.cpp
         Firmware/FDT/FDTParser.cpp
         Firmware/DeviceTree.cpp
         Memory/MemoryManager.cpp

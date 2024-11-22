@@ -27,5 +27,6 @@ namespace Kernel{
         static void write_sstatus(u64);
         static void write_stvec(void (*trap_vector)());
         static void write_sie(u64 sie);
+        static u64 read_sie();
     };
 };

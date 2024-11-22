@@ -187,6 +187,26 @@ namespace Utils {
       }
     }
 
+    bool contains(const T& element) const {
+      for(size_t i = 0; i < size(); i++) {
+        if(get(i) == element) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    bool contains(Callable<bool, const T&> predicate) const {
+      for(size_t i = 0; i < size(); i++) {
+        if(predicate(get(i))) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
     class Iterator {
     private:
       T* m_ptr;

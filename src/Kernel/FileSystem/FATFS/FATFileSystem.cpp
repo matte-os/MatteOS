@@ -20,7 +20,64 @@ namespace Kernel {
   }
 
   ErrorOr<RefPtr<OpenFileDescriptor>> FATFileSystem::open(const Credentials& credentials, StringView path, FileOpenMode mode) {
-    return ErrorOr<RefPtr<OpenFileDescriptor>>::create_error(Error::create_from_string("Not implemented"));
+    // Check if the file is already open in the open file table
+    if(m_open_files.has_descriptor(path)) {
+      return m_open_files.open(path);
+    }
+
+    // If the file is not open, open it and add it to the open file table
+    //FIXME: StringView should have split too
+    auto path_parts = String(path).split("/");
+
+    // If the path is empty, put the root inode into the open file table
+    // and return the open file descriptor
+    if(path_parts.size() == 0) {
+      auto error_or_open_file_descriptor = m_open_files.create_descriptor_and_open(path, m_root);
+      if(error_or_open_file_descriptor.has_error()) {
+        return ErrorOr<RefPtr<OpenFileDescriptor>>::create_error(error_or_open_file_descriptor.get_error());
+      }
+
+      return ErrorOr<RefPtr<OpenFileDescriptor>>::create(error_or_open_file_descriptor.get_value());
+    }
+
+    // Use the root inode to list the first directory entries
+    auto inode = m_root;
+    size_t node_index = 0;
+    while(node_index < path_parts.size()) {
+      // Check if the inode is a directory
+      if(!inode->is_directory()) {
+        return ErrorOr<RefPtr<OpenFileDescriptor>>::create_error(Error::create_from_string("Not a directory"));
+      }
+
+      auto& name = path_parts[node_index];
+      auto error_or_directory_entries = inode->list_dir();
+      if(error_or_directory_entries.has_error()) {
+        return ErrorOr<RefPtr<OpenFileDescriptor>>::create_error(error_or_directory_entries.get_error());
+      }
+
+      auto directory_entries = error_or_directory_entries.get_value();
+      auto contains_path_part = directory_entries.contains([name](auto entry) {
+        return entry->get_name() == name;
+      });
+
+      if(!contains_path_part) {
+        return ErrorOr<RefPtr<OpenFileDescriptor>>::create_error(Error::create_from_string("Path not found"));
+      }
+
+      auto error_or_inode = inode->lookup(name);
+      if(error_or_inode.has_error()) {
+        return ErrorOr<RefPtr<OpenFileDescriptor>>::create_error(error_or_inode.get_error());
+      }
+
+      inode = error_or_inode.get_value();
+    }
+
+    auto error_or_open_file_descriptor = m_open_files.create_descriptor_and_open(path, inode);
+    if(error_or_open_file_descriptor.has_error()) {
+      return ErrorOr<RefPtr<OpenFileDescriptor>>::create_error(error_or_open_file_descriptor.get_error());
+    }
+
+    return ErrorOr<RefPtr<OpenFileDescriptor>>::create(error_or_open_file_descriptor.get_value());
   }
 
   ErrorOr<void> FATFileSystem::close(RefPtr<OpenFileDescriptor> inode) {
@@ -66,9 +123,9 @@ namespace Kernel {
     delete m_fat_boot_sector;
   }
 
-  ErrorOr<DirectoryEntry*> FATFileSystem::get_root_directory() {
+  ErrorOr<FAT::DirectoryEntry*> FATFileSystem::get_root_directory() {
     if(m_fat_type != FATType::FAT32) {
-      return ErrorOr<DirectoryEntry*>::create_error(Error::create_from_string("Only FAT32 is supported"));
+      return ErrorOr<FAT::DirectoryEntry*>::create_error(Error::create_from_string("Only FAT32 is supported"));
     }
 
     auto fat32 = reinterpret_cast<BootSector32*>(m_fat_boot_sector);
@@ -85,14 +142,14 @@ namespace Kernel {
     auto read_result = get_device()->read_poll(buffer, bytes_per_cluster, root_cluster_offset);
     if(read_result.has_error()) {
       delete buffer;
-      return ErrorOr<DirectoryEntry*>::create_error(read_result.get_error());
+      return ErrorOr<FAT::DirectoryEntry*>::create_error(read_result.get_error());
     }
 
-    auto root_dir = reinterpret_cast<DirectoryEntry*>(buffer);
-    return ErrorOr<DirectoryEntry*>::create(root_dir);
+    auto root_dir = reinterpret_cast<FAT::DirectoryEntry*>(buffer);
+    return ErrorOr<FAT::DirectoryEntry*>::create(root_dir);
   }
 
-  ErrorOr<String> FATFileSystem::get_name(DirectoryEntry* entry) {
+  ErrorOr<String> FATFileSystem::get_name(FAT::DirectoryEntry* entry) {
     if(!entry->is_long_name()) {
       return ErrorOr<String>::create(String(reinterpret_cast<char*>(entry->name), 11));
     }
