@@ -20,7 +20,5 @@ namespace Kernel {
     virtual ErrorOr<size_t> read(u8* buffer, size_t size, size_t offset) override;
     virtual ErrorOr<size_t> write(const u8* buffer, size_t size, size_t offset) override;
     virtual RefPtr<FileSystem> fs() override;
-
-    virtual ErrorOr<RefPtr<Inode>> lookup(const String& name) override;
   };
 }// namespace Kernel

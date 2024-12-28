@@ -64,6 +64,14 @@ namespace Kernel {
       u16 name2[6];
       u16 first_cluster;
       u16 name3[2];
+
+      bool is_final_entry() {
+        return order & 0x40;
+      }
+
+      bool is_free() {
+        return order & 0x00;
+      }
     } __attribute__((packed));
 
     static_assert(sizeof(LongDirectoryEntry) == 32, "LongDirectoryEntry size is not 32 bytes");

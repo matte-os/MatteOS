@@ -89,6 +89,11 @@ namespace Utils {
       static_assert(IsBaseOf<U, T>::value, "Cannot convert to a non-base class!");
       return RefPtr<U>(static_cast<U*>(m_value));
     }
+
+    template<typename ...Args>
+    static RefPtr<T> create(Args... args) {
+      return RefPtr<T>(new T(forward<Args>(args)...));
+    }
   };
 
   template<typename T>

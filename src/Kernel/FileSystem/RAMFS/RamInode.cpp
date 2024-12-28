@@ -14,7 +14,4 @@ namespace Kernel {
   ErrorOr<size_t> RamInode::write(const u8* buffer, size_t size, size_t offset) {
     return ErrorOr<size_t>::create_error(Error::create_from_string("Not implemented!"));
   }
-  ErrorOr<RefPtr<Inode>> RamInode::lookup(const String& name) {
-    return m_children.get(name);
-  }
 }// namespace Kernel

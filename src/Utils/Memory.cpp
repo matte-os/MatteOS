@@ -1,7 +1,6 @@
 #include <Utils/Memory.h>
 namespace Utils {
   extern "C" {
-
   void* memcpy(char* dst, const char* src, int n) {
     char* p = dst;
     while(n--)

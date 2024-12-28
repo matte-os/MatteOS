@@ -30,7 +30,7 @@ namespace Kernel {
     virtual ErrorOr<size_t> write(const u8* buffer, size_t size, size_t offset) = 0;
     virtual RefPtr<FileSystem> fs() = 0;
 
-    virtual ErrorOr<RefPtr<Inode>> lookup(const String& name) = 0;
+    virtual ErrorOr<RefPtr<Inode>> get_child(StringView name) = 0;
     virtual ErrorOr<ArrayList<RefPtr<DirectoryEntry>>> list_dir() = 0;
     virtual ErrorOr<StringView> name() = 0;
 

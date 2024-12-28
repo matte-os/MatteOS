@@ -37,7 +37,7 @@ namespace Kernel {
     auto& fs = mount.first;
     auto longest = mount.second;
 
-    String relative_path;
+    String relative_path = "/";
     for(u32 i = longest; i < path_parts.size(); i++) {
       relative_path += path_parts[i];
       if(i < path_parts.size() - 1) {

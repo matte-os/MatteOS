@@ -5,8 +5,11 @@
 #include <Kernel/Devices/Device.h>
 #include <Kernel/FileSystem/FATFS/FAT.h>
 #include <Kernel/FileSystem/FATFS/FATFileSystem.h>
+#include <Utils/Memory.h>
 
 namespace Kernel {
+  using Utils::memcpy;
+
   String FATFileSystem::name() const {
     return "FAT";
   }
@@ -43,6 +46,7 @@ namespace Kernel {
     // Use the root inode to list the first directory entries
     auto inode = m_root;
     size_t node_index = 0;
+    String path_so_far = "";
     while(node_index < path_parts.size()) {
       // Check if the inode is a directory
       if(!inode->is_directory()) {
@@ -50,12 +54,8 @@ namespace Kernel {
       }
 
       auto& name = path_parts[node_index];
-      auto error_or_directory_entries = inode->list_dir();
-      if(error_or_directory_entries.has_error()) {
-        return ErrorOr<RefPtr<OpenFileDescriptor>>::create_error(error_or_directory_entries.get_error());
-      }
+      auto directory_entries = TRY(inode->list_dir());
 
-      auto directory_entries = error_or_directory_entries.get_value();
       auto contains_path_part = directory_entries.contains([name](auto entry) {
         return entry->get_name() == name;
       });
@@ -64,20 +64,33 @@ namespace Kernel {
         return ErrorOr<RefPtr<OpenFileDescriptor>>::create_error(Error::create_from_string("Path not found"));
       }
 
-      auto error_or_inode = inode->lookup(name);
-      if(error_or_inode.has_error()) {
-        return ErrorOr<RefPtr<OpenFileDescriptor>>::create_error(error_or_inode.get_error());
+      path_so_far += "/";
+      path_so_far += name;
+
+      RefPtr<Inode> new_inode;
+      DebugConsole::print("Path so far: ");
+      DebugConsole::println(path_so_far);
+
+      if(m_open_files.has_descriptor(path_so_far)) {
+        new_inode = TRY(m_open_files.open(path_so_far))->inode();
+      } else {
+        new_inode = TRY(inode->get_child(name));
+        m_open_files.create_descriptor_and_open(path_so_far, new_inode);
+        DebugConsole::print("Created descriptor for: ");
+        DebugConsole::println(path_so_far);
       }
 
-      inode = error_or_inode.get_value();
+      if(m_root != inode) {
+        m_open_files.close(path_so_far);
+      }
+
+      inode = new_inode;
+      node_index++;
     }
 
-    auto error_or_open_file_descriptor = m_open_files.create_descriptor_and_open(path, inode);
-    if(error_or_open_file_descriptor.has_error()) {
-      return ErrorOr<RefPtr<OpenFileDescriptor>>::create_error(error_or_open_file_descriptor.get_error());
-    }
-
-    return ErrorOr<RefPtr<OpenFileDescriptor>>::create(error_or_open_file_descriptor.get_value());
+    DebugConsole::print("Opened file: ");
+    DebugConsole::println(path);
+    return TRY(m_open_files.get_descriptor(path));
   }
 
   ErrorOr<void> FATFileSystem::close(RefPtr<OpenFileDescriptor> inode) {
@@ -130,20 +143,15 @@ namespace Kernel {
 
     auto fat32 = reinterpret_cast<BootSector32*>(m_fat_boot_sector);
 
-    auto bytes_per_cluster = fat32->sectors_per_cluster * fat32->bytes_per_sector;
-    auto reserved_and_fat_offset = fat32->reserved_sectors * fat32->bytes_per_sector + fat32->fat_count * fat32->sectors_per_fat32 * fat32->bytes_per_sector;
+    auto error_or_cluster = read_cluster_poll(fat32->root_cluster);
 
-    auto root_cluster_offset = reserved_and_fat_offset + (fat32->root_cluster - 2) * bytes_per_cluster;
-
-    DebugConsole::print("Root cluster offset: ");
-    DebugConsole::print_ln_number(root_cluster_offset, 16);
-
-    auto buffer = new u8[bytes_per_cluster];
-    auto read_result = get_device()->read_poll(buffer, bytes_per_cluster, root_cluster_offset);
-    if(read_result.has_error()) {
-      delete buffer;
-      return ErrorOr<FAT::DirectoryEntry*>::create_error(read_result.get_error());
+    if(error_or_cluster.has_error()) {
+      return ErrorOr<FAT::DirectoryEntry*>::create_error(error_or_cluster.get_error());
     }
+
+    auto buffer = new u8[m_bytes_per_cluster];
+    auto cluster = error_or_cluster.get_value();
+    memcpy(reinterpret_cast<char*>(buffer), reinterpret_cast<const char*>(cluster->data()), m_bytes_per_cluster);
 
     auto root_dir = reinterpret_cast<FAT::DirectoryEntry*>(buffer);
     return ErrorOr<FAT::DirectoryEntry*>::create(root_dir);
@@ -181,7 +189,7 @@ namespace Kernel {
 
       name = tmp + name;
 
-      if((long_entry->order & 0x40)) {
+      if(long_entry->is_final_entry() || long_entry->is_free()) {
         break;
       }
 
@@ -193,5 +201,41 @@ namespace Kernel {
 
   bool FATFileSystem::exists(StringView path) {
     return false;
+  }
+
+  ErrorOr<RefPtr<DataBlock>> FATFileSystem::read_block_poll(size_t block_number) {
+    auto maybe_block = get_block_from_cache(block_number);
+
+    // If we found the block in the cache, return it.
+    if(maybe_block) {
+      cache(maybe_block.get_value());
+      return maybe_block;
+    }
+
+    // Otherwise, read the block from the device.
+    auto block = RefPtr<DataBlock>::create(block_number, get_block_size());
+    auto buffer = block->data();
+
+    // We have to convert the block number by adding the fat start offset
+    auto read_or_error = get_device()->read_poll(buffer, get_block_size(), m_fat_start_offset + block_number * get_block_size());
+    TRY(read_or_error);
+
+    cache(block);
+
+    return block;
+  }
+
+  ErrorOr<void> FATFileSystem::write_block_poll(size_t block_number, char* buffer) {
+  }
+
+  ErrorOr<void> FATFileSystem::read_block_request() {
+  }
+
+  ErrorOr<void> FATFileSystem::write_block_request() {
+  }
+
+  ErrorOr<RefPtr<DataBlock>> FATFileSystem::read_cluster_poll(size_t cluster) {
+    auto block_number = m_number_of_fat_blocks + cluster - 2;
+    return read_block_poll(block_number);
   }
 }// namespace Kernel

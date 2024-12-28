@@ -47,12 +47,18 @@ namespace Kernel {
     for(size_t i = 0; i < m_number_of_harts; i++) {
       auto* kernel_trap_frame = reinterpret_cast<KernelTrapFrame*>(MemoryManager::the().zalloc(1));
       kernel_trap_frame->cpu_id = i;
-      kernel_trap_frame->regs[2] = reinterpret_cast<u64>(MemoryManager::the().zalloc(1));
+      kernel_trap_frame->regs[2] = MemoryManager::the().get_stack_start();
+      DebugConsole::print("System: TrapFrame address: ");
+      DebugConsole::print_ln_number(reinterpret_cast<u64>(kernel_trap_frame), 16);
+
+      DebugConsole::print("System: TrapFrame regs[2] address: ");
+      DebugConsole::print_ln_number(kernel_trap_frame->regs[2], 16);
       if(i == 0) {
         MemoryManager::the().map_range(*MemoryManager::the().get_current_root_page_table(), TRAP_VECTOR_ADDRESS, TRAP_VECTOR_ADDRESS + 0x1000, reinterpret_cast<uintptr_t>(kernel_trap_frame), static_cast<u64>(EntryBits::READ_WRITE));
         kernel_trap_frame->satp = CPU::read_satp();
       } else {
-        auto* root_page_table = reinterpret_cast<PageTable*>(MemoryManager::the().zalloc(1));
+        // The stack decreases from the top of the memory
+        auto* root_page_table = reinterpret_cast<PageTable*>(MemoryManager::the().zalloc(4) + 0x4000);
         MemoryManager::the().map_system_defaults(*root_page_table);
         MemoryManager::the().map_range(*root_page_table, TRAP_VECTOR_ADDRESS, TRAP_VECTOR_ADDRESS + 0x1000, reinterpret_cast<uintptr_t>(kernel_trap_frame), static_cast<u64>(EntryBits::READ_WRITE));
         kernel_trap_frame->satp = CPU::build_satp(SatpMode::Sv39, 0, reinterpret_cast<uintptr_t>(root_page_table));

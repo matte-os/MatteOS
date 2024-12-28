@@ -43,5 +43,7 @@ namespace Kernel {
     ErrorOr<RefPtr<OpenFileDescriptor>> create_descriptor_and_open(const String& path, RefPtr<Inode> inode);
     ErrorOr<RefPtr<OpenFileDescriptor>> open(const String& path);
     ErrorOr<void> close(const String& path);
+
+    ErrorOr<RefPtr<OpenFileDescriptor>> get_descriptor(const String& path);
   };
 }// namespace Kernel

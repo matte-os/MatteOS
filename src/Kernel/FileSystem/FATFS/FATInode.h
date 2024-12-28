@@ -18,6 +18,8 @@ namespace Kernel {
 
   public:
     FATInode(RefPtr<FATFileSystem>&& fs, FAT::DirectoryEntry entry, String&& name);
+    FATInode(RefPtr<FATFileSystem>& fs, FAT::DirectoryEntry entry, String&& name);
+
 
     ErrorOr<StringView> name() override {
       return ErrorOr<StringView>::create(m_name);
@@ -28,7 +30,7 @@ namespace Kernel {
     ErrorOr<size_t> read(u8* buffer, size_t size, size_t offset) override;
     ErrorOr<size_t> write(const u8* buffer, size_t size, size_t offset) override;
     RefPtr<FileSystem> fs() override;
-    ErrorOr<RefPtr<Inode>> lookup(const String& name) override;
+    ErrorOr<RefPtr<Inode>> get_child(Utils::StringView name) override;
     ErrorOr<ArrayList<RefPtr<DirectoryEntry>>> list_dir() override;
     bool is_directory() override;
     bool is_file() override;

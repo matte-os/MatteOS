@@ -24,21 +24,34 @@ namespace Kernel {
 
   class FATFileSystem : public BlockBackedFileSystem {
   private:
+    friend class FATInode;
     OpenFileDescriptorTable m_open_files;
     FATType m_fat_type;
     BootSector* m_fat_boot_sector;
     RefPtr<FATInode> m_root;
 
-    FATFileSystem(RefPtr<Device> device, FATType fat_type, BootSector* fat_boot_sector) : BlockBackedFileSystem(device), m_fat_type(fat_type), m_fat_boot_sector(fat_boot_sector) {
+    // Fat specific fields
+    size_t m_bytes_per_cluster;
+    size_t m_reserved_and_fat_offset;
+    size_t m_fat_start_offset;
+
+    size_t m_number_of_fat_blocks;
+
+    FATFileSystem(RefPtr<Device> device, FATType fat_type, BootSector* fat_boot_sector) : BlockBackedFileSystem(device, fat_boot_sector->sectors_per_cluster * fat_boot_sector->bytes_per_sector), m_fat_type(fat_type), m_fat_boot_sector(fat_boot_sector) {
       if(m_fat_type == FATType::FAT32) {
         auto fat32 = reinterpret_cast<BootSector32*>(fat_boot_sector);
         m_root = {new FATInode({this}, {
                                                .attributes = as_underlying(DirectoryEntryAttributes::Directory),
                                                .name = {0},
                                                .first_cluster_high = 0,
-                                               .first_cluster_low = fat32->root_cluster - 2,
+                                               .first_cluster_low = fat32->root_cluster,
                                        },
                                "")};
+
+        m_bytes_per_cluster = fat32->sectors_per_cluster * fat32->bytes_per_sector;
+        m_fat_start_offset = fat32->reserved_sectors * fat32->bytes_per_sector;
+        m_reserved_and_fat_offset = m_fat_start_offset + fat32->fat_count * fat32->sectors_per_fat32 * fat32->bytes_per_sector;
+        m_number_of_fat_blocks = (m_reserved_and_fat_offset - m_fat_start_offset) / m_bytes_per_cluster;
       }
 
       auto error_or_root = get_root_directory();
@@ -60,6 +73,13 @@ namespace Kernel {
       }
     }
 
+  protected:
+    ErrorOr<RefPtr<DataBlock>> read_block_poll(size_t block_number) override;
+    ErrorOr<void> write_block_poll(size_t block_number, char* buffer) override;
+    ErrorOr<void> read_block_request() override;
+    ErrorOr<void> write_block_request() override;
+
+    ErrorOr<RefPtr<DataBlock>> read_cluster_poll(size_t cluster);
   public:
     static ErrorOr<RefPtr<FileSystem>> try_create(RefPtr<Device> device);
 

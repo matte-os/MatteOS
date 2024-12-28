@@ -19,7 +19,7 @@ namespace Kernel {
 
   ErrorOr<RefPtr<OpenFileDescriptor>> OpenFileDescriptorTable::open(const String& path) {
     if(!m_descriptors.has_key(path)) {
-      return ErrorOr<RefPtr<OpenFileDescriptor>>::create_error(Error::create_from_string("File not found"));
+      return ErrorOr<RefPtr<OpenFileDescriptor>>::create_error(Error::create_from_string("File not found, cannot open"));
     }
 
     auto error_or_descriptor = m_descriptors.get(path);
@@ -34,7 +34,7 @@ namespace Kernel {
 
   ErrorOr<void> OpenFileDescriptorTable::close(const String& path) {
     if(!m_descriptors.has_key(path)) {
-      return ErrorOr<void>::create_error(Error::create_from_string("File not found"));
+      return ErrorOr<void>::create_error(Error::create_from_string("File not found, cannot close"));
     }
 
     auto error_or_descriptor = m_descriptors.get(path);
@@ -50,5 +50,13 @@ namespace Kernel {
     runtime_assert(descriptor->m_ref_count == 1, "OpenFileDescriptor still has references");
 
     return ErrorOr<void>::create({});
+  }
+
+  ErrorOr<RefPtr<OpenFileDescriptor>> OpenFileDescriptorTable::get_descriptor(const String& path) {
+    if(!m_descriptors.has_key(path)) {
+      return ErrorOr<RefPtr<OpenFileDescriptor>>::create_error(Error::create_from_string("File not found, cannot get descriptor"));
+    }
+
+    return TRY(m_descriptors.get(path));
   }
 }// namespace Kernel

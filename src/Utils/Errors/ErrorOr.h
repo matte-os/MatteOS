@@ -12,6 +12,25 @@
 #include <Utils/Traits.h>
 #include <Utils/Variant.h>
 
+// Implemented similarly to SerenityOS
+#define TRY(expr)                           \
+  ({                                        \
+    auto _temporary_result = expr;          \
+    if(_temporary_result.has_error()) {     \
+      return _temporary_result.get_error(); \
+    }                                       \
+    _temporary_result.get_value();          \
+  })
+
+#define TRY_RETURN(expr)                    \
+  ({                                        \
+    auto _temporary_result = expr;          \
+    if(_temporary_result.has_error()) {     \
+      return _temporary_result.get_error(); \
+    }                                       \
+    return _temporary_result.get_value();   \
+  })
+
 namespace Utils {
   using namespace Utils;
 
@@ -22,22 +41,32 @@ namespace Utils {
 
   private:
     explicit Error(int code) : m_code(code) {}
+
     explicit Error(String&& message)
         : m_message(move(message)), m_code(1) {}
+
     explicit Error(String&& message, int code)
         : m_message(move(message)), m_code(code) {}
 
+    Error() = delete;
+
   public:
     Error(const Error& other) = default;
+
     static Error create_from_string(String&& message) {
       return Error(move(message));
     }
+
     static Error create_from_errno(int error) { return Error(error); }
+
     static Error create(String&& message, int error) {
       return Error(move(message), error);
     }
+
     [[nodiscard]] bool has_error() const { return m_code; }
+
     [[nodiscard]] StringView get_message() const { return static_cast<StringView>(m_message); }
+
     [[nodiscard]] int get_error() const { return m_code; }
 
     ~Error() = default;
@@ -54,17 +83,20 @@ namespace Utils {
 
   protected:
     ErrorOr() = default;
-    explicit ErrorOr(ResultType& value) {
+
+  public:
+    ErrorOr(ResultType& value) {
       m_value_or_error.template set<ResultType>(value);
     }
-    explicit ErrorOr(ResultType&& value) {
+
+    ErrorOr(ResultType&& value) {
       m_value_or_error.template set<ResultType>(move(value));
     }
-    explicit ErrorOr(ErrorType error) {
+
+    ErrorOr(ErrorType error) {
       m_value_or_error.template set<ErrorType>(error);
     }
 
-  public:
     ErrorOr(const ErrorOr& other) {
       if(other.has_error()) {
         m_value_or_error.template set<ErrorType>(other.get_error());
@@ -75,26 +107,37 @@ namespace Utils {
 
   public:
     static ErrorOr<T, E> create(T& value) { return ErrorOr<T, E>(value); }
+
     static ErrorOr<T, E> create(T&& value) { return ErrorOr<T, E>(move(value)); }
+
     static ErrorOr<T, E> create_error(ErrorType error) {
       return ErrorOr<T, E>(error);
     }
+
     ~ErrorOr() = default;
 
     [[nodiscard]] bool has_value() const {
       return m_value_or_error.template is<ResultType>();
     }
+
     [[nodiscard]] bool has_error() const {
       return m_value_or_error.template is<ErrorType>();
     }
+
     [[nodiscard]] ResultType get_value() const {
       return m_value_or_error.template as<ResultType>();
     }
+
     [[nodiscard]] ErrorType get_error() const {
       return m_value_or_error.template as<ErrorType>();
     }
+
     [[nodiscard]] ResultType&& get_unique() {
       return move(m_value_or_error.template as<ResultType>());
+    }
+
+    operator bool() const {
+      return has_value();
     }
   };
 
