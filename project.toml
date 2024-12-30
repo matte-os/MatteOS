@@ -64,8 +64,19 @@ fi
 """
 description = "Download and extract Python 3.10, that is needed by GDB"
 
+[targets.doxygen-latest]
+action = """
+if [ ! -f 'toolchain/doxygen.tar.gz' ]; then
+    wget -c https://github.com/doxygen/doxygen/releases/download/Release_1_13_0/doxygen-1.13.0.linux.bin.tar.gz -O toolchain/doxygen.tar.gz
+fi
+if [ ! -d 'toolchain/doxygen' ]; then
+    mkdir -p toolchain/doxygen
+    tar -xvf toolchain/doxygen.tar.gz -C toolchain/doxygen --strip-components=1
+fi
+"""
+
 [targets.toolchain]
-dependencies = ["riscv-gnu-toolchain", "clang", "python3-10"]
+dependencies = ["riscv-gnu-toolchain", "clang", "python3-10", "doxygen-latest"]
 description = "Download and extract toolchains"
 
 [targets.opensbi]
@@ -153,7 +164,7 @@ description = "Run GDB in debug mode"
 
 [targets.doxygen]
 action = """
-doxygen Doxyfile
+toolchain/doxygen/bin/doxygen Doxyfile
 """
 description = "Generate doxygen documentation"
 

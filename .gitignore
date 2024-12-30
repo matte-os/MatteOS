@@ -71,6 +71,7 @@ toolchain/riscv/**
 toolchain/clang/**
 toolchain/python3.10/**
 toolchain/python3.10-build/**
+toolchain/doxygen/**
 
 venv/**
 
