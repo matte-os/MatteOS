@@ -31,7 +31,8 @@ set(SOURCE
         Memory/PageTableEntry.cpp
         Uart.cpp
         Syscalls/SyscallManager.cpp
-        Syscalls/SyscallOpen.cpp
+        Syscalls/SyscallFile.cpp
+        Syscalls/SyscallDebug.cpp
         Devices/DeviceManager.cpp
         Drivers/DriverManager.cpp
         Drivers/DeviceDriver.cpp
