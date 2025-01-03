@@ -1,6 +1,6 @@
-#include <Kernel/Arch/riscv64/Interrupts/Plic.h>
 #include <Kernel/Arch/riscv64/CSR.h>
 #include <Kernel/Arch/riscv64/Interrupts/Interrupts.h>
+#include <Kernel/Arch/riscv64/Interrupts/Plic.h>
 #include <Kernel/Syscalls/SyscallManager.h>
 #include <Kernel/System/InterruptManager.h>
 #include <Utils/DebugConsole.h>
@@ -24,11 +24,13 @@ namespace Kernel {
     auto context_id = InterruptManager::DEFAULT_CONTEXT_ID;
     auto next_interrupt = Plic::the().next(context_id);
     if(next_interrupt.has_value()) {
+      auto interrupt = next_interrupt.get_value();
       DebugConsole::print("Interrupts: Delegating interrupt to device ");
-      DebugConsole::print_ln_number(next_interrupt.get_value(), 10);
-      InterruptManager::the().delegate_device_interrupt(next_interrupt.get_value());
-      Plic::the().complete(context_id);
-      DebugConsole::println("Interrupts: Completed interrupt");
+      DebugConsole::print_ln_number(interrupt, 10);
+      InterruptManager::the().delegate_device_interrupt(interrupt);
+      Plic::the().complete(context_id, interrupt);
+      DebugConsole::print("Interrupts: Is pending: ");
+      DebugConsole::print_ln_number(Plic::the().is_pending(interrupt), 10);
     }
     return sepc;
   }

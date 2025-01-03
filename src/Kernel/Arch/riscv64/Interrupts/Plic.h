@@ -30,7 +30,7 @@ namespace Kernel {
     void set_priority(u32 id, u8 priority);
     void set_threshold(u32 context_id, u8 threshold);
     Optional<u32> next(u32 context_id);
-    void complete(u32 context_id);
+    void complete(u32 context_id, u32 id);
     bool is_pending(u32 id);
 
   private:

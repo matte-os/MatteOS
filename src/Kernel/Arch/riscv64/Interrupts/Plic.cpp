@@ -97,9 +97,17 @@ namespace Kernel {
     return {claim};
   }
 
-  void Plic::complete(u32 context_id) {
+  void Plic::complete(u32 context_id, u32 id) {
     auto* complete_register = reinterpret_cast<u32*>(m_base + static_cast<size_t>(PlicOffsets::Complete) + 0x1000 * context_id);
-    *complete_register = 0;
+    *complete_register = id;
+
+    DebugConsole::print("Plic: Completed interrupt for context ");
+    DebugConsole::print_ln_number(context_id, 10);
+
+    DebugConsole::print("Plic: Complete write to ");
+    DebugConsole::print_number(reinterpret_cast<u64>(complete_register), 16);
+    DebugConsole::print(" value ");
+    DebugConsole::print_ln_number(id, 16);
   }
 
   bool Plic::is_pending(u32 id) {

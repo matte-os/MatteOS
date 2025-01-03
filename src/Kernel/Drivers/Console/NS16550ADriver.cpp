@@ -31,6 +31,8 @@ namespace Kernel {
     // Enable DLAB (to set baud rate divisor).
     address[3] = 0x80;
 
+    //TODO: Lower the BAUD RATE
+
     // Sed divisor to 3 (low byte) and 0 (high byte) for 38400 baud rate.
     address[0] = 0x03;
     address[1] = 0x00;
@@ -47,8 +49,6 @@ namespace Kernel {
     // IRQs enabled and OUT1 and OUT2 set.
     address[4] = 0x0F;
 
-    // TODO: Allow setting custom baud rate.
-
     DebugConsole::println("NS16550ADriver: initialized.");
   }
 
@@ -56,7 +56,17 @@ namespace Kernel {
   }
 
   ErrorOr<String> NS16550ADriver::read() {
-    return ErrorOr<String>::create_error(Error::create_from_string("This device does not support reading whole strings. Use read_char instead."));
+    String result;
+    while(true) {
+      auto error_or_char = read_char();
+      if(error_or_char.has_error()) {
+        break;
+      }
+
+      result += error_or_char.get_value();
+    }
+
+    return result;
   }
 
   void NS16550ADriver::write(String& message) {
