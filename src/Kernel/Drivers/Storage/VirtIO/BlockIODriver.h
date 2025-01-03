@@ -14,6 +14,7 @@ namespace Kernel {
 
   class BlockIODriver : public BlockDeviceDriver {
     RefPtr<BlockDevice> m_device;
+    ArrayList<BlockIO::Request*> m_ignored_requests; // This is used to ignore requests, that were issued using poll methods
 
   public:
     explicit BlockIODriver(RefPtr<BlockDevice> device);

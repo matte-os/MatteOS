@@ -4,62 +4,85 @@
 
 #pragma once
 
+#include <Utils/Basic.h>
 #include <Utils/Strings/String.h>
 #include <Utils/Strings/StringBuilder.h>
 
 namespace Utils {
   using Utils::String;
 
-  struct StandardFormatter {
+  struct FormatterContext {
+    bool escaped = false;
+    bool open = false;
+    String flags{};
+    String result{};
+    const char *format{};
   };
 
-  template<typename T>
-  struct Formatter : public StandardFormatter {
-  public:
-    void format(StringBuilder& buffer, T arg) {
-      buffer += arg.to_string();
-    }
+  // `Stringifiable` concept for non-pointers
+  template <typename T>
+  concept Stringifiable = requires(T t) {
+    { to_string(t) };
   };
 
-  template<>
-  struct Formatter<String> : public StandardFormatter {
-  public:
-    void format(StringBuilder& buffer, const String& arg) {
-      buffer += arg;
-    }
+  // `StringifiablePointer` concept for pointers
+  template <typename T>
+  concept StringifiablePointer = Pointer<T> && requires(T t) {
+    { to_string(t) };
   };
 
-  template<>
-  struct Formatter<const char*> : public StandardFormatter {
-  public:
-    void format(StringBuilder& buffer, const char* arg) {
-      buffer += arg;
-    }
+  // `StringifiableWithFlags` concept for types that use flags
+  template <typename T>
+  concept StringifiableWithFlags = requires(T t, String &flags) {
+    { to_string(t, flags) };
   };
 
-  template<>
-  struct Formatter<int> : public StandardFormatter {
-    void format(StringBuilder& buffer, int arg) {
-      buffer += String::from_int(arg);
-    }
-  };
+  void process(FormatterContext &context);
 
-  template<typename... Args>
-  String format(const String& format, Args... args) {
-
-  }
-
-  template<typename T, typename... Args>
-  void format(StringBuilder& buffer, StringView& fmt, T arg, Args... args) {
-    for(size_t i = 0; i < fmt.length(); i++) {
-      if(fmt[i] == '{') {
-        Formatter<T> formatter;
-        formatter.format(buffer, arg);
-        format(buffer, fmt.offset(i + 1), args...);
+  template <typename T, typename... Args>
+  void process(FormatterContext &context, const T &value, const Args &...args) {
+    while (*context.format) {
+      if (*context.format == '{' && !context.escaped) {
+        context.open = true;
+      } else if (*context.format == '}' && !context.escaped && context.open) {
+        context.open = false;
+        if constexpr (StringifiableWithFlags<T>) {
+          context.result += to_string(value, context.flags);
+        } else if constexpr (Stringifiable<T>) {
+          context.result += to_string(value);
+        } else if constexpr (StringifiablePointer<T>) {
+          context.result += to_string(value);
+        } else {
+          static_assert(false, "No formatter found for the type T");
+        }
+        context.format++;
+        process(context, args...);
         return;
+      } else if (*context.format == '\\') {
+        if (context.escaped) {
+          context.escaped = false;
+          context.result += *context.format;
+        } else {
+          context.escaped = true;
+        }
+      } else {
+        context.escaped = false;
+        if (context.open) {
+          context.flags += *context.format;
+        } else {
+          context.result += *context.format;
+        }
       }
-      buffer += fmt[i];
+
+      context.format++;
     }
   }
 
+  template <typename... Args>
+  String format(const char *format, const Args &...args) {
+    FormatterContext context{};
+    context.format = format;
+    process(context, args...);
+    return context.result;
+  }
 }// namespace Utils

@@ -7,12 +7,13 @@
 
 using Utils::ArrayList;
 using Utils::DebugConsole;
+using Utils::Error;
 using Utils::ErrorOr;
 using Utils::move;
-using Utils::Error;
 
 namespace Kernel {
   class FDTParser;
+
   struct FDTProperty {
     friend class FDTParser;
 
@@ -31,12 +32,16 @@ namespace Kernel {
       return m_value;
     }
 
+    [[nodiscard]] String get_value_as_string() const {
+      return String(m_value.to_cstring());
+    }
+
     char* get_value_bytes() const {
       return const_cast<char*>(m_value.to_cstring());
     }
 
     u32 get_value_as_u32(size_t index = 0) const {
-       return *(reinterpret_cast<Endian<u32, Utils::Endianness::Big>*>(get_value_bytes())[index]);
+      return *(reinterpret_cast<Endian<u32, Utils::Endianness::Big>*>(get_value_bytes())[index]);
     }
 
     u32 number_of_u32_values() const {
@@ -138,9 +143,11 @@ namespace Kernel {
     [[nodiscard]] const FDTNode& get_root_node() const;
     [[nodiscard]] ErrorOr<const FDTNode*> find_node(const String& path) const;
     [[nodiscard]] ErrorOr<ArrayList<const FDTNode*>> find_nodes(const String& path) const;
+
     void print_debug() {
       m_root_node->print();
     }
+
     void print_reserve_entries() {
       DebugConsole::println("Reserve entries:");
       for(size_t i = 0; i < m_reserve_entries.size(); i++) {

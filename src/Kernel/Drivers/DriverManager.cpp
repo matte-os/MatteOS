@@ -6,6 +6,8 @@
 #include <Kernel/Drivers/DriverManager.h>
 #include <Kernel/Drivers/Storage/VirtIO/BlockIODriver.h>
 #include <Kernel/Drivers/VirtIO/VirtIODriver.h>
+#include <Kernel/Drivers/Console/NS16550ADriver.h>
+#include <Kernel/Drivers/MMIODriver.h>
 #include <Utils/Assertions.h>
 #include <Utils/DebugConsole.h>
 #include <Utils/Errors/ErrorOr.h>
@@ -36,7 +38,9 @@ namespace Kernel {
 
   void DriverManager::register_default_drivers() {
     register_device_driver(RefPtr<DeviceDriverDescriptor>(new VirtIODeviceDriverDescriptor()));
+    register_device_driver(RefPtr<DeviceDriverDescriptor>(new NS16550ADriverDescriptor()));
     register_driver(RefPtr<DriverDescriptor>(new VirtIODriverDescriptor()));
+    register_driver(RefPtr<DriverDescriptor>(new MMIODriverDescriptor()));
   }
 
   void DriverManager::register_device_driver(RefPtr<DeviceDriverDescriptor> driver_descriptor) {

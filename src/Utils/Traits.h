@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <Utils/Types.h>
+
 namespace Utils {
   template<typename T>
   void swap(T& a, T& b) {
@@ -98,6 +100,21 @@ namespace Utils {
   concept same_as = is_same<T, U>::value;
 
   template<typename T>
+  struct IsArray {
+    static const bool value = false;
+  };
+
+  template<typename T>
+  struct IsArray<T[]> {
+    static const bool value = true;
+  };
+
+  template<typename T, size_t N>
+  struct IsArray<T[N]> {
+    static const bool value = true;
+  };
+
+  template<typename T>
   struct IsPointer {
     static const bool value = false;
   };
@@ -108,7 +125,22 @@ namespace Utils {
   };
 
   template<typename T>
-  concept Pointer = IsPointer<T>::value;
+  struct IsPointer<const T*> {
+    static constexpr bool value = true;
+  };
+
+  template<typename T>
+  struct IsPointer<volatile T*> {
+    static constexpr bool value = true;
+  };
+
+  template<typename T>
+  struct IsPointer<const volatile T*> {
+    static constexpr bool value = true;
+  };
+
+  template<typename T>
+  concept Pointer = IsPointer<T>::value || IsArray<T>::value;
 
   struct TrueType {
     static const bool value = true;
@@ -180,7 +212,7 @@ namespace Utils {
   template<typename T>
   typename AddRValueReference<T>::type declval() noexcept;
 
-  template <typename T>
+  template<typename T>
   struct IsEnum {
     static const bool value = __is_enum(T);
   };
@@ -199,7 +231,7 @@ namespace Utils {
   template<typename T>
   using UnderlyingTypeValue = typename UnderlyingType<T, IsEnum<T>::value>::type;
 
-  template <typename T>
+  template<typename T>
   typename UnderlyingType<T, IsEnum<T>::value>::type as_underlying(T value) {
     return static_cast<typename UnderlyingType<T, IsEnum<T>::value>::type>(value);
   }

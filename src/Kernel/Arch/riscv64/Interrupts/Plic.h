@@ -6,13 +6,17 @@
 using Utils::Optional;
 
 namespace Kernel {
+  /**
+  * This PLIC implementation is based on the SiFive PLIC.
+  * https://sifive.cdn.prismic.io/sifive%2F834354f0-08e6-423c-bf1f-0cb58ef14061_fu540-c000-v1.0.pdf
+  * */
   class Plic {
   private:
     enum class PlicOffsets : size_t {
       Priority = 0x000000,
       Pending = 0x001000,
-      InterruptEnable = 0x002000,
-      PriorityThreshold = 0x200000,
+      InterruptEnable = 0x002000, // Interrupt enables for M-mode
+      PriorityThreshold = 0x200000, // Priority threshold for M-mode
       Claim = 0x200004,
       Complete = 0x200004,
     };

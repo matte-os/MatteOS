@@ -1,15 +1,16 @@
-set(SOURCE  Assertions.cpp
-            Basic.cpp
-            DebugConsole.cpp
-            cxx.cpp
-            Memory.cpp
-            Strings/StringValue.cpp
-            Strings/String.cpp
-            Strings/StringBuilder.cpp
-            Hashing/HashFunctions.cpp
-            kmalloc.cpp
-            Types.cpp
-    )
+set(SOURCE Assertions.cpp
+        Basic.cpp
+        DebugConsole.cpp
+        cxx.cpp
+        Memory.cpp
+        Strings/StringValue.cpp
+        Strings/String.cpp
+        Strings/StringBuilder.cpp
+        Hashing/HashFunctions.cpp
+        kmalloc.cpp
+        Types.cpp
+        Strings/Formatter.cpp
+)
 include_directories(SYSTEM ${SOURCE_DIRECTORY})
 add_library(Utils OBJECT ${SOURCE})
 

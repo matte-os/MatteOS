@@ -39,25 +39,52 @@ namespace Kernel {
   }
 
   void Plic::enable(u32 context_id, u32 id) {
+    DebugConsole::print("Plic: Enabling interrupt ");
+    DebugConsole::print_number(id, 10);
+    DebugConsole::print(" for context ");
+    DebugConsole::print_ln_number(context_id, 10);
     auto* enable = reinterpret_cast<u32*>(m_base + static_cast<size_t>(PlicOffsets::InterruptEnable) + 4 * (id / 32) + 0x80 * context_id);
     u32 actual_id = 1 << id % 32;
     *enable = *enable | actual_id;
+
+    DebugConsole::print("Plic: Enable write to ");
+    DebugConsole::print_number(reinterpret_cast<u64>(enable), 16);
+    DebugConsole::print(" value ");
+    DebugConsole::print_ln_number(*enable, 16);
   }
 
-  void Plic::disable(u32 context_id, u32 id){
+  void Plic::disable(u32 context_id, u32 id) {
     auto* enable = reinterpret_cast<u32*>(m_base + static_cast<size_t>(PlicOffsets::InterruptEnable) + 4 * (id / 32) + 0x80 * context_id);
     u32 actual_id = 1 << id % 32;
     *enable = *enable & ~actual_id;
   }
 
   void Plic::set_priority(u32 id, u8 priority) {
+    DebugConsole::print("Plic: Setting priority ");
+    DebugConsole::print_number(priority, 10);
+    DebugConsole::print(" for interrupt ");
+    DebugConsole::print_ln_number(id, 10);
     auto* priority_register = reinterpret_cast<u32*>(m_base + static_cast<size_t>(PlicOffsets::Priority) + 4 * id);
     *priority_register = priority & 7;
+
+    DebugConsole::print("Plic: Priority write to ");
+    DebugConsole::print_number(reinterpret_cast<u64>(priority_register), 16);
+    DebugConsole::print(" value ");
+    DebugConsole::print_ln_number(*priority_register, 16);
   }
 
   void Plic::set_threshold(u32 context_id, u8 threshold) {
+    DebugConsole::print("Plic: Setting threshold ");
+    DebugConsole::print_number(threshold, 10);
+    DebugConsole::print(" for context ");
+    DebugConsole::print_ln_number(context_id, 10);
     auto* threshold_register = reinterpret_cast<u32*>(m_base + static_cast<size_t>(PlicOffsets::PriorityThreshold) + 0x1000 * context_id);
-    *threshold_register =  threshold & 7;
+    *threshold_register = threshold & 7;
+
+    DebugConsole::print("Plic: Threshold write to ");
+    DebugConsole::print_number(reinterpret_cast<u64>(threshold_register), 16);
+    DebugConsole::print(" value ");
+    DebugConsole::print_ln_number(*threshold_register, 16);
   }
 
   Optional<u32> Plic::next(u32 context_id) {

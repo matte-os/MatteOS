@@ -3,11 +3,18 @@
 #include <Utils/Basic.h>
 #include <Utils/DebugConsole.h>
 #include <Utils/Strings/String.h>
+#include <Kernel/Logger.h>
 
 using Kernel::Uart;
 
 namespace Utils {
+  static bool use_device = false;
+
   void DebugConsole::print(const char c) {
+    if(use_device) {
+      Kernel::Logger::the().log(c);
+      return;
+    }
     Kernel::SBI::sbi_console_putchar(c);
   }
 
@@ -54,6 +61,10 @@ namespace Utils {
       print(value[i]);
     }
     print('\n');
+  }
+
+  void DebugConsole::switch_to_device() {
+    use_device = true;
   }
 
   /*

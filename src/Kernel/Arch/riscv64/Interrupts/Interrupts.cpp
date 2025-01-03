@@ -1,4 +1,4 @@
-#include "Plic.h"
+#include <Kernel/Arch/riscv64/Interrupts/Plic.h>
 #include <Kernel/Arch/riscv64/CSR.h>
 #include <Kernel/Arch/riscv64/Interrupts/Interrupts.h>
 #include <Kernel/Syscalls/SyscallManager.h>
@@ -20,11 +20,15 @@ namespace Kernel {
 
   size_t handle_external_interrupt(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus) {
     DebugConsole::println("Interrupts: Handling external interrupt");
-    auto context_id = System::the().get_current_kernel_trap_frame()->cpu_id;
+    //auto context_id = System::the().get_current_kernel_trap_frame()->cpu_id;
+    auto context_id = InterruptManager::DEFAULT_CONTEXT_ID;
     auto next_interrupt = Plic::the().next(context_id);
     if(next_interrupt.has_value()) {
+      DebugConsole::print("Interrupts: Delegating interrupt to device ");
+      DebugConsole::print_ln_number(next_interrupt.get_value(), 10);
       InterruptManager::the().delegate_device_interrupt(next_interrupt.get_value());
       Plic::the().complete(context_id);
+      DebugConsole::println("Interrupts: Completed interrupt");
     }
     return sepc;
   }

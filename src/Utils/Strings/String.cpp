@@ -42,11 +42,18 @@ namespace Utils {
   }
 
   bool String::equals_ignore_case(const char* other) const {
-    if(m_value->length() != calculate_size(other)) return false;
-    for(size_t i = 0; i < m_value->length(); i++) {
-      if(to_lower(m_value->value()[i]) != to_lower(other[i])) return false;
+    if(!other) return false;// Check for nullptr
+
+    size_t length = m_value->length();
+    if(length != calculate_size(other)) return false;// Compare lengths
+
+    const char* local_value = m_value->value();// Cache for efficiency
+
+    for(size_t i = 0; i < length; ++i) {
+      if(to_lower(local_value[i]) != to_lower(other[i])) return false;
     }
-    return true;
+
+    return true;// All characters matched
   }
 
   bool String::equals(const StringView& other) const {
@@ -81,23 +88,23 @@ namespace Utils {
     ArrayList<String> result;
     size_t last_index = 0;
 
-    for (size_t i = 0; i < m_value->length(); i++) {
-      if (m_value->value()[i] == separator[0]) {
+    for(size_t i = 0; i < m_value->length(); i++) {
+      if(m_value->value()[i] == separator[0]) {
         // Skip if it's at the start or end
-        if (i == 0 || i == m_value->length() - 1) {
+        if(i == 0 || i == m_value->length() - 1) {
           last_index = i + 1;
           continue;
         }
         bool found = true;
-        for (size_t j = i + 1; j < m_value->length() && separator.length() > 1; j++) {
-          if (m_value->value()[j] != separator[j - i]) {
+        for(size_t j = i + 1; j < m_value->length() && separator.length() > 1; j++) {
+          if(m_value->value()[j] != separator[j - i]) {
             found = false;
             break;
           }
         }
-        if (found) {
+        if(found) {
           // Add the substring only if it's not empty
-          if (i - last_index > 0) {
+          if(i - last_index > 0) {
             result.add(String(m_value->value() + last_index, i - last_index));
           }
           last_index = i + separator.length();
@@ -106,7 +113,7 @@ namespace Utils {
     }
 
     // Add the last part, if it's not empty
-    if (last_index < m_value->length() && (m_value->length() - last_index > 0)) {
+    if(last_index < m_value->length() && (m_value->length() - last_index > 0)) {
       result.add(String(m_value->value() + last_index, m_value->length() - last_index));
     }
 

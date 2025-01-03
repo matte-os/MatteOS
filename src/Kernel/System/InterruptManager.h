@@ -19,6 +19,8 @@ namespace Kernel {
 
   class InterruptManager {
   public:
+    static const ContextId DEFAULT_CONTEXT_ID = 1;
+
     static void init();
     static InterruptManager& the();
     ErrorOr<void> handle_interrupt(InterruptId interrupt_id);
@@ -26,6 +28,7 @@ namespace Kernel {
     void enable_interrupt(ContextId context_id, InterruptId interrupt_id);
     void disable_interrupt(ContextId context_id, InterruptId interrupt_id);
     void enable_device_interrupts();
+    void set_threshold(u64 threshold);
   };
 
 }// namespace Kernel

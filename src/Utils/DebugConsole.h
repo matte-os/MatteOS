@@ -35,5 +35,6 @@ namespace Utils {
      */
     static void print_number(u64 number, u32 base);
     static void print_ln_number(u64 number, u32 base);
+    static void switch_to_device();
   };
 };// namespace Utils

@@ -11,6 +11,7 @@
 #include <Utils/Arrays/ArrayList.h>
 #include <Utils/Errors/ErrorOr.h>
 #include <Utils/Function.h>
+#include <Utils/Pair.h>
 #include <Utils/Pointers/RefCounted.h>
 #include <Utils/Pointers/RefPtr.h>
 #include <Utils/Strings/String.h>
@@ -24,6 +25,7 @@ namespace Kernel {
   using Utils::ErrorOr;
   using Utils::Function;
   using Utils::move;
+  using Utils::Pair;
   using Utils::RefCounted;
   using Utils::RefPtr;
   using Utils::String;
@@ -31,6 +33,7 @@ namespace Kernel {
   enum class UnderlyingDeviceType {
     VirtIO,
     SBIConsole,
+    Universal,
   };
 
   class UnderlyingDevice : public RefCounted<UnderlyingDevice> {
@@ -96,6 +99,40 @@ namespace Kernel {
 
     u32 get_vendor_id() override {
       return 0;
+    }
+
+    void reset() override;
+  };
+
+  class UniversalDevice : public UnderlyingDevice {
+  private:
+    u32 m_device_id;
+    u32 m_vendor_id;
+    String m_device_tree_path;
+    String m_device_type;
+    size_t m_address;
+
+  public:
+    UniversalDevice(u32 device_id, u32 vendor_id, String device_tree_path, String device_type, size_t address) : UnderlyingDevice(UnderlyingDeviceType::Universal), m_device_id(device_id), m_vendor_id(vendor_id), m_device_tree_path(move(device_tree_path)), m_device_type(move(device_type)), m_address(address) {}
+
+    u32 get_device_id() override {
+      return m_device_id;
+    }
+
+    u32 get_vendor_id() override {
+      return m_vendor_id;
+    }
+
+    String get_device_tree_path() {
+      return m_device_tree_path;
+    }
+
+    String get_device_type() {
+      return m_device_type;
+    }
+
+    size_t get_address() {
+      return m_address;
     }
 
     void reset() override;

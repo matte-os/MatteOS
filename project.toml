@@ -76,7 +76,7 @@ fi
 """
 
 [targets.toolchain]
-dependencies = ["riscv-gnu-toolchain", "clang", "python3-10", "doxygen-latest"]
+dependencies = ["riscv-gnu-toolchain", "clang", "python3-10", "doxygen-latest", "qemu"]
 description = "Download and extract toolchains"
 
 [targets.opensbi]
@@ -94,6 +94,25 @@ scripts/build_uboot.sh
 """
 description = "Build U-Boot"
 check_for_file = "toolchain/u-boot/u-boot.itb"
+
+[targets.qemu]
+action = """
+if [ ! -f 'toolchain/qemu.tar.xz' ]; then
+    wget -c https://download.qemu.org/qemu-9.2.0.tar.xz -O toolchain/qemu.tar.xz
+fi
+
+if [ ! -d 'toolchain/qemu' ]; then
+    mkdir -p toolchain/qemu
+    tar -xvf toolchain/qemu.tar.xz -C toolchain/qemu --strip-components=1
+fi
+
+if [ ! -f 'toolchain/qemu/build/qemu-system-riscv64' ]; then
+cd toolchain/qemu
+./configure --target-list=riscv64-softmmu
+make
+fi
+"""
+description = "Download and builds QEMU"
 
 [targets.kernel]
 dependencies = ["toolchain", "opensbi", "uboot"]
@@ -125,7 +144,7 @@ description = "Create a 1G disk image"
 [targets.run]
 dependencies = ["image", "print-boot-info"]
 action = """
-qemu-system-riscv64 -cpu rv64 -nographic -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=build/dist/riscv/uImage,addr=0x82000000,force-raw=on -s -d guest_errors
+toolchain/qemu/build/qemu-system-riscv64 -cpu rv64 -nographic -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=build/dist/riscv/uImage,addr=0x82000000,force-raw=on -s -d guest_errors
 """
 description = "Run the image"
 
@@ -148,7 +167,7 @@ description = "Check for needed libraries and tools"
 [targets.debug]
 dependencies = ["image", "disk", "print-boot-info"]
 action = """
-qemu-system-riscv64 -cpu rv64 -nographic -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=build/dist/riscv/uImage,addr=0x82000000,force-raw=on -drive if=none,format=raw,file=build/dist/riscv/disk.img,id=rootfs -device virtio-blk-device,drive=rootfs -device virtio-rng-device -s -S -d guest_errors
+toolchain/qemu/build/qemu-system-riscv64 -cpu rv64 -nographic -serial mon:stdio -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=build/dist/riscv/uImage,addr=0x82000000,force-raw=on -drive if=none,format=raw,file=build/dist/riscv/disk.img,id=rootfs -device virtio-blk-device,drive=rootfs -device virtio-rng-device -s -S -d guest_errors -d int
 """
 description = "Run QEMU in debug mode"
 

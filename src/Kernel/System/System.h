@@ -47,8 +47,6 @@ namespace Kernel {
     ~System() = default;
     void init_harts();
     void set_trap_vector(void (*trap_vector)());
-    void install_virtio_devices(ArrayList<const FDTNode*>& virtio_nodes);
-    void install_serial_device(const FDTNode* serial);
   };
 
 }// namespace Kernel

@@ -116,6 +116,11 @@ namespace Utils {
      */
     //TODO: Implement remove method
     void remove(size_t index) {
+      runtime_assert(index < m_size, "Array: Index out of bounds!");
+      for(size_t i = index; i < m_ptr - 1; i++) {
+        m_array[i] = m_array[i + 1];
+      }
+      m_ptr--;
     }
 
     //T operator[](size_t i) { return get(i); };
@@ -205,6 +210,16 @@ namespace Utils {
       }
 
       return false;
+    }
+
+    s64 index_of(const T& element) const {
+      for(size_t i = 0; i < size(); i++) {
+        if(get(i) == element) {
+          return i;
+        }
+      }
+
+      return -1;
     }
 
     class Iterator {

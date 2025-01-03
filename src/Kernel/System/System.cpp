@@ -11,6 +11,7 @@
 #include <Kernel/SBI/SBI.h>
 #include <Kernel/System/System.h>
 #include <Kernel/System/TrapFrame.h>
+#include <Kernel/Uart.h>
 #include <Utils/Assertions.h>
 #include <Utils/DebugConsole.h>
 
@@ -113,34 +114,6 @@ namespace Kernel {
       DebugConsole::println("System: Could not find /memory node in FDT.");
     } else {
       DebugConsole::println("System: Found /memory node in FDT.");
-    }
-
-    auto serial_result = device_tree.find_node("/soc/serial");
-    if(serial_result.has_error()) {
-      DebugConsole::println("System: Could not find /soc/serial node in FDT.");
-    } else {
-      install_serial_device(serial_result.get_value());
-    }
-  }
-
-  void System::install_serial_device(const FDTNode* serial) {
-    auto interrupt_or_error = serial->find_property("interrupts");
-    ArrayList<u64> interrupts;
-    if(interrupt_or_error.has_error()) {
-      DebugConsole::println("System: Couldn't setup serial interrupts. Interrupts not found in the device tree.");
-    } else {
-      auto interrupt = interrupt_or_error.get_value();
-      for(size_t i = 0; i < interrupt->number_of_u32_values(); i++) {
-        interrupts.add(interrupt->get_value_as_u32(i));
-      }
-    }
-
-    auto serial_device = RefPtr<ConsoleDevice>(new ConsoleDevice(RefPtr<UnderlyingDevice>(new SBIConsoleDevice()), move(interrupts)));
-    auto result = DeviceManager::the().add_device(serial_device);
-    if(result.has_error()) {
-      DebugConsole::println("System: Could not add serial device to the device manager.");
-    } else {
-      DebugConsole::println("System: Added serial device to the device manager.");
     }
   }
 }// namespace Kernel

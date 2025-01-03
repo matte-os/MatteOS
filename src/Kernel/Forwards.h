@@ -9,6 +9,7 @@ namespace Kernel {
   class RamInode;
   class DeviceManager;
   class Device;
+  class ConsoleDevice;
   class VirtIODevice;
   class BlockDevice;
   class Driver;

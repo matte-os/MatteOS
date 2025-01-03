@@ -55,6 +55,9 @@ set(SOURCE
         Devices/Console/ConsoleDevice.cpp
         Devices/AsyncRequest.cpp
         Drivers/VirtIO/VirtIODriver.cpp
+        Drivers/Console/NS16550ADriver.cpp
+        Drivers/MMIODriver.cpp
+        Logger.cpp
 )
 
 include_directories(SYSTEM ${SOURCE_DIRECTORY})

@@ -8,6 +8,7 @@
 #include <Kernel/FileSystem/VirtualFileSystem.h>
 #include <Kernel/Firmware/DeviceTree.h>
 #include <Kernel/Firmware/FDT/FDT.h>
+#include <Kernel/Logger.h>
 #include <Kernel/Memory/KernelMemoryAllocator.h>
 #include <Kernel/Memory/MemoryManager.h>
 #include <Kernel/Memory/PageTable.h>
@@ -28,6 +29,7 @@ using Kernel::DriverManager;
 using Kernel::EntryBits;
 using Kernel::InterruptManager;
 using Kernel::KernelMemoryAllocator;
+using Kernel::Logger;
 using Kernel::MemoryManager;
 using Kernel::Page;
 using Kernel::PageTable;
@@ -125,10 +127,15 @@ extern "C" void kmain([[maybe_unused]] int a0, FDTHeader* header) {
   auto* dummy_root = ProcessManager::the().create_dummy_process(MemoryManager::get_text_start(), MemoryManager::get_text_end());
   MemoryManager::the().identity_map_range(*dummy_root, MemoryManager::get_context_switching_start(), MemoryManager::get_context_switching_end(), (u64) Kernel::EntryBits::READ_EXECUTE);
 
-
   DebugConsole::println("RiscVOS: Setting up interrupts.");
   InterruptManager::init();
+  InterruptManager::the().set_threshold(0);
   InterruptManager::the().enable_device_interrupts();
+
+  Logger::init();
+  Logger::the().try_console_lookup();
+  dbgln("RiscVOS: Logger initialized.");
+  DebugConsole::switch_to_device();
 
   Timer::init();
   Scheduler::init();

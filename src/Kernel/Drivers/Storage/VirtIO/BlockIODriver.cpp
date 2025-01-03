@@ -119,7 +119,7 @@ namespace Kernel {
 
 
       if(request->status == 0) {
-        delete request;
+        m_ignored_requests.add(request);
         return ErrorOr<void>::create({});
       }
 
@@ -141,7 +141,7 @@ namespace Kernel {
       }
 
       if(request->status == 0) {
-        delete request;
+        m_ignored_requests.add(request);
         return ErrorOr<void>::create({});
       }
 
@@ -161,6 +161,14 @@ namespace Kernel {
 
       auto descriptor = descriptor_or_error.get_value();
       auto* request = reinterpret_cast<BlockIO::Request*>(*descriptor->address);
+
+      auto index_of_request = m_ignored_requests.index_of(request);
+      if(index_of_request != -1) {
+        m_ignored_requests.remove(index_of_request);
+        delete request;
+        descriptor->address = 0;
+        continue;
+      }
 
       results.add(RefPtr<BlockDeviceAsyncResult>(new BlockDeviceAsyncResult(
               request->request_id,

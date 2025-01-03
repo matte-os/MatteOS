@@ -148,7 +148,6 @@ namespace Utils {
   public:
     using ResultType = Empty;
     using ErrorType = Error;
-
     ErrorOr(const ErrorOr<Empty, Error>& other) : ErrorOr<Empty>() {
       if(other.has_error()) {
         m_value_or_error.template set<ErrorType>(other.get_error());

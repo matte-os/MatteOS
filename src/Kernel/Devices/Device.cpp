@@ -116,9 +116,13 @@ namespace Kernel {
       return ErrorOr<VirtQueueDescriptor*>::create_error(Error::create_from_string("No used descriptor available."));
     }
 
-    auto index = *queue->used.index % VIRTIO_RING_SIZE;
-    (*m_queue_acks)[selected_queue]++;
-    auto* descriptor = &queue->descriptors[index];
+    auto ack = (*m_queue_acks)[selected_queue];
+    auto element = queue->used.ring[ack % VIRTIO_RING_SIZE];
+    auto* descriptor = &queue->descriptors[element.id];
+
+    ack = (ack + 1) % VIRTIO_RING_SIZE;
+    (*m_queue_acks)[selected_queue] = ack;
+
     return ErrorOr<VirtQueueDescriptor*>::create(descriptor);
   }
 
@@ -144,5 +148,8 @@ namespace Kernel {
   }
 
   void SBIConsoleDevice::reset() {
+  }
+
+  void UniversalDevice::reset() {
   }
 }// namespace Kernel
