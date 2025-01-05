@@ -1,105 +1,140 @@
-# RiscV OS
+# RiscV OS 🛠️
 
-I am writing this operating system for own educational purposes.
+This project is part of my bachelor's thesis and is a RISC-V-based operating system designed for educational purposes. It aims to provide a clear and approachable codebase, making it an excellent starting point for learning how operating systems work. The primary focus is on documentation, readability, and simplicity, ensuring that the concepts are easy to grasp without compromising functionality.
 
-I am really thankful to **Stephen Marz** whose **[osblog](https://osblog.stephenmarz.com/)** is great help and
-inspiration.
+A huge thanks to **Stephen Marz** for his amazing **[osblog](https://osblog.stephenmarz.com/)**, which has been a constant source of inspiration and guidance throughout this journey.
 
-## Features
+## Key Components 🌐
 
-1. UART - :heavy_check_mark:
-2. MMU - :heavy_check_mark:
-3. Interrupts and traps - :heavy_check_mark:
-4. External interrupts - :heavy_check_mark:
-5. System calls
-6. Processes
-7. Block drivers
-8. Filesystems
-9. Userspace Processes
+- **Virtual File System (VFS)**
+- **Devices and Drivers**
+- **FAT32 (partial support)**
+- **Flattened Device Tree (FDT)**
+- **Memory Management Unit (MMU)**
+- **Processes and System Calls**
+- **PLIC and Interrupts (Software & External)**
+- **Utility Library (Utils)**
+    - Arrays
+    - Dynamic Arrays
+    - HashMaps
+    - ErrorOr
+    - Locks
+    - Smart Pointers
+    - Strings
+    - And more...
 
-## Running and debugging
+## Running and Debugging 🏋️‍♂️
 
-First of all, you have to have CMake, Clang, Ninja and QEMU with RISCV support.
+### Toolchain
 
-### Prerequirements
+The toolchain is automatically downloaded and installed by the build script.
 
-**Ubuntu & Debian**
+The project depends on:
+- **RISC-V GNU Toolchain**
+- **QEMU**
+- **U-Boot**
+- **OpenSBI**
+- **Python3.10**
+- **Doxygen**
+- **Doxygen Awesome CSS**
+
+### Prerequisites
+
+You will need the following tools:
+- **CMake**
+- **Clang**
+- **Ninja**
+
+#### Ubuntu/Debian Installation:
 
 ```bash
-sudo apt install cmake clang ninja-build qemu-system-riscv64
+sudo apt install cmake clang ninja-build
 ```
 
-_U-Boot dependencies_
+#### U-Boot Dependencies:
+
 ```bash
 sudo apt-get install bc bison build-essential coccinelle \
-device-tree-compiler dfu-util efitools flex gdisk graphviz imagemagick \
-liblz4-tool libgnutls28-dev libguestfs-tools libncurses-dev \
-libpython3-dev libsdl2-dev libssl-dev lz4 lzma lzma-alone openssl \
-pkg-config python3 python3-asteval python3-coverage python3-filelock \
-python3-pkg-resources python3-pycryptodome python3-pyelftools \
-python3-pytest python3-pytest-xdist python3-sphinxcontrib.apidoc \
-python3-sphinx-rtd-theme python3-subunit python3-testtools \
-python3-virtualenv swig uuid-dev
+  device-tree-compiler dfu-util efitools flex gdisk graphviz imagemagick \
+  liblz4-tool libgnutls28-dev libguestfs-tools libncurses-dev \
+  libpython3-dev libsdl2-dev libssl-dev lz4 lzma lzma-alone openssl \
+  pkg-config python3 python3-asteval python3-coverage python3-filelock \
+  python3-pkg-resources python3-pycryptodome python3-pyelftools \
+  python3-pytest python3-pytest-xdist python3-sphinxcontrib.apidoc \
+  python3-sphinx-rtd-theme python3-subunit python3-testtools \
+  python3-virtualenv swig uuid-dev
 ```
 
-_Tested on QEMU v5.2.0. I had problems with running on v6.1.0 (Unreasonable interrupts: Illegal instruction)_
+### Build Process ⚙️
 
-### Build
+To simplify the build process, a build script `scripts/build.py` is provided. This script ensures all necessary dependencies, including the RISC-V toolchain and Clang, are installed.
 
-To make the building process of the OS easier, we have a build script `scripts/build.py` that will install
-RISC-V toolchain, clang and all other dependencies.
-
-To check if you have all prerequisites installed, you can run the following command:
+#### Check Prerequisites:
 
 ```bash
 scripts/build.py check
 ```
 
-You can list all targets with:
+#### List Available Targets:
 
 ```bash
 scripts/build.py -l
 ```
 
-Initial build should be done using the build script like so:
+#### Initial Build:
 
 ```bash
 scripts/build.py
 ```
 
-For building just the kernel, you can use the following command:
+#### Building Just the Kernel:
 
 ```bash
 ninja
 ```
 
-### Running
+#### Building the Documentation:
 
-To run the OS, you can use the following command:
+```bash
+scripts/build.py docs
+```
+
+### Running the OS 🚀
+
+Use the following command to build and run the OS:
 
 ```bash
 scripts/build.py run
 ```
 
-This command will ensure that the kernel image is built
-and everything is prepared for running the OS.
-
-After booting to U-Boot, you can run the kernel with the following command:
+After booting into U-Boot, execute the following command to load the flattened device tree and boot the kernel:
 
 ```txt
 cp.l ${fdtcontroladdr} ${fdt_addr_r} 0x10000
 bootm 0x82000000 - ${fdt_addr_r}
 ```
 
-This command will load the flattened device tree to the address specified by the U-Boot
-environment variable `fdt_addr_r` and then boot the kernel.
+### Debugging the OS 🔧
 
-### Debugging
+Start QEMU with a GDB server:
 
-To debug the OS, you can use `scripts/build.py debug`, which will start QEMU with GDB server.
-You can the use `scripts/build.py debug-client`, that will start GDB and connect to the QEMU GDB server.
+```bash
+scripts/build.py debug
+```
 
-Then just press `c` to continue the execution.
+Connect to the QEMU GDB server:
 
-You can also use QEMU Monitor (CTRL+A C). It has some useful commands such as ```info mem```
-(displays actual paging table) and ```info registers``` (displays all registers).
+```bash
+scripts/build.py debug-client
+```
+
+Once connected, press `c` to continue execution.
+
+For additional debugging, use the QEMU Monitor (Ctrl+A C):
+- **`info mem`**: Displays the current paging table.
+- **`info registers`**: Shows the contents of all registers.
+
+---
+
+Feel free to explore, learn, and report any issues! 🙌
+
