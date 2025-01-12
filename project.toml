@@ -117,7 +117,10 @@ description = "Download and builds QEMU"
 [targets.kernel]
 dependencies = ["toolchain", "opensbi", "uboot"]
 action = """
+if [ ! -f 'build.ninja' ]; then
 cmake -GNinja .
+fi
+
 ninja
 """
 description = "Build the kernel"
@@ -144,7 +147,7 @@ description = "Create a 1G disk image"
 [targets.run]
 dependencies = ["image", "print-boot-info"]
 action = """
-toolchain/qemu/build/qemu-system-riscv64 -cpu rv64 -nographic -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=build/dist/riscv/uImage,addr=0x82000000,force-raw=on -s -d guest_errors
+toolchain/qemu/build/qemu-system-riscv64 -cpu rv64 -nographic -serial mon:stdio -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=build/dist/riscv/uImage,addr=0x82000000,force-raw=on -drive if=none,format=raw,file=build/dist/riscv/disk.img,id=rootfs -device virtio-blk-device,drive=rootfs -device virtio-rng-device -s -d guest_errors
 """
 description = "Run the image"
 
@@ -167,7 +170,7 @@ description = "Check for needed libraries and tools"
 [targets.debug]
 dependencies = ["image", "disk", "print-boot-info"]
 action = """
-toolchain/qemu/build/qemu-system-riscv64 -cpu rv64 -nographic -serial mon:stdio -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=build/dist/riscv/uImage,addr=0x82000000,force-raw=on -drive if=none,format=raw,file=build/dist/riscv/disk.img,id=rootfs -device virtio-blk-device,drive=rootfs -device virtio-rng-device -s -S -d guest_errors -d int
+toolchain/qemu/build/qemu-system-riscv64 -cpu rv64 -nographic -serial mon:stdio -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=build/dist/riscv/uImage,addr=0x82000000,force-raw=on -drive if=none,format=raw,file=build/dist/riscv/disk.img,id=rootfs -device virtio-blk-device,drive=rootfs -device virtio-rng-device -s -S -d guest_errors
 """
 description = "Run QEMU in debug mode"
 

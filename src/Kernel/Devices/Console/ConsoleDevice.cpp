@@ -4,6 +4,7 @@
 
 namespace Kernel {
   ErrorOr<void> ConsoleDevice::init() {
+
     return Device::init();
   }
 

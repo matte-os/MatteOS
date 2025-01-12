@@ -24,6 +24,8 @@ namespace Utils {
     template<typename T>
     class RefCounted : public RefCountedBase {
     public:
+        virtual ~RefCounted() = default;
+
         bool unref() const {
             if(deref() == 0) {
                 delete static_cast<T const*>(this);

@@ -2,12 +2,12 @@
 #include <Kernel/Drivers/Console/NS16550ADriver.h>
 
 namespace Kernel {
-  void NS16550ADriver::init(RefPtr<Device> device) {
+  void NS16550ADriver::init(const RefPtr<Device> device) {
     m_device = device->as<ConsoleDevice>();
 
     // Initialize the UART.
-    auto underlying_device = m_device->get_underlying_device()->as<UniversalDevice>();
-    auto address = reinterpret_cast<u8*>(underlying_device->get_address());
+    const auto underlying_device = m_device->get_underlying_device()->as<UniversalDevice>();
+    const auto address = reinterpret_cast<u8*>(underlying_device->get_address());
 
     /*
      * Basically, the NS16550A UART has the following registers:

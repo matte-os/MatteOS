@@ -1,6 +1,7 @@
 #include <Kernel/FileSystem/RAMFS/RamFileSystem.h>
 #include <Kernel/FileSystem/RAMFS/RamInode.h>
 #include <Utils/Errors/ErrorOr.h>
+#include <Kernel/Devices/Device.h>
 
 namespace Kernel {
   using Utils::Error;

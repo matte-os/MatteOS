@@ -4,18 +4,18 @@
 #include <Kernel/FileSystem/RAMFS/RamInode.h>
 
 namespace Kernel {
-  class RamFileSystem : public FileSystem {
-  private:
+  class RamFileSystem final : public FileSystem {
     RefPtr<RamInode> m_root;
 
   public:
     RamFileSystem() = default;
-    virtual ~RamFileSystem() = default;
+    ~RamFileSystem() override = default;
 
-    virtual String name() const override { return "ramfs"; };
-    virtual ErrorOr<RefPtr<Inode>> root() override;
+    String name() const override { return "ramfs"; };
+    ErrorOr<RefPtr<Inode>> root() override;
 
     ErrorOr<RefPtr<OpenFileDescriptor>> open(const Credentials& credentials, StringView path, FileOpenMode mode) override;
-    virtual ErrorOr<void> close(RefPtr<OpenFileDescriptor> inode) override;
+    ErrorOr<void> close(RefPtr<OpenFileDescriptor> inode) override;
+    bool exists(StringView path) override;
   };
 }// namespace Kernel

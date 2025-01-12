@@ -10,8 +10,7 @@
 
 namespace Kernel {
 
-  class NS16550ADriver : public ConsoleDeviceDriver {
-  private:
+  class NS16550ADriver final : public ConsoleDeviceDriver {
     RefPtr<ConsoleDevice> m_device;
   public:
     void init(RefPtr<Kernel::Device> device) override;
@@ -25,7 +24,7 @@ namespace Kernel {
     void handle_interrupt(u64 interrupt_id) override;
   };
 
-  class NS16550ADriverDescriptor : public DeviceDriverDescriptor {
+  class NS16550ADriverDescriptor final : public DeviceDriverDescriptor {
   public:
     bool is_compatible_with(RefPtr<Kernel::Device> device) override;
     ErrorOr<RefPtr<Kernel::DeviceDriver>> instantiate_driver(RefPtr<Kernel::Device> device) override;

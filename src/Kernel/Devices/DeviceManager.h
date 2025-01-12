@@ -29,9 +29,8 @@ namespace Kernel {
   using Utils::String;
 
   class DeviceManager {
-  private:
     ArrayList<RefPtr<Device>> m_devices;
-    DeviceManager() = default;
+    DeviceManager();
 
   public:
     static void init();

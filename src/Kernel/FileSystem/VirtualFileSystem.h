@@ -41,7 +41,6 @@ namespace Kernel {
   };
 
   class VirtualFileSystem {
-  private:
     RefPtr<Inode> m_root_inode;
     HashMap<String, RefPtr<MountContext>> m_mounts;
 
@@ -56,6 +55,7 @@ namespace Kernel {
     ErrorOr<RefPtr<FileSystem>> device_load_filesystem(RefPtr<Device> device);
 
     ErrorOr<void> mount(const StringView& mount_point, const StringView& filesystem_path);
+    ErrorOr<void> mount(const StringView& mount_point, const RefPtr<FileSystem>& file_system);
     ErrorOr<void> unmount(const StringView& mount_point);
     ErrorOr<RefPtr<OpenFileDescriptor>> open(const Credentials& credentials, const String& path, FileOpenMode mode);
     ErrorOr<void> close(RefPtr<OpenFileDescriptor> file);

@@ -7,8 +7,6 @@ set(SOURCE
         Init.cpp
         Arch/riscv64/CPU.cpp
         Arch/riscv64/Interrupts/Interrupts.cpp
-        FileSystem/DEVFS/DevFileSystem.cpp
-        FileSystem/DEVFS/DevInode.cpp
         FileSystem/BlockBackedFileSystem.cpp
         FileSystem/FATFS/FATFileSystem.cpp
         FileSystem/FATFS/FATInode.cpp

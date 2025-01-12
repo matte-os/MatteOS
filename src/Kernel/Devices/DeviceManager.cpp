@@ -9,6 +9,8 @@
 #include <Kernel/Drivers/DriverManager.h>
 #include <Kernel/Drivers/VirtIO/MMIODevice.h>
 #include <Kernel/Drivers/VirtIO/VirtIODeviceIDs.h>
+#include <Kernel/FileSystem/VirtualFileSystem.h>
+#include <Kernel/FileSystem/RAMFS/RamFileSystem.h>
 #include <Kernel/Memory/MemoryManager.h>
 #include <Utils/Assertions.h>
 #include <Utils/DebugConsole.h>
@@ -33,19 +35,26 @@ namespace Kernel {
     }
   }
 
+  DeviceManager::DeviceManager() {
+    auto& vfs = VirtualFileSystem::the();
+
+    auto devfs = RefPtr<FileSystem>(new RamFileSystem);
+    vfs.mount("/dev", devfs);
+  }
+
   DeviceManager& DeviceManager::the() {
     runtime_assert(s_device_manager, "DeviceManager is not initialised.");
     return *s_device_manager;
   }
 
-  ErrorOr<RefPtr<Device>> DeviceManager::try_to_load_mmio_device(uintptr_t address, ArrayList<u64>&& interrupts) {
+  ErrorOr<RefPtr<Device>> DeviceManager::try_to_load_mmio_device(const uintptr_t address, ArrayList<u64>&& interrupts) {
     DebugConsole::print("DeviceManager: Trying to load MMIO device at address ");
     DebugConsole::print_number(address, 16);
     DebugConsole::println(".");
 
     DebugConsole::println("DeviceManager: Mapping MMIO device.");
     auto result = MemoryManager::the().get_current_root_page_table();
-    MemoryManager::the().identity_map_range(*result, address, address + 0x1000, (u64) EntryBits::READ_WRITE);
+    MemoryManager::the().identity_map_range(*result, address, address + 0x1000, static_cast<u64>(EntryBits::READ_WRITE));
 
     auto mmio_device = reinterpret_cast<MMIODevice*>(address);
     if(mmio_device->get_magic_value() == 0x74726976) {
@@ -67,10 +76,9 @@ namespace Kernel {
       }
       m_devices.add(device);
       return ErrorOr<RefPtr<Device>>::create(move(device));
-    } else {
-      DebugConsole::println("DeviceManager: Not a VirtIO device.");
-      return ErrorOr<RefPtr<Device>>::create_error(Error::create_from_string("Not a VirtIO device."));
     }
+    DebugConsole::println("DeviceManager: Not a VirtIO device.");
+    return ErrorOr<RefPtr<Device>>::create_error(Error::create_from_string("Not a VirtIO device."));
   }
 
   ErrorOr<void> DeviceManager::add_device(const RefPtr<Device>& device) {
@@ -79,7 +87,7 @@ namespace Kernel {
   }
 
   ErrorOr<void> DeviceManager::delegate_device_interrupt(u64 interrupt_id) {
-    auto device_or_error = m_devices.find_first_match([interrupt_id](const RefPtr<Device>& device) -> bool {
+    const auto device_or_error = m_devices.find_first_match([interrupt_id](const RefPtr<Device>& device) -> bool {
       return device->handles_interrupt(interrupt_id);
     });
 
@@ -87,24 +95,21 @@ namespace Kernel {
       return ErrorOr<void>::create_error(Error::create_from_string("Couldn't delegate interrupt. No device found!."));
     }
 
-    auto device = device_or_error.get_value();
+    const auto device = device_or_error.get_value();
     return device->handle_interrupt(interrupt_id);
   }
 
   void DeviceManager::load_drivers() {
-    for(size_t i = 0; i < m_devices.size(); i++) {
-      auto device = m_devices[i];
+    for(const auto& device : m_devices) {
       if(device->has_driver() || !device->needs_driver()) {
         continue;
       }
 
-      auto drivers = DriverManager::the().find_compatible_drivers(device);
-      if(drivers.size() > 0) {
-        auto driver_or_error = drivers[0]->instantiate_driver(device);
-        if(driver_or_error.has_error()) {
+      if(auto drivers = DriverManager::the().find_compatible_drivers(device); drivers.size() > 0) {
+        if(auto driver_or_error = drivers[0]->instantiate_driver(device); driver_or_error.has_error()) {
           DebugConsole::println("DeviceManager: Could not instantiate driver.");
         } else {
-          auto driver = driver_or_error.get_value();
+          const auto driver = driver_or_error.get_value();
           device->set_driver(driver);
           driver->init(device);
           DebugConsole::println("DeviceManager: Driver loaded.");

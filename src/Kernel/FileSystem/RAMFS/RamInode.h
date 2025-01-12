@@ -5,20 +5,33 @@
 #include <Utils/Strings/String.h>
 
 namespace Kernel {
-  using Utils::HashMap;
-  using Utils::String;
+    using Utils::HashMap;
+    using Utils::String;
 
-  class RamInode : public Inode {
-  private:
-    HashMap<String, RefPtr<Inode>> m_children;
-    RefPtr<RamFileSystem> m_fs;
+    class RamInode : public Inode {
+        HashMap<String, RefPtr<Inode> > m_children;
+        RefPtr<RamFileSystem> m_fs;
 
-  public:
-    RamInode() = default;
-    virtual ~RamInode() = default;
+    protected:
+        enum class Type {
+            Ram,
+            Device
+        } m_type = Type::Ram;
 
-    virtual ErrorOr<size_t> read(u8* buffer, size_t size, size_t offset) override;
-    virtual ErrorOr<size_t> write(const u8* buffer, size_t size, size_t offset) override;
-    virtual RefPtr<FileSystem> fs() override;
-  };
-}// namespace Kernel
+    public:
+        explicit RamInode(const Type type) : m_type(type) {}
+        ~RamInode() override = default;
+
+        ErrorOr<size_t> read(u8* buffer, size_t size, size_t offset) override;
+        ErrorOr<size_t> write(const u8* buffer, size_t size, size_t offset) override;
+        RefPtr<FileSystem> fs() override;
+    };
+
+    class DevInode : public RamInode {
+        RefPtr<Device> m_device;
+
+    public:
+        explicit DevInode(const RefPtr<Device>& device) : RamInode(Type::Device), m_device(device) {}
+        ~DevInode() override = default;
+    };
+} // namespace Kernel
