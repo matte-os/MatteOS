@@ -22,7 +22,7 @@ namespace Kernel {
 
   ProcessManager::ProcessManager(PageTable* kernel_root_table)
       : m_process_list_lock(SpinLock()) {
-    m_processes = RefPtr<LinkedQueue<Process*>>(new LinkedQueue<Process*>());
+    m_processes = RefPtr(new LinkedQueue<Process*>());
     m_kernel_process = &initialize_kernel_process(kernel_root_table);
     m_pid_counter = 1;
     DebugConsole::print("Depth: ");
@@ -47,7 +47,16 @@ namespace Kernel {
       syscall(Syscalls::Sys$dbgln, reinterpret_cast<uintptr_t>("Failed to open file"));
     }
 
-    for(;;) {}
+    u32 time = 0;
+    for(;;) {
+      if (time == 1000000000) {
+        syscall(Syscalls::Sys$dbgln, reinterpret_cast<uintptr_t>("Process 1 is alive!"));
+        time = 0;
+        continue;
+      }
+
+      time++;
+    }
   }
 
   PageTable* ProcessManager::create_dummy_process(uintptr_t text_start,

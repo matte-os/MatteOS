@@ -52,8 +52,8 @@ namespace Kernel {
   }
 
   void Scheduler::start_scheduling() {
-    //Timer::the().set_timer(Timer::DEFAULT_PROCESS_TIME);
-    System::System::the().switch_to_user_mode(schedule()->get_thread()->get_trap_frame());
+    Timer::the().set_timer(Timer::DEFAULT_PROCESS_TIME);
+    System::the().switch_to_user_mode(schedule()->get_thread()->get_trap_frame());
   }
 
 }// namespace Kernel
