@@ -12,8 +12,7 @@ namespace Utils {
     class QueueElement;
 
     template<typename T>
-    class LinkedQueue : public RefCounted<LinkedQueue<T>>{
-    private:
+    class LinkedQueue final : public RefCounted<LinkedQueue<T>>{
         QueueElement<T>* m_first_element;
         QueueElement<T>* m_last_element;
     public:
@@ -66,7 +65,7 @@ namespace Utils {
             m_last_element = m_last_element->m_next;
             m_last_element->m_next = nullptr;
         }
-        ~LinkedQueue() {
+        ~LinkedQueue() override {
             clear();
         }
     };
@@ -74,7 +73,6 @@ namespace Utils {
     template<typename T>
     class QueueElement {
         friend class LinkedQueue<T>;
-    private:
         T m_element;
         QueueElement<T>* m_next;
     public:

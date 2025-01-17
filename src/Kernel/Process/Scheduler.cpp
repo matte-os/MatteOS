@@ -32,7 +32,7 @@ namespace Kernel {
       return nullptr;
     }
 
-    auto& process_list = process_manager.get_process_list();
+    const auto& process_list = process_manager.get_process_list();
     process_list->rotate_left();
     auto* first = process_list->first();
 

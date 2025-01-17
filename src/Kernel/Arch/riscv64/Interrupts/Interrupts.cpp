@@ -24,10 +24,9 @@ namespace Kernel {
     size_t handle_external_interrupt(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus) {
         DebugConsole::println("Interrupts: Handling external interrupt");
         //auto context_id = System::the().get_current_kernel_trap_frame()->cpu_id;
-        auto context_id = InterruptManager::DEFAULT_CONTEXT_ID;
-        auto next_interrupt = Plic::the().next(context_id);
-        if (next_interrupt.has_value()) {
-            auto interrupt = next_interrupt.get_value();
+        constexpr auto context_id = InterruptManager::DEFAULT_CONTEXT_ID;
+        if (const auto next_interrupt = Plic::the().next(context_id); next_interrupt.has_value()) {
+            const auto interrupt = next_interrupt.get_value();
             DebugConsole::print("Interrupts: Delegating interrupt to device ");
             DebugConsole::print_ln_number(interrupt, 10);
             InterruptManager::the().delegate_device_interrupt(interrupt);
@@ -43,8 +42,8 @@ namespace Kernel {
         DebugConsole::print("Current time: ");
         DebugConsole::print_ln_number(Kernel::RISCV64::CSR::read<Kernel::RISCV64::CSR::Address::TIME>(), 10);
         auto* process = System::get_current_kernel_trap_frame()->current_process;
-        auto syscallId = process->get_thread()->get_trap_frame()->regs[static_cast<size_t>(
-            Kernel::RegisterOffset::SyscallId)];
+        const auto syscallId = process->get_thread()->get_trap_frame()->regs[static_cast<size_t>(
+            RegisterOffset::SyscallId)];
         SyscallManager::the().handle_syscall(process, syscallId);
         return sepc + 4;
     }
