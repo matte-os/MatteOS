@@ -15,6 +15,8 @@ namespace Kernel::RISCV64::CSR {
     // Unprivileged Counters/Timers
     CYCLE = 0xc00,
     TIME = 0xc01,
+
+    SSCRATCH = 0x140,
   };
 
   template <Address addr>
@@ -22,5 +24,10 @@ namespace Kernel::RISCV64::CSR {
     u64 value;
     asm volatile("csrr %0, %1" : "=r"(value) : "i"(static_cast<u16>(addr)));
     return value;
+  }
+
+  template <Address addr>
+  void write(u64 value) {
+    asm volatile("csrw %0, %1" : : "i"(static_cast<u16>(addr)), "r"(value));
   }
 }// namespace Kernel::RISCV64::CSR

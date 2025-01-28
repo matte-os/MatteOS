@@ -29,12 +29,16 @@ namespace Kernel {
     //We could probably use RAII to reduce the code.
     auto& lock = process_manager.get_process_list_lock();
     if(!lock.try_lock()) {
+      DebugConsole::println("Scheduler: Could not acquire lock.");
       return nullptr;
     }
 
     const auto& process_list = process_manager.get_process_list();
     process_list->rotate_left();
     auto* first = process_list->first();
+
+    DebugConsole::print("Scheduler: Scheduling process ");
+    DebugConsole::print_ln_number(reinterpret_cast<uintptr_t>(first), 16);
 
     switch(first->get_state()) {
       case ProcessState::Running: {

@@ -34,8 +34,6 @@ namespace Kernel {
     m_base = node->get_address().to_uint(16);
     DebugConsole::print("Plic: Base address: ");
     DebugConsole::print_ln_number(m_base, 16);
-    DebugConsole::print("Plic: String base address: ");
-    DebugConsole::println(node->get_address().to_cstring());
   }
 
   void Plic::enable(u32 context_id, u32 id) {
@@ -47,10 +45,10 @@ namespace Kernel {
     u32 actual_id = 1 << id % 32;
     *enable = *enable | actual_id;
 
-    DebugConsole::print("Plic: Enable write to ");
-    DebugConsole::print_number(reinterpret_cast<u64>(enable), 16);
-    DebugConsole::print(" value ");
-    DebugConsole::print_ln_number(*enable, 16);
+    //DebugConsole::print("Plic: Enable write to ");
+    //DebugConsole::print_number(reinterpret_cast<u64>(enable), 16);
+    //DebugConsole::print(" value ");
+    //DebugConsole::print_ln_number(*enable, 16);
   }
 
   void Plic::disable(u32 context_id, u32 id) {
@@ -67,10 +65,10 @@ namespace Kernel {
     auto* priority_register = reinterpret_cast<u32*>(m_base + static_cast<size_t>(PlicOffsets::Priority) + 4 * id);
     *priority_register = priority & 7;
 
-    DebugConsole::print("Plic: Priority write to ");
-    DebugConsole::print_number(reinterpret_cast<u64>(priority_register), 16);
-    DebugConsole::print(" value ");
-    DebugConsole::print_ln_number(*priority_register, 16);
+    //DebugConsole::print("Plic: Priority write to ");
+    //DebugConsole::print_number(reinterpret_cast<u64>(priority_register), 16);
+    //DebugConsole::print(" value ");
+    //DebugConsole::print_ln_number(*priority_register, 16);
   }
 
   void Plic::set_threshold(u32 context_id, u8 threshold) {
@@ -81,10 +79,10 @@ namespace Kernel {
     auto* threshold_register = reinterpret_cast<u32*>(m_base + static_cast<size_t>(PlicOffsets::PriorityThreshold) + 0x1000 * context_id);
     *threshold_register = threshold & 7;
 
-    DebugConsole::print("Plic: Threshold write to ");
-    DebugConsole::print_number(reinterpret_cast<u64>(threshold_register), 16);
-    DebugConsole::print(" value ");
-    DebugConsole::print_ln_number(*threshold_register, 16);
+    //DebugConsole::print("Plic: Threshold write to ");
+    //DebugConsole::print_number(reinterpret_cast<u64>(threshold_register), 16);
+    //DebugConsole::print(" value ");
+    //DebugConsole::print_ln_number(*threshold_register, 16);
   }
 
   Optional<u32> Plic::next(u32 context_id) {
@@ -104,10 +102,10 @@ namespace Kernel {
     DebugConsole::print("Plic: Completed interrupt for context ");
     DebugConsole::print_ln_number(context_id, 10);
 
-    DebugConsole::print("Plic: Complete write to ");
-    DebugConsole::print_number(reinterpret_cast<u64>(complete_register), 16);
-    DebugConsole::print(" value ");
-    DebugConsole::print_ln_number(id, 16);
+    //DebugConsole::print("Plic: Complete write to ");
+    //DebugConsole::print_number(reinterpret_cast<u64>(complete_register), 16);
+    //DebugConsole::print(" value ");
+    //DebugConsole::print_ln_number(id, 16);
   }
 
   bool Plic::is_pending(u32 id) {

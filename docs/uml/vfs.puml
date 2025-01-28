@@ -1,30 +1,68 @@
 @startuml
+skinparam classAttributeIconSize 0
+skinparam classFontSize 22
+skinparam stereotypeFontSize 25
+skinparam classAttributeFontSize 20
 
-class VirtualFileSystem
-class Inode
-class FileSystem
+  class FileSystem {
+    {abstract} +String name() const
+    {abstract} +ErrorOr<RefPtr<Inode>> root()
+    {abstract} +ErrorOr<RefPtr<OpenFileDescriptor>> open(Credentials, StringView, FileOpenMode)
+    {abstract} +bool exists(StringView)
+    {abstract} +ErrorOr<void> close(RefPtr<OpenFileDescriptor>)
+  }
 
-class OpenFileDescriptor
+  class Inode {
+    {abstract} +ErrorOr<void> check_credentials(Credentials, FileOpenMode)
+    {abstract} +ErrorOr<size_t> read(u8*, size_t, size_t)
+    {abstract} +ErrorOr<size_t> write(const u8*, size_t, size_t)
+    {abstract} +RefPtr<FileSystem> fs()
+    {abstract} +ErrorOr<RefPtr<Inode>> get_child(StringView)
+    {abstract} +ErrorOr<ArrayList<RefPtr<DirectoryEntry>>> list_dir()
+    {abstract} +ErrorOr<StringView> name()
+    {abstract} +bool is_directory()
+    {abstract} +bool is_file()
+  }
 
-class FileDescriptorTable
-class FileDescriptor
-class File
+  class VirtualFileSystem {
+    +ErrorOr<RefPtr<FileSystem>> device_load_filesystem(RefPtr<Device>)
+    +ErrorOr<void> mount(StringView, RefPtr<FileSystem>)
+    +ErrorOr<void> unmount(StringView)
+    +ErrorOr<RefPtr<OpenFileDescriptor>> open(Credentials, String, FileOpenMode)
+  }
 
-class Process
+  class OpenFileDescriptor {
+    +RefPtr<Inode> inode()
+  }
 
-Inode <-- VirtualFileSystem
-Inode <-- FileSystem
-FileSystem <-- Inode
+  class OpenFileDescriptorTable {
+    +bool has_descriptor(String)
+    +ErrorOr<RefPtr<OpenFileDescriptor>> create_descriptor_and_open(String, RefPtr<Inode>)
+  }
 
-FileDescriptor <-- FileDescriptorTable
-FileDescriptor <|-- File
+  class BlockBackedFileSystem {
+    +ErrorOr<RefPtr<DataBlock>> read_block_poll(size_t)
+    +ErrorOr<void> write_block_poll(size_t, char*)
+  }
 
-OpenFileDescriptor <-- File
+  class FATFileSystem {
+    +ErrorOr<RefPtr<FileSystem>> try_create(RefPtr<Device>)
+    +ErrorOr<void> flush()
+  }
 
-OpenFileDescriptor <-- VirtualFileSystem
+  class FATInode {
+    +ErrorOr<StringView> name()
+  }
 
-FileDescriptorTable <-- Process
-FileDescriptor <-- Process
-VirtualFileSystem <-- Process
+' Relationships
+FileSystem <-- VirtualFileSystem
+FileSystem <|-- BlockBackedFileSystem
+BlockBackedFileSystem <|-- FATFileSystem
+Inode <|-- FATInode
+OpenFileDescriptor *-- Inode
+OpenFileDescriptorTable *-- OpenFileDescriptor
+FATFileSystem *-- FATInode
+VirtualFileSystem *-- FileSystem
+VirtualFileSystem *-- OpenFileDescriptor
 
 @enduml

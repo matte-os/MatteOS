@@ -42,15 +42,9 @@ namespace Kernel {
 
   void InterruptManager::enable_device_interrupts() {
     DebugConsole::println("InterruptManager: Enabling device interrupts.");
-    DebugConsole::print("InterruptManager: Number of devices: ");
-    DebugConsole::print_ln_number(DeviceManager::the().get_devices().size(), 10);
     for(auto& device: DeviceManager::the().get_devices()) {
-      DebugConsole::println("InterruptManager: Enabling interrupts for device ");
       //Number of interrupts should be based on the number of harts
-      DebugConsole::print("InterruptManager: Number of interrupts: ");
-      DebugConsole::print_ln_number(device->get_interrupts().size(), 10);
       device->get_interrupts().for_each([&](auto interrupt_id) {
-        DebugConsole::println("InterruptManager: Enabling interrupt ");
         //FIXME: The context_id should be based on the number of harts
         Plic::the().enable(DEFAULT_CONTEXT_ID, interrupt_id);
         Plic::the().set_priority(interrupt_id, 1);

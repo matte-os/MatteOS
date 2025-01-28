@@ -1,6 +1,8 @@
 #include <Kernel/Arch/riscv64/CSR.h>
 #include <Kernel/Arch/riscv64/Interrupts/Interrupts.h>
 #include <Kernel/Arch/riscv64/Interrupts/Plic.h>
+#include <Kernel/Process/ProcessManager.h>
+#include <Kernel/Process/Scheduler.h>
 #include <Kernel/Syscalls/SyscallManager.h>
 #include <Kernel/System/InterruptManager.h>
 #include <Kernel/System/Timer.h>
@@ -16,9 +18,21 @@ namespace Kernel {
 
     size_t handle_timer_interrupt(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus) {
         DebugConsole::println("Interrupts: Handling timer interrupt");
+
+        if (const auto current_process = System::get_current_kernel_trap_frame()->current_process) {
+            current_process->get_thread()->get_trap_frame()->program_counter = sepc;
+        }
+
+        const auto process = Scheduler::the().schedule();
+
+        // Write process SATP to the SSCRATCH register
+        RISCV64::CSR::write<RISCV64::CSR::Address::SSCRATCH>(*reinterpret_cast<u64*>(reinterpret_cast<u64>(&process->get_thread()->get_trap_frame()->satp)));
+
+        const auto program_counter = process->get_thread()->get_trap_frame()->program_counter;
+
         Timer::the().set_timer(Timer::DEFAULT_PROCESS_TIME);
         DebugConsole::println("Interrupts: Setting timer for next interrupt");
-        return sepc;
+        return program_counter;
     }
 
     size_t handle_external_interrupt(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus) {

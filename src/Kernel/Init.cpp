@@ -125,11 +125,7 @@ extern "C" void kmain([[maybe_unused]] int a0, FDTHeader* header) {
     //TODO: Here we should try to load the init process from the rootfs
     // or load the in-memory init process
 
-    auto* dummy_root = ProcessManager::the().create_dummy_process(MemoryManager::get_text_start(),
-                                                                  MemoryManager::get_text_end());
-    MemoryManager::the().identity_map_range(*dummy_root, MemoryManager::get_context_switching_start(),
-                                            MemoryManager::get_context_switching_end(),
-                                            static_cast<u64>(EntryBits::READ_EXECUTE));
+    ProcessManager::the().create_initial_processes();
 
     DebugConsole::println("RiscVOS: Setting up interrupts.");
     InterruptManager::init();

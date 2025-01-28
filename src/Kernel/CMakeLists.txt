@@ -41,6 +41,7 @@ set(SOURCE
         Process/Process.cpp
         Process/ProcessManager.cpp
         Process/Scheduler.cpp
+        Process/Console/Console.cpp
         SBI/SBI.cpp
         Drivers/VirtIO/VirtIODeviceIDs.cpp
         Drivers/VirtIO/VirtQueue.cpp
