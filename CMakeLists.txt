@@ -17,7 +17,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/lib)
 set(TARGET kernel)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_CXX_FLAGS "-Wno-int-to-pointer-cast -fpermissive -Wno-conversion -Wno-narrowing -Wno-everything --target=riscv64 -mabi=lp64d -march=rv64gc -mcmodel=medany -g -O0 -c -Wall -Wextra")
+set(CMAKE_CXX_FLAGS "-Wno-int-to-pointer-cast -fpermissive -Wno-conversion -Wno-narrowing -Wno-everything -fno-exceptions --target=riscv64 -mabi=lp64d -march=rv64gc -mcmodel=medany -g -O0 -c -Wall -Wextra")
 set(CMAKE_ASM_FLAGS "-Wno-int-to-pointer-cast -fpermissive -Wno-conversion -Wno-narrowing -Wno-everything -mabi=lp64d -march=rv64gc -mcmodel=medany -g -O0 -c -Wall -Wextra")
 
 add_compile_definitions(ARCH=RISCV64)

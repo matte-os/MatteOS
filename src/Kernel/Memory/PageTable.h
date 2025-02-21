@@ -17,4 +17,6 @@ namespace Kernel {
     ErrorOr<PhysicalAddress> translate(VirtualAddress address);
     void debug_output();
   };
+
+  static_assert(sizeof(PageTable) == 4096, "PageTable size is not 4096 bytes");
 };// namespace Kernel

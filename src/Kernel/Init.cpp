@@ -52,7 +52,7 @@ using Utils::String;
 PageTable* init_memory();
 void sizeof_test();
 
-extern "C" void kmain([[maybe_unused]] int a0, FDTHeader* header) {
+extern "C" void kmain([[maybe_unused]] int heart_id, FDTHeader* header) {
     DebugConsole::println("RiscVOS: v0.0.1, U-Boot + OpenSBI, SPL configuration");
     auto* page_table = init_memory();
     System::init();

@@ -14,7 +14,6 @@ using Utils::Locks::SpinLock;
 
 namespace Kernel {
 class ProcessManager {
-private:
   static constexpr size_t START_ADDRESS = 0x20000000;
   static constexpr size_t STACK_ADDRESS = 0xf0000000;
   static constexpr size_t STACK_PAGES = 2;

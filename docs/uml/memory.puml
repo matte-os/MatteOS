@@ -1,0 +1,164 @@
+@startuml
+
+namespace Kernel {
+  enum EntryBits {
+    NONE
+    VALID
+    READ
+    WRITE
+    EXECUTE
+    USER
+    GLOBAL
+    ACCESS
+    DIRTY
+    READ_WRITE
+    READ_EXECUTE
+    READ_WRITE_EXECUTE
+    USER_READ_WRITE
+    USER_READ_EXECUTE
+    USER_READ_WRITE_EXECUTE
+  }
+
+  enum PageStatus {
+    FREE
+    TAKEN
+    LAST
+  }
+
+  class MemoryManager {
+    + size_t m_heap_start
+    + size_t m_heap_size
+    + Page* m_first_page
+    + size_t m_number_of_pages
+    + size_t m_alloc_start
+
+    - MemoryManager()
+    - static size_t align_value(size_t value, size_t order)
+
+    + static MemoryManager& the()
+    + static MemoryManager* ptr()
+    + static void init()
+    + static uintptr_t get_data_start()
+    + static uintptr_t get_data_end()
+    + static uintptr_t get_rodata_start()
+    + static uintptr_t get_rodata_end()
+    + static uintptr_t get_text_start()
+    + static uintptr_t get_text_end()
+    + static uintptr_t get_bss_start()
+    + static uintptr_t get_bss_end()
+    + static uintptr_t get_memory_start()
+    + static uintptr_t get_memory_end()
+    + static uintptr_t get_heap_start()
+    + static uintptr_t get_heap_size()
+    + static uintptr_t get_stack_start()
+    + static uintptr_t get_stack_end()
+    + static uintptr_t get_context_switching_start()
+    + static uintptr_t get_context_switching_end()
+    + static uintptr_t get_text_special_start()
+    + static uintptr_t get_text_special_end()
+    + uintptr_t* alloc(size_t)
+    + uintptr_t* zalloc(size_t)
+    + void dealloc(uintptr_t*)
+    + void identity_map_range(PageTable& root, size_t start, size_t end, u64 bits)
+    + void map_range(PageTable& root, size_t virtual_start, size_t virtual_end, size_t physical_start, u64 bits)
+    + void map(PageTable&, VirtualAddress, PhysicalAddress, size_t, int)
+    + void map_system_defaults(PageTable& root)
+    + void debug_output()
+    + PageTable* get_current_root_page_table()
+
+    ~MemoryManager()
+  }
+
+  class Page {
+    - PageStatus m_status
+    + Page()
+    + ~Page()
+    + bool is_last()
+    + bool is_taken()
+    + bool is_free()
+    + void clear()
+    + void set_status(PageStatus status)
+  }
+
+  class PageTableEntry {
+    + u64 valid : 1
+    + u64 read : 1
+    + u64 write : 1
+    + u64 execute : 1
+    + u64 user : 1
+    + u64 global : 1
+    + u64 accessed : 1
+    + u64 dirty : 1
+    + u64 rsw : 2
+    + u64 ppn0 : 9
+    + u64 ppn1 : 9
+    + u64 ppn2 : 26
+    + u64 reserved : 10
+
+    + u64 get_value()
+    + void set_value(u64 value)
+    + void set_bits(u64 bits)
+    + bool is_valid()
+    + bool is_leaf()
+    + uintptr_t get_ppn()
+  }
+
+  class PageTable {
+    - PageTableEntry m_entries[512]
+    + PageTable()
+    + ErrorOr<PhysicalAddress> translate(VirtualAddress address)
+    + void debug_output()
+  }
+
+  class PhysicalAddress {
+    + u64 offset : 12
+    + u64 ppn0 : 9
+    + u64 ppn1 : 9
+    + u64 ppn2 : 26
+    + u64 reserved : 8
+  }
+
+  class VirtualAddress {
+    + u64 offset : 12
+    + u64 vpn0 : 9
+    + u64 vpn1 : 9
+    + u64 vpn2 : 9
+    + u64 reserved : 25
+  }
+
+  class KernelMemoryAllocator {
+    - AllocHeader* m_head
+    - u64 m_total_size
+    - u64 m_taken
+    + static KernelMemoryAllocator& the()
+    + static void init()
+    + uintptr_t* kmalloc(size_t)
+    + uintptr_t* kzmalloc(size_t)
+    + void kfree(uintptr_t*)
+    + void debug()
+  }
+
+  class AllocHeader {
+    - u64 m_size : 63
+    - u64 m_taken : 1
+    + bool is_taken()
+    + bool is_free()
+    + void set_taken()
+    + void set_free()
+    + u64 get_size()
+    + void set_size(u64 size)
+  }
+
+  MemoryManager --|> KernelMemoryAllocator : friend
+  KernelMemoryAllocator --> AllocHeader
+  MemoryManager --> PhysicalAddress
+  MemoryManager --> VirtualAddress
+  MemoryManager --> PageTable
+  MemoryManager --> PageTableEntry
+  MemoryManager --> Page
+  MemoryManager --> EntryBits
+  Page --> PageStatus
+  PageTable --|> PageTableEntry : has
+}
+
+@enduml

@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 1.9.22.
-//
-
+/**
+ * The allocator is inspired by the memory allocator implemented in the
+ * repository osblog written by Stephen Marz.
+ */
 #pragma once
 
 #include <Utils/DebugConsole.h>
@@ -14,12 +14,16 @@ namespace Kernel {
     u64 size  : 63;
     u64 taken : 1;
 
-  public:
     [[nodiscard]] bool is_taken() const { return taken == 1; }
+
     [[nodiscard]] bool is_free() const { return !is_taken(); }
+
     void set_taken() { taken = 1; }
+
     void set_free() { taken = 0; }
+
     [[nodiscard]] u64 get_size() const { return size; }
+
     void set_size(u64 size) {
       if(size == 0) {
         DebugConsole::println("Warning: AllocHeader::set_size called with size 0");
@@ -31,8 +35,10 @@ namespace Kernel {
       this->size = size;
     }
   };
+
+  static_assert(sizeof(AllocHeader) == 8, "AllocHeader size is not 8 bytes");
+
   class KernelMemoryAllocator {
-  private:
     static const u64 ALLOCATION_SIZE = 64;
     AllocHeader* m_head;
     u64 m_total_size;
@@ -57,7 +63,9 @@ uintptr_t* kmalloc(size_t);
 void kfree(uintptr_t*);
 
 inline void* operator new(size_t, void* p) { return p; }
+
 inline void* operator new[](size_t, void* p) { return p; }
+
 void* operator new(size_t size);
 void* operator new[](size_t size);
 void operator delete(void* ptr);

@@ -10,7 +10,6 @@ namespace Kernel {
     u64 vpn2     : 9;
     u64 reserved : 25;
 
-  public:
     VirtualAddress(u64 offset, u64 vpn0, u64 vpn1, u64 vpn2, u64 reserved) {
       this->offset = offset;
       this->vpn0 = vpn0;
@@ -23,4 +22,6 @@ namespace Kernel {
       *(u64*) this = value;
     };
   };
+
+  static_assert(sizeof(VirtualAddress) == 8, "VirtualAddress size is not 8 bytes");
 };// namespace Kernel

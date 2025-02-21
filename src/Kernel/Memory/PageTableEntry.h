@@ -27,4 +27,5 @@ namespace Kernel {
         bool is_leaf();
         uintptr_t get_ppn();
     };
+    static_assert(sizeof(PageTableEntry) == 8, "PageTableEntry size is not 8 bytes");
 };

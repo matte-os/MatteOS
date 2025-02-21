@@ -1,9 +1,7 @@
-/*
-  riscv is the name of the architecture that the linker understands
-  for any RISC-V target (64-bit or 32-bit).
-
-  We will further refine this by using -mabi=lp64 and -march=rv64gc
-*/
+/**
+ * This LinkerScript was taken over from the osblog written by Stephen Marz.
+ * I've made some modifications to fit this os's needs.
+ */
 OUTPUT_ARCH( "riscv" )
 
 /*
@@ -36,7 +34,7 @@ their job is to get to this point.
 Finally LENGTH = 128M tells the linker that we have 128 megabyte of RAM.
 The linker will double check this to make sure everything can fit.
 
-The HiFive Unleashed has a lot more RAM than this, but for the virtual 
+The HiFive Unleashed has a lot more RAM than this, but for the virtual
 machine, I went with 128M since I think that's enough RAM for now.
 
 We can provide other pieces of memory, such as QSPI, or ROM, but we're
@@ -88,7 +86,7 @@ SECTIONS
 	0x8000_0000, we need our entry point to line up here.
   */
   .text : {
-	  /* 
+	  /*
 	    PROVIDE allows me to access a symbol called _text_start so
 		I know where the text section starts in the operating system.
 		This should not move, but it is here for convenience.
@@ -99,7 +97,7 @@ SECTIONS
 
     _text_start = .;
 	/*
-	  We are going to layout all text sections here, starting with 
+	  We are going to layout all text sections here, starting with
 	  .text.init. The asterisk in front of the parentheses means to match
 	  the .text.init section of ANY object file. Otherwise, we can specify
 	  which object file should contain the .text.init section, for example,
@@ -121,13 +119,13 @@ SECTIONS
 	  .text.init, this would've matched here. The assembler and linker can place
 	  things in "special" text sections, so we match any we might come across here.
 	*/
-    
+
     *(.text.init) 
 	/*
 	  Again, with PROVIDE, we're providing a readable symbol called _text_end, which is
 	  set to the memory address AFTER .text.init, .text, and .text.*'s have been added.
 	*/
-    
+
     *(.text)
     _text_end = .;
 
@@ -154,7 +152,7 @@ SECTIONS
 
 	  AT>ram - This sets the LMA (load memory address) region to the same thing. LMA is the final
 	           translation of a VMA (virtual memory address). With this linker script, we're loading
-			   everything into its physical location. We'll let the kernel copy and sort out the 
+			   everything into its physical location. We'll let the kernel copy and sort out the
 			   virtual memory. That's why >ram and AT>ram are continually the same thing.
 
 	  :text  - This tells the linker script to put this into the :text program header. We've only
@@ -241,7 +239,7 @@ SECTIONS
   _stack_start = _bss_end;
   _stack_end = _stack_start + 0x80000;
   _memory_end = ORIGIN(ram) + LENGTH(ram);
-  /* 
+  /*
      Finally, our heap starts right after the kernel stack. This heap will be used mainly
 	 to dole out memory for user-space applications. However, in some circumstances, it will
 	 be used for kernel memory as well.

@@ -9,7 +9,6 @@
 
 namespace Kernel {
     class Thread {
-    private:
         TrapFrame* m_trap_frame;
         uintptr_t* m_stack;
     public:

@@ -10,8 +10,9 @@ namespace Kernel {
     u64 ppn2     : 26;
     u64 reserved : 8;
 
-  public:
     PhysicalAddress(u64 value) { *(u64*) this = value; };
     [[nodiscard]] u64 get_value() const { return *(u64*) this; }
   };
+
+  static_assert(sizeof(PhysicalAddress) == 8, "PhysicalAddress size is not 8 bytes");
 };// namespace Kernel

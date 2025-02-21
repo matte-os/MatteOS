@@ -46,7 +46,7 @@ namespace Kernel {
     size_t numberOfPages = get_heap_size() / PAGE_SIZE;
     size_t allocStart = align_value(get_heap_start() + (numberOfPages * sizeof(Page)), PAGE_ORDER);
     //The first page is allocated for the MemoryManager to live.
-    s_memory_manager = (MemoryManager*) (allocStart);
+    s_memory_manager = reinterpret_cast<MemoryManager*>(allocStart);
     s_memory_manager->m_heap_start = get_heap_start();
     s_memory_manager->m_heap_size = get_heap_size();
     s_memory_manager->m_first_page = (Page*) get_heap_start();
