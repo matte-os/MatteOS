@@ -53,7 +53,7 @@ PageTable* init_memory();
 void sizeof_test();
 
 extern "C" void kmain([[maybe_unused]] int heart_id, FDTHeader* header) {
-    DebugConsole::println("RiscVOS: v0.0.1, U-Boot + OpenSBI, SPL configuration");
+    DebugConsole::println("MatteOS: v0.0.1, U-Boot + OpenSBI, SPL configuration");
     auto* page_table = init_memory();
     System::init();
 
@@ -68,24 +68,24 @@ extern "C" void kmain([[maybe_unused]] int heart_id, FDTHeader* header) {
                                             reinterpret_cast<uintptr_t>(header) + *header->totalsize,
                                             static_cast<u64>(EntryBits::READ_WRITE));
 
-    DebugConsole::println("RiscVOS: Setting up VirtualFileSystem.");
+    DebugConsole::println("MatteOS: Setting up VirtualFileSystem.");
     VirtualFileSystem::init();
 
-    DebugConsole::println("RiscVOS: Setting up devices.");
+    DebugConsole::println("MatteOS: Setting up devices.");
     DeviceTree::init(header);
     DeviceManager::init();
     system.install_from_device_tree();
 
     DriverManager::init();
-    DebugConsole::println("RiscVOS: Initializing drivers.");
+    DebugConsole::println("MatteOS: Initializing drivers.");
     DriverManager::the().init_drivers();
 
-    DebugConsole::println("RiscVOS: Loading the device drivers.");
+    DebugConsole::println("MatteOS: Loading the device drivers.");
     DeviceManager::the().load_drivers();
 
     auto block_devices = DeviceManager::the().get_devices_of_type(Kernel::DeviceType::Block);
     /*
-    DebugConsole::println("RiscVOS: Block Device write test.");
+    DebugConsole::println("MatteOS: Block Device write test.");
     for(size_t i = 0; i < block_devices.size(); i++) {
       auto device = block_devices[i];
       auto block_device = device->as<Kernel::BlockDevice>();
@@ -97,29 +97,29 @@ extern "C" void kmain([[maybe_unused]] int heart_id, FDTHeader* header) {
       buffer[4] = 'o';
       auto write_result = block_device->write((u8*) buffer, 512, 0);
       if(write_result.has_error()) {
-        DebugConsole::println("RiscVOS: Block Device write failed.");
+        DebugConsole::println("MatteOS: Block Device write failed.");
       }
     }*/
 
     if (block_devices.size() == 0) {
-        DebugConsole::println("RiscVOS: No block devices found.");
+        DebugConsole::println("MatteOS: No block devices found.");
     } else {
-        DebugConsole::println("RiscVOS: Setting up the root filesystem.");
+        DebugConsole::println("MatteOS: Setting up the root filesystem.");
         if (const auto root_inode = VirtualFileSystem::the().device_load_filesystem(block_devices[0]); root_inode.
             has_error()) {
-            DebugConsole::println("RiscVOS: Failed to load root filesystem.");
+            DebugConsole::println("MatteOS: Failed to load root filesystem.");
         } else {
-            DebugConsole::println("RiscVOS: Mounting the root filesystem.");
+            DebugConsole::println("MatteOS: Mounting the root filesystem.");
             if (const auto error_or_mount = VirtualFileSystem::the().mount_root_fs(root_inode.get_value());
                 error_or_mount.has_error()) {
-                DebugConsole::println("RiscVOS: Unable to mount the root filesystem.");
+                DebugConsole::println("MatteOS: Unable to mount the root filesystem.");
             } else {
-                DebugConsole::println("RiscVOS: Root filesystem loaded and mounted.");
+                DebugConsole::println("MatteOS: Root filesystem loaded and mounted.");
             }
         }
     }
 
-    DebugConsole::println("RiscVOS: Setting up processes.");
+    DebugConsole::println("MatteOS: Setting up processes.");
     ProcessManager::init(page_table);
 
     //TODO: Here we should try to load the init process from the rootfs
@@ -127,14 +127,14 @@ extern "C" void kmain([[maybe_unused]] int heart_id, FDTHeader* header) {
 
     ProcessManager::the().create_initial_processes();
 
-    DebugConsole::println("RiscVOS: Setting up interrupts.");
+    DebugConsole::println("MatteOS: Setting up interrupts.");
     InterruptManager::init();
     InterruptManager::the().set_threshold(0);
     InterruptManager::the().enable_device_interrupts();
 
     Logger::init();
     Logger::the().try_console_lookup();
-    dbgln("RiscVOS: Logger initialized.");
+    dbgln("MatteOS: Logger initialized.");
     DebugConsole::switch_to_device();
 
     Timer::init();
@@ -142,7 +142,7 @@ extern "C" void kmain([[maybe_unused]] int heart_id, FDTHeader* header) {
     SyscallManager::init();
     DebugConsole::println("Initialization completed");
 
-    DebugConsole::print("RiscVOS: The state of SIE is ");
+    DebugConsole::print("MatteOS: The state of SIE is ");
     DebugConsole::print_ln_number(CPU::read_sie(), 16);
 
     //TODO: Here we should start the init process and the scheduler

@@ -13,8 +13,7 @@ namespace Kernel {
 
   class OpenFileDescriptorTable;
 
-  class OpenFileDescriptor : public RefCounted<OpenFileDescriptor> {
-  private:
+  class OpenFileDescriptor final : public RefCounted<OpenFileDescriptor> {
     friend class OpenFileDescriptorTable;
 
     RefPtr<Inode> m_inode;
@@ -31,8 +30,7 @@ namespace Kernel {
     }
   };
 
-  class OpenFileDescriptorTable {
-  private:
+  class OpenFileDescriptorTable final {
     HashMap<String, RefPtr<OpenFileDescriptor>> m_descriptors;
 
   public:

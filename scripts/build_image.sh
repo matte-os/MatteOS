@@ -4,5 +4,5 @@ ninja
 cd build/dist/riscv
 riscv64-unknown-linux-gnu-objcopy -O binary -R .note -R .comment -S kernel.elf kernel.bin
 gzip -9 kernel.bin
-mkimage -A riscv -O linux -T kernel -C gzip -a 0x86000000 -e 0x86000000 -n "RISC-V Edu OS" -d kernel.bin.gz uImage
+mkimage -A riscv -O linux -T kernel -C gzip -a 0x86000000 -e 0x86000000 -n "Matte OS" -d kernel.bin.gz uImage
 cd ../..

@@ -50,7 +50,8 @@ namespace Kernel {
                      Thread* thread,
                      PageTable* page_table,
                      ProcessState state) : m_pid(pid), m_gid(m_pid), m_thread(thread), m_page_table(page_table),
-                                           m_state(state) {}
+                                           m_state(state), m_credentials({}) {}
+
     virtual ~Process() = default;
     [[nodiscard]] ProcessState get_state() const { return m_state; }
     [[nodiscard]] Thread* get_thread() const { return m_thread; }
