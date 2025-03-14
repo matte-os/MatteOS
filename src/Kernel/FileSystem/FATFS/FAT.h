@@ -23,6 +23,7 @@ namespace Kernel {
       u32 hidden_sectors;
       u32 total_sectors_large;
     } __attribute__((packed));
+    static_assert(sizeof(BootSector) == 36, "BootSector size is not 36 bytes");
 
     struct BootSector32 : BootSector {
       u32 sectors_per_fat32;
@@ -39,11 +40,13 @@ namespace Kernel {
       u8 volume_label[11];
       u8 system_id[8];
     } __attribute__((packed));
+    static_assert(sizeof(BootSector32) == 90, "BootSector32 size is not 90 bytes");
 
     struct FATEntry {
       u32 value    : 28;
       u32 reserved : 4;
     } __attribute__((packed));
+    static_assert(sizeof(FATEntry) == 4, "FATEntry size is not 4 bytes");
 
     enum class DirectoryEntryAttributes : u8 {
       ReadOnly = 0x01,
@@ -73,7 +76,6 @@ namespace Kernel {
         return order & 0x00;
       }
     } __attribute__((packed));
-
     static_assert(sizeof(LongDirectoryEntry) == 32, "LongDirectoryEntry size is not 32 bytes");
 
     struct DirectoryEntry {

@@ -59,7 +59,7 @@ namespace Kernel {
     virtual ~UnderlyingDevice() = default;
   };
 
-  class VirtIODevice : public UnderlyingDevice {
+  class VirtIODevice final : public UnderlyingDevice {
   private:
     MMIODevice* m_mmio_device;
     u32 m_features;

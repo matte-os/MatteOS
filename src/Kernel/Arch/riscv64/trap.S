@@ -1,8 +1,3 @@
-# trap.S
-# Trap handler and global context
-# Steve Operating System
-# Stephen Marz
-# 24 February 2019
 .option norvc
 .altmacro
 .set NUM_GP_REGS, 32  # Number of registers per context
@@ -11,6 +6,7 @@
 .set MAX_CPUS, 8   # Maximum number of CPUs
 
 # Use macros for saving and restoring multiple registers
+# These were taken from the OS Blog by Stephen Marz
 .macro save_gp i, basereg=t6
 	sd	x\i, ((\i)*REG_SIZE)(\basereg)
 .endm
@@ -30,12 +26,9 @@
 m_trap_test:
         ret
 
-# This handler will handle an interrupt and if new process
-# should be scheduled, the code flow will not return from the
-# call to trap_frame, but will take a different path.
 .global m_trap_vector
 # This must be aligned by 4 since the last two bits
-# of the mtvec register do not contribute to the address
+# of the stvec register do not contribute to the address
 # of this vector.
 .align 4
 m_trap_vector:

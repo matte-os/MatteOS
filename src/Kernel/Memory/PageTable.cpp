@@ -22,7 +22,7 @@ namespace Kernel {
       }
     }
   }
-  ErrorOr<PhysicalAddress> PageTable::translate(VirtualAddress address) {
+  ErrorOr<PhysicalAddress> PageTable::translate(const VirtualAddress address) {
     PageTableEntry* entry = &this->m_entries[address.vpn2];
     if(!entry->is_valid()) {
       return ErrorOr<PhysicalAddress>::create_error(Error::create_from_string("First entry is not valid"));

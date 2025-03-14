@@ -11,7 +11,6 @@ namespace Kernel {
   * https://sifive.cdn.prismic.io/sifive%2F834354f0-08e6-423c-bf1f-0cb58ef14061_fu540-c000-v1.0.pdf
   * */
   class Plic {
-  private:
     enum class PlicOffsets : size_t {
       Priority = 0x000000,
       Pending = 0x001000,
