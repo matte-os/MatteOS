@@ -26,9 +26,8 @@ namespace Utils {
    * @tparam T Type of the elements in the array.
    */
   template<typename T>
-  class ArrayList : public RefCounted<ArrayList<T>> {
-  private:
-    static const size_t DEFAULT_SIZE = 8;//!< Default size of the array.
+  class ArrayList final : public RefCounted<ArrayList<T>> {
+    static constexpr size_t DEFAULT_SIZE = 8;//!< Default size of the array.
     T* m_array;                          //!< Pointer to the array.
     size_t m_size;                       //!< Size of the array.
     size_t m_ptr;                        //!< Pointer to the last element in the array.
@@ -43,14 +42,14 @@ namespace Utils {
       m_ptr = 0;
     }
 
-    ArrayList(const ArrayList<T>& other) {
+    ArrayList(const ArrayList& other) {
       m_array = kmalloc<T>(sizeof(T) * other.m_size);
       m_size = other.m_size;
       m_ptr = other.m_ptr;
       memcpy((char*) m_array, (char*) other.m_array, m_ptr * sizeof(T));
     }
 
-    ArrayList(ArrayList<T>&& other) noexcept {
+    ArrayList(ArrayList&& other) noexcept {
       m_array = other.m_array;
       m_size = other.m_size;
       m_ptr = other.m_ptr;
@@ -62,7 +61,7 @@ namespace Utils {
     /**
      * @brief Destroys the ArrayList object.
      */
-    ~ArrayList() {
+    ~ArrayList() override {
       for(size_t i = 0; i < m_ptr; i++) {
         m_array[i].~T();
       }
@@ -145,7 +144,7 @@ namespace Utils {
 
     const T& operator[](size_t i) const { return get(i); }
 
-    ArrayList<T>& operator=(const ArrayList<T>& other) {
+    ArrayList& operator=(const ArrayList& other) {
       if(this == &other) return *this;
       m_array = kmalloc<T>(sizeof(T) * other.m_size);
       m_size = other.m_size;
@@ -154,7 +153,7 @@ namespace Utils {
       return *this;
     }
 
-    ArrayList<T>& operator=(ArrayList<T>&& other) noexcept {
+    ArrayList& operator=(ArrayList&& other) noexcept {
       if(this == &other) return *this;
       m_array = other.m_array;
       m_size = other.m_size;
@@ -175,8 +174,8 @@ namespace Utils {
       return ErrorOr<T>::create_error(Error::create_from_string("No match found!"));
     }
 
-    ArrayList<T> find_all_matches(Callable<bool, const T&> predicate) {
-      ArrayList<T> matches;
+    ArrayList find_all_matches(Callable<bool, const T&> predicate) {
+      ArrayList matches;
       for(size_t i = 0; i < size(); i++) {
         if(predicate(get(i))) {
           matches.add(get(i));
@@ -223,16 +222,15 @@ namespace Utils {
     }
 
     class Iterator {
-    private:
       T* m_ptr;
     public:
-      Iterator(T* ptr) : m_ptr(ptr) {}
+      explicit Iterator(T* ptr) : m_ptr(ptr) {}
 
       T& operator*() const { return *m_ptr; }
       T* operator->() { return m_ptr; }
 
       Iterator& operator++() {
-        m_ptr++;
+        ++m_ptr;
         return *this;
       }
 

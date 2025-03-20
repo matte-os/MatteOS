@@ -38,17 +38,16 @@ namespace Kernel {
   }
 
   System::System() {
-    m_memory_regions = RefPtr<ArrayList<MemoryRegion>>(new ArrayList<MemoryRegion>());
+    m_memory_regions = RefPtr(new ArrayList<MemoryRegion>());
     m_number_of_harts = 0;
     init_harts();
-    m_mtime = (u64*) 0x0200BFF8;
     //Utils::DebugConsole::println("System: Initialised.");
 
     m_kernel_trap_frames = ArrayList<KernelTrapFrame*>();
     for(size_t i = 0; i < m_number_of_harts; i++) {
       auto* kernel_trap_frame = reinterpret_cast<KernelTrapFrame*>(MemoryManager::the().zalloc(1));
       kernel_trap_frame->cpu_id = i;
-      kernel_trap_frame->regs[2] = MemoryManager::the().get_stack_start();
+      kernel_trap_frame->regs[2] = MemoryManager::get_stack_start();
       DebugConsole::print("System: TrapFrame address: ");
       DebugConsole::print_ln_number(reinterpret_cast<u64>(kernel_trap_frame), 16);
 

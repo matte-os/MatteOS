@@ -17,8 +17,7 @@ namespace Utils {
      * @tparam T Type of elements in the array
      */
   template<typename T>
-  class Array : public RefCounted<Array<T>> {
-  private:
+  class Array final : public RefCounted<Array<T>> {
     T* m_array;   //!< The underlying array
     size_t m_size;//!< The size of the array
   public:
@@ -41,19 +40,19 @@ namespace Utils {
       m_array = array;
     }
 
-    Array(const Array<T>& other) : m_size(other.m_size) {
+    Array(const Array& other) : m_size(other.m_size) {
       m_array = new T[m_size];
       for(size_t i = 0; i < m_size; i++) {
         m_array[i] = other.m_array[i];
       }
     }
 
-    Array(Array<T>&& other) noexcept : m_size(other.m_size), m_array(other.m_array) {
+    Array(Array&& other) noexcept : m_size(other.m_size), m_array(other.m_array) {
       other.m_array = nullptr;
       other.m_size = 0;
     }
 
-    Array<T>& operator=(const Array<T>& other) {
+    Array& operator=(const Array& other) {
       if(this != &other) {
         m_size = other.m_size;
         delete[] m_array;
@@ -65,7 +64,7 @@ namespace Utils {
       return *this;
     }
 
-    Array<T>& operator=(Array<T>&& other) noexcept {
+    Array& operator=(Array&& other) noexcept {
       if(this != &other) {
         m_size = other.m_size;
         delete[] m_array;
@@ -85,7 +84,7 @@ namespace Utils {
     /**
          * @brief Destructor
          */
-    ~Array() {
+    ~Array() override {
       delete[] m_array;
     }
 

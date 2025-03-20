@@ -1,0 +1,28 @@
+/dts-v1/;
+
+/ {
+    description = "FIT image for Matte OS";
+    #address-cells = <1>;
+
+    images {
+        kernel {
+            description = "MatteOS Kernel Image";
+            data = /incbin/("./build/dist/riscv/kernel.bin.gz");
+            type = "kernel";
+            arch = "riscv";
+            os = "linux";
+            compression = "gzip";
+            load = <0x86000000>;
+            entry = <0x86000000>;
+        };
+    };
+
+    configurations {
+        default = "conf";
+
+        conf {
+            description = "Boot configuration";
+            kernel = "kernel";
+        };
+    };
+};
