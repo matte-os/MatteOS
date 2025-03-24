@@ -9,9 +9,10 @@
 #include <Kernel/Drivers/DriverManager.h>
 #include <Kernel/Drivers/VirtIO/MMIODevice.h>
 #include <Kernel/Drivers/VirtIO/VirtIODeviceIDs.h>
-#include <Kernel/FileSystem/VirtualFileSystem.h>
 #include <Kernel/FileSystem/RAMFS/RamFileSystem.h>
+#include <Kernel/FileSystem/VirtualFileSystem.h>
 #include <Kernel/Memory/MemoryManager.h>
+#include <Kernel/Process/Request.h>
 #include <Utils/Assertions.h>
 #include <Utils/DebugConsole.h>
 #include <Utils/Traits.h>
@@ -38,8 +39,22 @@ namespace Kernel {
   DeviceManager::DeviceManager() {
     auto& vfs = VirtualFileSystem::the();
 
-    auto devfs = RefPtr<FileSystem>(new RamFileSystem);
-    vfs.mount("/dev", devfs);
+    m_devfs = RefPtr(new RamFileSystem);
+    auto error_or_mount = vfs.mount("/dev", m_devfs);
+    if(error_or_mount.has_value()) {
+      DebugConsole::println("DeviceManager: DevFS mounted on /dev");
+    } else {
+      DebugConsole::println("DeviceManager: Failed to mount /dev");
+    }
+  }
+
+  ErrorOr<void> DeviceManager::create_dev_inode(RefPtr<Device> device) {
+    if(device->get_device_type() == DeviceType::Console) {
+      m_devfs->m_root->m_children.set("tty0",  RefPtr(new DevInode(device)));
+      DebugConsole::println("DeviceManager: Created DevInode");
+      return {};
+    }
+    return Error::create_from_string("Unsupported device type");
   }
 
   DeviceManager& DeviceManager::the() {
@@ -100,7 +115,7 @@ namespace Kernel {
   }
 
   void DeviceManager::load_drivers() {
-    for(const auto& device : m_devices) {
+    for(const auto& device: m_devices) {
       if(device->has_driver() || !device->needs_driver()) {
         continue;
       }

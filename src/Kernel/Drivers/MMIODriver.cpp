@@ -34,7 +34,9 @@ namespace Kernel {
         type = error_or_type.get_value()->get_value_as_string();
       }
 
-      DeviceManager::the().add_device(RefPtr<Device>(new ConsoleDevice(RefPtr<UnderlyingDevice>(new UniversalDevice(0, 0, "/soc/serial", type, address)), move(interrupts))));
+      auto console = RefPtr<Device>(new ConsoleDevice(RefPtr<UnderlyingDevice>(new UniversalDevice(0, 0, "/soc/serial", type, address)), move(interrupts)));
+      DeviceManager::the().add_device(console);
+      console->init();
       DebugConsole::println("MMIODriver: Added serial console device.");
     }
     DebugConsole::println("MMIODriver: Initialized.");

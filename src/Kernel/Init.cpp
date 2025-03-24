@@ -1,5 +1,8 @@
 #define KERNEL 1
 
+#include "FileSystem/RAMFS/RamFileSystem.h"
+
+
 #include <Kernel/Arch/riscv64//CPU.h>
 #include <Kernel/Arch/riscv64/Satp.h>
 #include <Kernel/Devices/DeviceManager.h>
@@ -36,6 +39,7 @@ using Kernel::PageTable;
 using Kernel::PageTableEntry;
 using Kernel::PhysicalAddress;
 using Kernel::ProcessManager;
+using Kernel::RamFileSystem;
 using Kernel::SATP;
 using Kernel::SatpMode;
 using Kernel::Scheduler;
@@ -53,38 +57,38 @@ PageTable* init_memory();
 void sizeof_test();
 
 extern "C" void kmain([[maybe_unused]] int heart_id, FDTHeader* header) {
-    DebugConsole::println("MatteOS: v0.0.1, U-Boot + OpenSBI, SPL configuration");
-    auto* page_table = init_memory();
-    System::init();
+  DebugConsole::println("MatteOS: v0.0.1, U-Boot + OpenSBI, SPL configuration");
+  auto* page_table = init_memory();
+  System::init();
 
-    //FIXME: We should have a trap handler setup here
-    //so when we get a trap we can handle it/halt the system.
-    KernelMemoryAllocator::the().debug();
-    auto& system = System::the();
-    system.set_default_trap_vector();
+  //FIXME: We should have a trap handler setup here
+  //so when we get a trap we can handle it/halt the system.
+  KernelMemoryAllocator::the().debug();
+  auto& system = System::the();
+  system.set_default_trap_vector();
 
-    DebugConsole::println("MemoryManager: Mapping the FDT.");
-    MemoryManager::the().identity_map_range(*page_table, reinterpret_cast<uintptr_t>(header),
-                                            reinterpret_cast<uintptr_t>(header) + *header->totalsize,
-                                            static_cast<u64>(EntryBits::READ_WRITE));
+  DebugConsole::println("MemoryManager: Mapping the FDT.");
+  MemoryManager::the().identity_map_range(*page_table, reinterpret_cast<uintptr_t>(header),
+                                          reinterpret_cast<uintptr_t>(header) + *header->totalsize,
+                                          static_cast<u64>(EntryBits::READ_WRITE));
 
-    DebugConsole::println("MatteOS: Setting up VirtualFileSystem.");
-    VirtualFileSystem::init();
+  DebugConsole::println("MatteOS: Setting up VirtualFileSystem.");
+  VirtualFileSystem::init();
 
-    DebugConsole::println("MatteOS: Setting up devices.");
-    DeviceTree::init(header);
-    DeviceManager::init();
-    system.install_from_device_tree();
+  DebugConsole::println("MatteOS: Setting up devices.");
+  DeviceTree::init(header);
+  DeviceManager::init();
+  system.install_from_device_tree();
 
-    DriverManager::init();
-    DebugConsole::println("MatteOS: Initializing drivers.");
-    DriverManager::the().init_drivers();
+  DriverManager::init();
+  DebugConsole::println("MatteOS: Initializing drivers.");
+  DriverManager::the().init_drivers();
 
-    DebugConsole::println("MatteOS: Loading the device drivers.");
-    DeviceManager::the().load_drivers();
+  DebugConsole::println("MatteOS: Loading the device drivers.");
+  DeviceManager::the().load_drivers();
 
-    auto block_devices = DeviceManager::the().get_devices_of_type(Kernel::DeviceType::Block);
-    /*
+  auto block_devices = DeviceManager::the().get_devices_of_type(Kernel::DeviceType::Block);
+  /*
     DebugConsole::println("MatteOS: Block Device write test.");
     for(size_t i = 0; i < block_devices.size(); i++) {
       auto device = block_devices[i];
@@ -101,68 +105,67 @@ extern "C" void kmain([[maybe_unused]] int heart_id, FDTHeader* header) {
       }
     }*/
 
-    if (block_devices.size() == 0) {
-        DebugConsole::println("MatteOS: No block devices found.");
+  if(block_devices.size() == 0) {
+    DebugConsole::println("MatteOS: No block devices found.");
+  } else {
+    DebugConsole::println("MatteOS: Setting up the root filesystem.");
+    if(const auto root_inode = VirtualFileSystem::the().device_load_filesystem(block_devices[0]); root_inode.has_error()) {
+      DebugConsole::println("MatteOS: Failed to load root filesystem.");
     } else {
-        DebugConsole::println("MatteOS: Setting up the root filesystem.");
-        if (const auto root_inode = VirtualFileSystem::the().device_load_filesystem(block_devices[0]); root_inode.
-            has_error()) {
-            DebugConsole::println("MatteOS: Failed to load root filesystem.");
-        } else {
-            DebugConsole::println("MatteOS: Mounting the root filesystem.");
-            if (const auto error_or_mount = VirtualFileSystem::the().mount_root_fs(root_inode.get_value());
-                error_or_mount.has_error()) {
-                DebugConsole::println("MatteOS: Unable to mount the root filesystem.");
-            } else {
-                DebugConsole::println("MatteOS: Root filesystem loaded and mounted.");
-            }
-        }
+      DebugConsole::println("MatteOS: Mounting the root filesystem.");
+      if(const auto error_or_mount = VirtualFileSystem::the().mount_root_fs(root_inode.get_value());
+         error_or_mount.has_error()) {
+        DebugConsole::println("MatteOS: Unable to mount the root filesystem.");
+      } else {
+        DebugConsole::println("MatteOS: Root filesystem loaded and mounted.");
+      }
     }
+  }
 
-    DebugConsole::println("MatteOS: Setting up processes.");
-    ProcessManager::init(page_table);
+  DebugConsole::println("MatteOS: Setting up processes.");
+  ProcessManager::init(page_table);
 
-    //TODO: Here we should try to load the init process from the rootfs
-    // or load the in-memory init process
+  //TODO: Here we should try to load the init process from the rootfs
+  // or load the in-memory init process
 
-    ProcessManager::the().create_initial_processes();
+  ProcessManager::the().create_initial_processes();
 
-    DebugConsole::println("MatteOS: Setting up interrupts.");
-    InterruptManager::init();
-    InterruptManager::the().set_threshold(0);
-    InterruptManager::the().enable_device_interrupts();
+  DebugConsole::println("MatteOS: Setting up interrupts.");
+  InterruptManager::init();
+  InterruptManager::the().set_threshold(0);
+  InterruptManager::the().enable_device_interrupts();
 
-    Logger::init();
-    Logger::the().try_console_lookup();
-    dbgln("MatteOS: Logger initialized.");
-    DebugConsole::switch_to_device();
+  Logger::init();
+  Logger::the().try_console_lookup();
+  dbgln("MatteOS: Logger initialized.");
+  DebugConsole::switch_to_device();
 
-    Timer::init();
-    Scheduler::init();
-    SyscallManager::init();
-    DebugConsole::println("Initialization completed");
+  Timer::init();
+  Scheduler::init();
+  SyscallManager::init();
+  DebugConsole::println("Initialization completed");
 
-    DebugConsole::print("MatteOS: The state of SIE is ");
-    DebugConsole::print_ln_number(CPU::read_sie(), 16);
+  DebugConsole::print("MatteOS: The state of SIE is ");
+  DebugConsole::print_ln_number(CPU::read_sie(), 16);
 
-    //TODO: Here we should start the init process and the scheduler
-    Scheduler::the().start_scheduling();
+  //TODO: Here we should start the init process and the scheduler
+  Scheduler::the().start_scheduling();
 }
 
 PageTable* init_memory() {
-    DebugConsole::println("Initializing memory.");
-    MemoryManager::init();
-    auto* page_table = reinterpret_cast<PageTable*>(MemoryManager::the().alloc(1));
+  DebugConsole::println("Initializing memory.");
+  MemoryManager::init();
+  auto* page_table = reinterpret_cast<PageTable*>(MemoryManager::the().alloc(1));
 
-    MemoryManager::the().map_system_defaults(*page_table);
+  MemoryManager::the().map_system_defaults(*page_table);
 
-    DebugConsole::println("MemoryManager: Initial mapping done.");
-    KernelMemoryAllocator::init(MemoryManager::the().zalloc(1));
+  DebugConsole::println("MemoryManager: Initial mapping done.");
+  KernelMemoryAllocator::init(MemoryManager::the().zalloc(1));
 
-    DebugConsole::println("System: Setting up SATP.");
-    auto satp =
-            Kernel::CPU::build_satp(Kernel::SatpMode::Sv39, 0, reinterpret_cast<uintptr_t>(page_table));
-    DebugConsole::println("System: Writing SATP.");
-    CPU::write_satp(*reinterpret_cast<u64*>(&satp));
-    return page_table;
+  DebugConsole::println("System: Setting up SATP.");
+  auto satp =
+          Kernel::CPU::build_satp(Kernel::SatpMode::Sv39, 0, reinterpret_cast<uintptr_t>(page_table));
+  DebugConsole::println("System: Writing SATP.");
+  CPU::write_satp(*reinterpret_cast<u64*>(&satp));
+  return page_table;
 }

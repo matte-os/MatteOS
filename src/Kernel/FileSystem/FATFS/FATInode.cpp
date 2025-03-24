@@ -4,6 +4,7 @@
 
 #include <Kernel/FileSystem/FATFS/FATFileSystem.h>
 #include <Kernel/FileSystem/FATFS/FATInode.h>
+#include <Kernel/Process/Request.h>
 
 namespace Kernel {
   FATInode::FATInode(RefPtr<FATFileSystem>&& fs, FAT::DirectoryEntry entry, String&& name) : m_fs(move(fs)), m_entry(entry), m_name(move(name)) {}
@@ -55,10 +56,12 @@ namespace Kernel {
     return ErrorOr<void>::create({});
   }
 
-  ErrorOr<size_t> FATInode::read(u8* buffer, size_t size, size_t offset) {
+  ErrorOr<Request<size_t>> FATInode::read(u8* buffer, size_t size, size_t offset) {
+    return Error::create_from_string("Not implemented");
   }
 
   ErrorOr<size_t> FATInode::write(const u8* buffer, size_t size, size_t offset) {
+    return Error::create_from_string("Not implemented");
   }
 
   bool FATInode::is_directory() {

@@ -6,18 +6,18 @@
 #include <Kernel/Security/Credentials.h>
 #include <Utils/Errors/ErrorOr.h>
 #include <Utils/Maps/HashMap.h>
+#include <Utils/Pair.h>
 #include <Utils/Pointers/RefPtr.h>
 #include <Utils/Strings/String.h>
-#include <Utils/Pair.h>
 
 namespace Kernel {
+  using Utils::ArrayList;
   using Utils::ErrorOr;
   using Utils::HashMap;
+  using Utils::Pair;
   using Utils::RefPtr;
   using Utils::String;
   using Utils::StringView;
-  using Utils::Pair;
-  using Utils::ArrayList;
 
   class MountFlags {
   public:
@@ -26,7 +26,7 @@ namespace Kernel {
     }
   };
 
-  class MountContext : public RefCounted<MountContext> {
+  class MountContext final : public RefCounted<MountContext> {
     RefPtr<FileSystem> m_file_system;
     u64 m_mount_flags;
 

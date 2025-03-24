@@ -12,7 +12,6 @@ namespace Utils {
   class String {
     friend class StringView;
 
-  private:
     RefPtr<StringValue> m_value;
 
     explicit String(RefPtr<StringValue> value) : m_value(move(value)) {}

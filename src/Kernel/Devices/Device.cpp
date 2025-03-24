@@ -4,6 +4,7 @@
 
 #include <Kernel/Devices/Device.h>
 #include <Kernel/Drivers/Storage/VirtIO/BlockIODriver.h>
+#include <Kernel/Devices/DeviceManager.h>
 
 namespace Kernel {
   using Utils::as_underlying;
@@ -151,5 +152,9 @@ namespace Kernel {
   }
 
   void UniversalDevice::reset() {
+  }
+
+  ErrorOr<void> Device::create_dev_inode() {
+      return DeviceManager::the().create_dev_inode(RefPtr(this));
   }
 }// namespace Kernel

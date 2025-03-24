@@ -2,6 +2,7 @@
 #include <Kernel/FileSystem/File.h>
 #include <Kernel/FileSystem/VirtualFileSystem.h>
 #include <Kernel/Process/Process.h>
+#include <Kernel/Process/ProcessManager.h>
 #include <Kernel/Process/Userspace.h>
 
 using Utils::ErrorOr;
@@ -49,5 +50,36 @@ namespace Kernel {
     DebugConsole::print("Closing file descriptor: ");
     DebugConsole::print_ln_number(fd, 10);
     return ErrorOr<uintptr_t, SysError>::create(0);
+  }
+
+  ErrorOr<uintptr_t, SysError> Process::handle_read(int file_descriptor, Userspace<u8*> buffer, size_t size) {
+    DebugConsole::print("Reading from file descriptor: ");
+    DebugConsole::print_ln_number(file_descriptor, 10);
+    DebugConsole::print("Reading from buffer: ");
+    DebugConsole::print_ln_number(static_cast<u64>(buffer.virtual_address()), 16);
+    DebugConsole::print("Buffer size: ");
+    DebugConsole::print_ln_number(size, 10);
+    auto file = m_fd_table[file_descriptor];
+    auto error_or_buffer = buffer.get(m_page_table);
+
+    if(error_or_buffer.has_error()) {
+      return SysError::Error;
+    }
+
+    auto error_or_request = file->read(error_or_buffer.get_value(), size);
+
+    if(error_or_request.has_error()) {
+      return SysError::Error;
+    }
+
+    auto request = error_or_request.get_value();
+
+    if(request.is_blocked()) {
+      request.assign_pid(m_pid);
+      ProcessManager::the().block_process(this);
+      return SysError::Blocked;
+    }
+
+    return request.release_value();
   }
 }// namespace Kernel

@@ -3,9 +3,9 @@
 
 namespace Kernel {
     enum class PageStatus : u8 {
-        FREE = 0,
-        TAKEN = 1 << 0,
-        LAST = 1 << 1
+        Free,
+        Taken,
+        Last
     };
 
     class Page{
@@ -13,9 +13,9 @@ namespace Kernel {
         public:
             Page();
             ~Page();
-            bool is_last();
-            bool is_taken();
-            bool is_free();
+            bool is_last() const;
+            bool is_taken() const;
+            bool is_free() const;
             void clear();
             void set_status(PageStatus status);
     };

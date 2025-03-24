@@ -81,7 +81,6 @@ namespace Utils {
   protected:
     Variant<ResultType, ErrorType> m_value_or_error;
 
-  protected:
     ErrorOr() = default;
 
   public:
@@ -105,7 +104,6 @@ namespace Utils {
       }
     }
 
-  public:
     static ErrorOr<T, E> create(T& value) { return ErrorOr<T, E>(value); }
 
     static ErrorOr<T, E> create(T&& value) { return ErrorOr<T, E>(move(value)); }
@@ -143,17 +141,25 @@ namespace Utils {
 
   class Empty {};
 
-  template<>
-  class ErrorOr<void> : public ErrorOr<Empty> {
+  template<typename E>
+  class ErrorOr<void, E> : public ErrorOr<Empty, E> {
   public:
     using ResultType = Empty;
-    using ErrorType = Error;
-    ErrorOr(const ErrorOr<Empty, Error>& other) : ErrorOr<Empty>() {
-      if(other.has_error()) {
-        m_value_or_error.template set<ErrorType>(other.get_error());
-      } else {
-        m_value_or_error.template set<ResultType>(other.get_value());
-      }
+    using ErrorType = E;
+
+    // Default constructor for success
+    ErrorOr() {
+      this->m_value_or_error.template set<ResultType>(Empty{});
     }
+
+    // Constructor from ErrorType
+    ErrorOr(ErrorType error) {
+      this->m_value_or_error.template set<ErrorType>(error);
+    }
+
+    ErrorOr(const ErrorOr<Empty, E>& other)
+        : ErrorOr<Empty, E>(other) {}// Properly initialize the base class
   };
+
+
 }// namespace Utils

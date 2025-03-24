@@ -13,7 +13,6 @@ namespace Kernel {
 
   template<Pointer T>
   class Userspace {
-  private:
     using PointerType = typename Utils::RemovePointer<T>::type;
     PointerType* m_ptr;
 

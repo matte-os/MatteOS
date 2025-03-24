@@ -55,18 +55,11 @@ namespace Kernel {
   void NS16550ADriver::shutdown() {
   }
 
-  ErrorOr<String> NS16550ADriver::read() {
-    String result;
-    while(true) {
-      auto error_or_char = read_char();
-      if(error_or_char.has_error()) {
-        break;
-      }
-
-      result += error_or_char.get_value();
+  ErrorOr<String> NS16550ADriver::read_line() {
+    if(!m_lines.is_empty()) {
+      return m_lines.pop();
     }
-
-    return result;
+    return Error::create_from_string("Buffer is empty.");
   }
 
   void NS16550ADriver::write(String& message) {
@@ -91,18 +84,37 @@ namespace Kernel {
   }
 
   void NS16550ADriver::handle_interrupt(u64 interrupt_id) {
+    /*
+    *while(true) {
+      auto error_or_char = read_char();
+      if(error_or_char.has_error()) {
+        break;
+      }
+
+      result += error_or_char.get_value();
+    }
+     *
+     */
     auto error_or_char = read_char();
     if(error_or_char.has_error()) {
       DebugConsole::println("NS16550ADriver: No data available.");
-      return;
     } else {
+      auto value = error_or_char.get_value();
+      if(value == '\n') {
+        m_lines.add(m_buffer);
+        m_buffer = "";
+        DebugConsole::println("NS16550ADriver: Read line.");
+      } else {
+        m_buffer += value;
+      }
+
       DebugConsole::print("NS16550ADriver: Received character: ");
       DebugConsole::print(error_or_char.get_value());
       DebugConsole::print('\n');
     }
   }
 
-  ErrorOr<RefPtr<Kernel::DeviceDriver>> NS16550ADriverDescriptor::instantiate_driver(RefPtr<Device> device) {
+  ErrorOr<RefPtr<DeviceDriver>> NS16550ADriverDescriptor::instantiate_driver(RefPtr<Device> device) {
     DebugConsole::println("NS16550ADriverDescriptor: Instantiating driver.");
     return ErrorOr<RefPtr<DeviceDriver>>::create(RefPtr<DeviceDriver>(new NS16550ADriver()));
   }

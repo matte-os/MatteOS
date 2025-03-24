@@ -21,6 +21,10 @@ namespace Kernel {
     VirtualAddress(u64 value) {
       *(u64*) this = value;
     };
+
+    explicit operator u64() {
+      return *reinterpret_cast<u64*>(this);
+    }
   };
 
   static_assert(sizeof(VirtualAddress) == 8, "VirtualAddress size is not 8 bytes");

@@ -10,6 +10,7 @@ set(SOURCE Assertions.cpp
         kmalloc.cpp
         Types.cpp
         Strings/Formatter.cpp
+        Math.cpp
 )
 include_directories(SYSTEM ${SOURCE_DIRECTORY})
 add_library(Utils OBJECT ${SOURCE})

@@ -2,29 +2,28 @@
 
 namespace Kernel {
   Page::Page() {
-    m_status = PageStatus::FREE;
+    m_status = PageStatus::Free;
   }
 
-  Page::~Page() {
+  Page::~Page() = default;
+
+  bool Page::is_free() const {
+    return m_status == PageStatus::Free;
   }
 
-  bool Page::is_free() {
-    return m_status == PageStatus::FREE;
+  bool Page::is_taken() const {
+    return m_status == PageStatus::Taken;
   }
 
-  bool Page::is_taken() {
-    return m_status == PageStatus::TAKEN;
-  }
-
-  bool Page::is_last() {
-    return m_status == PageStatus::LAST;
+  bool Page::is_last() const {
+    return m_status == PageStatus::Last;
   }
 
   void Page::clear() {
-    m_status = PageStatus::FREE;
+    m_status = PageStatus::Free;
   }
 
-  void Page::set_status(PageStatus status) {
+  void Page::set_status(const PageStatus status) {
     this->m_status = status;
   }
 };// namespace Kernel

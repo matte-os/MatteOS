@@ -5,10 +5,11 @@
 
 namespace Kernel {
   class RamFileSystem final : public FileSystem {
+    friend class DeviceManager;
     RefPtr<RamInode> m_root;
 
   public:
-    RamFileSystem() = default;
+    RamFileSystem();
     ~RamFileSystem() override = default;
 
     String name() const override { return "ramfs"; };

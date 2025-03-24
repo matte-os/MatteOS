@@ -1,10 +1,12 @@
 #pragma once
 
-#include <Kernel/Devices//Device.h>
+#include <Kernel/Devices/Device.h>
+#include <Kernel/Process/Request.h>
 
 namespace Kernel {
 
   class ConsoleDevice : public Device {
+    ArrayList<RequestContext> m_requests;
   public:
     explicit ConsoleDevice(RefPtr<UnderlyingDevice> underlying_device, ArrayList<u64>&& interrupts) : Device(move(underlying_device), move(interrupts), DeviceType::Console, true) {}
 
@@ -12,10 +14,9 @@ namespace Kernel {
     ErrorOr<void> write(char c);
     ErrorOr<void> write(String message);
     ErrorOr<String> read();
-    ErrorOr<char> read_char();
     ErrorOr<void> handle_interrupt(u64 interrupt_id) override;
 
-    bool supports_read_string() const;
+    ErrorOr<Request<String>> read_async();
   };
 
 }// namespace Kernel

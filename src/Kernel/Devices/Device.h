@@ -150,7 +150,6 @@ namespace Kernel {
   };
 
   class Device : public RefCounted<Device> {
-  private:
     DeviceType m_device_type;
     ArrayList<u64> m_interrupts;
     bool m_needs_driver;
@@ -158,6 +157,8 @@ namespace Kernel {
   protected:
     RefPtr<DeviceDriver> m_driver;
     RefPtr<UnderlyingDevice> m_underlying_device;
+
+    ErrorOr<void> create_dev_inode();
 
   public:
     explicit Device(RefPtr<UnderlyingDevice> underlying_device,

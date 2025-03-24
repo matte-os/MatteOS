@@ -1,7 +1,9 @@
-//
-// Created by matejbucek on 3.11.22.
-//
-
+/**
+ * @file SyscallManager.cpp
+ * @author Matěj Bucek
+ *
+ * This code was inspired by SerenityOS's implementation.
+ */
 #include <Kernel/API/Syscall.h>
 #include <Kernel/Process/Process.h>
 #include <Kernel/Syscalls/SyscallManager.h>
@@ -22,9 +24,7 @@ namespace Kernel {
 #undef SYSCALL_HANDLER
 
   void SyscallManager::init() {
-    if(s_syscall_manager == nullptr) {
-      s_syscall_manager = new SyscallManager();
-    }
+    if(s_syscall_manager == nullptr) { s_syscall_manager = new SyscallManager(); }
   }
 
   SyscallManager& SyscallManager::the() {
@@ -32,16 +32,14 @@ namespace Kernel {
     return *s_syscall_manager;
   }
 
-  void SyscallManager::handle_syscall(Process* process, u64 syscall_id) {
-    if(syscall_id >= (u64) Syscalls::__Count) {
-      return;
-    }
+  ErrorOr<void, SysError> SyscallManager::handle_syscall(Process* process, u64 syscall_id) {
+    if(syscall_id >= (u64) Syscalls::__Count) { return {}; }
 
     auto handler = syscall_handlers[syscall_id];
     DebugConsole::print("SyscallManager: Process ");
     DebugConsole::print_number((u64) process, 16);
     DebugConsole::print(" called syscall ");
-    DebugConsole::print_ln_number(syscall_id, 10);
+    DebugConsole::println(syscall_names[syscall_id]);
 
     auto trap_frame = process->get_thread()->get_trap_frame();
 
@@ -66,16 +64,23 @@ namespace Kernel {
     DebugConsole::print(", ");
     DebugConsole::print_number(arg5, 16);
     DebugConsole::print(", ");
-    DebugConsole::print_ln_number(arg6, 16);
+    DebugConsole::print_number(arg6, 16);
+    DebugConsole::print(", ");
+    DebugConsole::print_ln_number(syscall_id, 16);
 
 
-    auto result = (process->*(handler))(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+    auto result = (process->*handler)(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
     if(result.has_error()) {
+      if(result.get_error() == SysError::Blocked) {
+        return SysError::Blocked;
+      }
       DebugConsole::println("SyscallManager: Error in syscall handler.");
-      trap_frame->set_register<u64>(RegisterOffset::GP0, static_cast<u64>(result.get_error()));
+      trap_frame->set_register<u64>(RegisterOffset::GP0, static_cast<u64>(-1));
     } else {
       DebugConsole::println("SyscallManager: Syscall executed successfully.");
       trap_frame->set_register<u64>(RegisterOffset::GP0, result.get_value());
     }
+
+    return {};
   }
 }// namespace Kernel

@@ -15,7 +15,6 @@ set(SOURCE
         FileSystem/VirtualFileSystem.cpp
         FileSystem/FileSystem.cpp
         FileSystem/Inode.cpp
-        FileSystem/FileDescriptor.cpp
         FileSystem/FileDescriptorTable.cpp
         FileSystem/File.cpp
         FileSystem/OpenFileDescriptor.cpp
@@ -31,6 +30,7 @@ set(SOURCE
         Syscalls/SyscallManager.cpp
         Syscalls/SyscallFile.cpp
         Syscalls/SyscallDebug.cpp
+        Syscalls/SyscallProcess.cpp
         Devices/DeviceManager.cpp
         Drivers/DriverManager.cpp
         Drivers/DeviceDriver.cpp

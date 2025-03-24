@@ -21,12 +21,11 @@ using Utils::RefPtr;
 
 namespace Kernel {
   class System {
-  private:
     size_t m_number_of_harts;
     RefPtr<ArrayList<MemoryRegion>> m_memory_regions;
     u64* m_mtime;
     ArrayList<KernelTrapFrame*> m_kernel_trap_frames;
-    static const size_t TRAP_VECTOR_ADDRESS = 0x1000;
+    static constexpr size_t TRAP_VECTOR_ADDRESS = 0x1000;
 
   public:
     static void init();

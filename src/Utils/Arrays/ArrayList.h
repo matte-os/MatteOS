@@ -222,8 +222,11 @@ namespace Utils {
       return -1;
     }
 
+    bool is_empty() const {
+      return m_size == 0;
+    }
+
     class Iterator {
-    private:
       T* m_ptr;
     public:
       Iterator(T* ptr) : m_ptr(ptr) {}

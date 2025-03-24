@@ -50,7 +50,7 @@ namespace Kernel {
     s_memory_manager->m_heap_start = get_heap_start();
     s_memory_manager->m_heap_size = get_heap_size();
     s_memory_manager->m_first_page = (Page*) get_heap_start();
-    s_memory_manager->m_first_page[0].set_status(PageStatus::LAST);
+    s_memory_manager->m_first_page[0].set_status(PageStatus::Last);
     s_memory_manager->m_number_of_pages = numberOfPages;
     for(size_t i = 1; i < numberOfPages; i++) {
       s_memory_manager->m_first_page[i].clear();
@@ -73,9 +73,9 @@ namespace Kernel {
 
       if(found) {
         for(size_t k = i; k < i + pages - 1; k++) {
-          m_first_page[k].set_status(PageStatus::TAKEN);
+          m_first_page[k].set_status(PageStatus::Taken);
         }
-        m_first_page[i + pages - 1].set_status(PageStatus::LAST);
+        m_first_page[i + pages - 1].set_status(PageStatus::Last);
         return (size_t*) (m_alloc_start + PAGE_SIZE * i);
       }
     }

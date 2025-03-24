@@ -1,0 +1,71 @@
+digraph DTS {
+  size="10,10";
+  fontsize=12;
+  nodesep=0.1;
+  ranksep=0.1;
+  dpi=300;
+  rankdir=LR;
+
+  node [shape=plaintext, fontsize=12];
+  edge [len=0.1];
+
+  root [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+    <tr><td colspan="2"><b>/</b></td></tr>
+    <tr><td>compatible</td><td>riscv-virtio</td></tr>
+    <tr><td>model</td><td>riscv-virtio,qemu</td></tr>
+  </table>>];
+
+  memory [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+    <tr><td colspan="2"><b>memory@80000000</b></td></tr>
+    <tr><td>device_type</td><td>memory</td></tr>
+    <tr><td>reg</td><td>0x00000000 0x80000000 0x00000000 0x80000000</td></tr>
+  </table>>];
+
+  cpus [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+    <tr><td colspan="2"><b>cpus</b></td></tr>
+    <tr><td>timebase-frequency</td><td>0x00989680</td></tr>
+  </table>>];
+
+  cpu0 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+    <tr><td colspan="2"><b>cpu@0</b></td></tr>
+    <tr><td>device_type</td><td>cpu</td></tr>
+    <tr><td>reg</td><td>0x00000000</td></tr>
+    <tr><td>status</td><td>okay</td></tr>
+    <tr><td>compatible</td><td>riscv</td></tr>
+    <tr><td>riscv,isa-extensions</td><td>i, m, a, f, d, c, h</td></tr>
+    <tr><td>mmu-type</td><td>riscv,sv57</td></tr>
+  </table>>];
+
+  soc [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+    <tr><td colspan="2"><b>soc</b></td></tr>
+    <tr><td>compatible</td><td>simple-bus</td></tr>
+  </table>>];
+
+  serial [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+    <tr><td colspan="2"><b>serial@10000000</b></td></tr>
+    <tr><td>interrupts</td><td>0x0000000a</td></tr>
+    <tr><td>reg</td><td>0x00000000 0x10000000 0x00000000 0x00000100</td></tr>
+    <tr><td>compatible</td><td>ns16550a</td></tr>
+  </table>>];
+
+  virtio1 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+    <tr><td colspan="2"><b>virtio_mmio@10008000</b></td></tr>
+    <tr><td>interrupts</td><td>0x00000008</td></tr>
+    <tr><td>reg</td><td>0x00000000 0x10008000 0x00000000 0x00001000</td></tr>
+    <tr><td>compatible</td><td>virtio,mmio</td></tr>
+  </table>>];
+
+  plic [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="3">
+    <tr><td colspan="2"><b>plic@c000000</b></td></tr>
+    <tr><td>reg</td><td>0x00000000 0x0c000000 0x00000000 0x00600000</td></tr>
+    <tr><td>compatible</td><td>sifive,plic-1.0.0, riscv,plic0</td></tr>
+  </table>>];
+
+  root -> memory;
+  root -> cpus;
+  cpus -> cpu0;
+  root -> soc;
+  soc -> serial;
+  soc -> virtio1;
+  soc -> plic;
+}

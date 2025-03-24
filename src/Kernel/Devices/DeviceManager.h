@@ -11,6 +11,7 @@
 #include <Utils/Arrays/ArrayList.h>
 #include <Utils/Errors/ErrorOr.h>
 #include <Utils/Function.h>
+#include <Utils/Maps/HashMap.h>
 #include <Utils/Pointers/RefCounted.h>
 #include <Utils/Pointers/RefPtr.h>
 #include <Utils/Strings/String.h>
@@ -30,7 +31,12 @@ namespace Kernel {
 
   class DeviceManager {
     ArrayList<RefPtr<Device>> m_devices;
+    RefPtr<RamFileSystem> m_devfs;
     DeviceManager();
+
+  protected:
+    friend class Device;
+    ErrorOr<void> create_dev_inode(RefPtr<Device> device);
 
   public:
     static void init();

@@ -31,11 +31,12 @@ namespace Kernel {
   enum class ProcessState : u8 {
     Running,
     Sleeping,
-    Waiting,
+    Blocked,
     Dead
   };
 
   class Process {
+    friend class ProcessManager;
   protected:
     size_t m_pid;
     size_t m_gid;
@@ -59,6 +60,9 @@ namespace Kernel {
     ErrorOr<uintptr_t, SysError> handle_open(Userspace<char*> path, u64 flags);
     ErrorOr<uintptr_t, SysError> handle_close(u64);
     ErrorOr<uintptr_t, SysError> handle_dbgln(Userspace<char*> message);
+    ErrorOr<uintptr_t, SysError> handle_read(int file_descriptor, Userspace<u8*> buffer, size_t size);
+    ErrorOr<uintptr_t, SysError> handle_exit(int exit_code);
+
 
     void map_memory_region(MemoryRegion&);
     void unmap_memory_region(MemoryRegion&);

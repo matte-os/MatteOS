@@ -2,6 +2,7 @@
 
 #include <Kernel/FileSystem/FileOpenMode.h>
 #include <Kernel/Forwards.h>
+#include <Kernel/Process/Request.h>
 #include <Kernel/Security/Credentials.h>
 #include <Utils/Arrays/ArrayList.h>
 #include <Utils/Errors/ErrorOr.h>
@@ -26,7 +27,7 @@ namespace Kernel {
 
     virtual ErrorOr<void> check_credentials(const Credentials& credentials, const FileOpenMode& mode) = 0;
 
-    virtual ErrorOr<size_t> read(u8* buffer, size_t size, size_t offset) = 0;
+    virtual ErrorOr<Request<size_t>> read(u8* buffer, size_t size, size_t offset) = 0;
     virtual ErrorOr<size_t> write(const u8* buffer, size_t size, size_t offset) = 0;
     virtual RefPtr<FileSystem> fs() = 0;
 
@@ -41,6 +42,7 @@ namespace Kernel {
   class DirectoryEntry : public RefCounted<DirectoryEntry> {
   private:
     String m_name;
+
   public:
     DirectoryEntry(String name) : m_name(name) {}
 

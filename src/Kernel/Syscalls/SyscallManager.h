@@ -24,6 +24,6 @@ namespace Kernel {
   public:
     static void init();
     static SyscallManager& the();
-    void handle_syscall(Process* process, u64 syscall_id);
+    ErrorOr<void, SysError> handle_syscall(Process* process, u64 syscall_id);
   };
 }// namespace Kernel::System

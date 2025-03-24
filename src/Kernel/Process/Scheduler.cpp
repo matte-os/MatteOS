@@ -34,20 +34,21 @@ namespace Kernel {
     }
 
     const auto& process_list = process_manager.get_process_list();
-    process_list->rotate_left();
-    auto* first = process_list->first();
 
-    DebugConsole::print("Scheduler: Scheduling process ");
-    DebugConsole::print_ln_number(reinterpret_cast<uintptr_t>(first), 16);
+    Process* first = nullptr;
+    while(true) {
+      process_list->rotate_left();
+      first = process_list->first();
 
-    switch(first->get_state()) {
-      case ProcessState::Running: {
-        //next_trap_frame = first->get_threads()->get(0)->get_trap_frame();
-      }; break;
-      //FIXME: We should implement SLEEPING threads.
-      default: {
+      DebugConsole::print("Scheduler: Scheduling process ");
+      DebugConsole::print_ln_number(reinterpret_cast<uintptr_t>(first), 16);
+
+
+      if(first->get_state() == ProcessState::Running) {
+        break;
       }
     }
+
     lock.unlock();
 
     System::get_current_kernel_trap_frame()->current_process = first;

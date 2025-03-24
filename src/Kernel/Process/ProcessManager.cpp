@@ -84,6 +84,11 @@ namespace Kernel {
                                                 MemoryManager::get_context_switching_end(),
                                                 static_cast<u64>(EntryBits::READ_EXECUTE));
 
+        MemoryManager::the().identity_map_range(*root, MemoryManager::get_data_start(), MemoryManager::get_data_end(), (u64) (EntryBits::USER_READ_WRITE));
+        MemoryManager::the().identity_map_range(*root, MemoryManager::get_bss_start(), MemoryManager::get_bss_end(), (u64) (EntryBits::USER_READ_WRITE));
+        MemoryManager::the().identity_map_range(*root, MemoryManager::get_rodata_start(), MemoryManager::get_rodata_end(), (u64) (EntryBits::USER_READ));
+      
+
         auto satp = CPU::build_satp(SatpMode::Sv39, 1, (uintptr_t) root);
 
         DebugConsole::print("The dummy process PC: ");
@@ -102,11 +107,11 @@ namespace Kernel {
         // Map the stack
         MemoryManager::the().map_range(*root, STACK_ADDRESS - 0x1000,
                                        STACK_ADDRESS,
-                                       reinterpret_cast<uintptr_t>(trap_frame),
+                                       reinterpret_cast<uintptr_t>(trap_frame->trap_stack),
                                        (size_t) EntryBits::USER_READ_WRITE);
 
         m_processes->add(new Process(m_pid_counter++, thread,
-                                     m_kernel_process->get_page_table(),
+                                     root,
                                      ProcessState::Running));
         return root;
     }
@@ -125,6 +130,25 @@ namespace Kernel {
     }
 
     ProcessManager::~ProcessManager() {
-        DebugConsole::println("ProcessManager destroyed");
+      DebugConsole::println("ProcessManager destroyed");
+    }
+
+    ErrorOr<Process> ProcessManager::get_process(u64 pid) {
+      return Error::create_from_string("Process not found");
+    }
+
+    void ProcessManager::block_process(u64 pid) {
+
+    }
+
+    void ProcessManager::unblock_process(u64 pid) {
+    }
+
+    void ProcessManager::block_process(Process* process) {
+      process->m_state = ProcessState::Blocked;
+    }
+
+    void ProcessManager::unblock_process(Process* process) {
+      process->m_state = ProcessState::Running;
     }
 } // namespace Kernel

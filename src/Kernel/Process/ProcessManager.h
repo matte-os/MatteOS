@@ -34,6 +34,12 @@ public:
   void create_initial_processes();
   ~ProcessManager();
 
+  ErrorOr<Process> get_process(u64 pid);
+  void block_process(u64 pid);
+  void unblock_process(u64 pid);
+  void block_process(Process* process);
+  void unblock_process(Process* process);
+
 private:
   explicit ProcessManager(PageTable *kernel_root_table);
   KernelProcess &initialize_kernel_process(PageTable *kernel_root_table);

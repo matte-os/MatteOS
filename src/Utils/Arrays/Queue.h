@@ -90,6 +90,10 @@ namespace Utils {
         ~LinkedQueue() override {
             clear();
         }
+
+        bool is_empty() const {
+            return m_first_element == nullptr;
+        }
     };
 
     template<typename T>

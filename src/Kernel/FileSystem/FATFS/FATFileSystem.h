@@ -25,7 +25,6 @@ namespace Kernel {
   class FATFileSystem : public BlockBackedFileSystem {
   private:
     friend class FATInode;
-    OpenFileDescriptorTable m_open_files;
     FATType m_fat_type;
     BootSector* m_fat_boot_sector;
     RefPtr<FATInode> m_root;
