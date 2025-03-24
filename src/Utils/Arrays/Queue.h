@@ -66,7 +66,7 @@ namespace Utils {
         }
 
         T pop() {
-            runtime_assert(!m_first_element, "Queue is empty");
+            runtime_assert(m_first_element, "Queue is empty");
             auto temp = m_first_element->m_element;
             auto old_first = m_first_element;
             m_first_element = m_first_element->m_next;

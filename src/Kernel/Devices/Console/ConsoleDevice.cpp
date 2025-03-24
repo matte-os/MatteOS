@@ -1,5 +1,7 @@
 #include <Kernel/Devices/Console/ConsoleDevice.h>
 #include <Kernel/Drivers/Console/ConsoleDeviceDriver.h>
+#include <Kernel/Process/ProcessManager.h>
+#include <Kernel/Process/Request.h>
 #include <Utils/Errors/ErrorOr.h>
 
 namespace Kernel {
@@ -14,6 +16,12 @@ namespace Kernel {
     }
 
     m_driver->as<ConsoleDeviceDriver>()->handle_interrupt(interrupt_id);
+
+    for(auto request : m_requests) {
+      if(m_driver->as<ConsoleDeviceDriver>()->line_available()) {
+        ProcessManager::the().unblock_process(request->get_pid());
+      }
+    }
 
     return {};
   }
@@ -48,7 +56,6 @@ namespace Kernel {
     auto error_or_read = read();
     if(error_or_read.has_error()) {
       auto request = Request<String>::create_blocked();
-      // Add to req list
       m_requests.add(request.get_context());
       return request;
     }

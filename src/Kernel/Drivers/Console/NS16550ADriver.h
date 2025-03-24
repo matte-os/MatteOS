@@ -24,6 +24,7 @@ namespace Kernel {
     void write(String& message) override;
     ErrorOr<String> read_line() override;
     ErrorOr<char> read_char();
+    bool line_available() override;
 
     void handle_interrupt(u64 interrupt_id) override;
   };

@@ -28,6 +28,9 @@ namespace Kernel {
         m_pid = pid;
       }
     }
+    u64 get_pid() {
+      return m_pid;
+    }
   };
 
   template<typename T>

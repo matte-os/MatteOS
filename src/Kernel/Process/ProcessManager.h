@@ -19,6 +19,7 @@ class ProcessManager {
   static constexpr size_t STACK_PAGES = 2;
   static constexpr size_t THREAD_FRAME_ADDRESS = 0x1000;
   RefPtr<LinkedQueue<Process *>> m_processes;
+  ArrayList<Process*> m_process_list;
   SpinLock m_process_list_lock;
   KernelProcess *m_kernel_process;
   size_t m_pid_counter;
@@ -34,7 +35,7 @@ public:
   void create_initial_processes();
   ~ProcessManager();
 
-  ErrorOr<Process> get_process(u64 pid);
+  ErrorOr<Process*> get_process(u64 pid);
   void block_process(u64 pid);
   void unblock_process(u64 pid);
   void block_process(Process* process);

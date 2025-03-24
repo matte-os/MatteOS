@@ -78,6 +78,10 @@ namespace Kernel {
     return ErrorOr<char>::create(address[0]);
   }
 
+  bool NS16550ADriver::line_available() {
+    return !m_lines.is_empty();
+  }
+
   void NS16550ADriver::write(char c) {
     auto address = reinterpret_cast<u8*>(m_device->get_underlying_device()->as<UniversalDevice>()->get_address());
     address[0] = c;
@@ -100,7 +104,7 @@ namespace Kernel {
       DebugConsole::println("NS16550ADriver: No data available.");
     } else {
       auto value = error_or_char.get_value();
-      if(value == '\n') {
+      if(value == '\r') {
         m_lines.add(m_buffer);
         m_buffer = "";
         DebugConsole::println("NS16550ADriver: Read line.");
@@ -111,6 +115,9 @@ namespace Kernel {
       DebugConsole::print("NS16550ADriver: Received character: ");
       DebugConsole::print(error_or_char.get_value());
       DebugConsole::print('\n');
+
+      DebugConsole::print("NS16550ADriver: Char as number: ");
+      DebugConsole::print_ln_number(static_cast<u64>(value), 16);
     }
   }
 

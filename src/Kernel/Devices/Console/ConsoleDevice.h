@@ -6,7 +6,7 @@
 namespace Kernel {
 
   class ConsoleDevice : public Device {
-    ArrayList<RequestContext> m_requests;
+    ArrayList<RefPtr<RequestContext>> m_requests;
   public:
     explicit ConsoleDevice(RefPtr<UnderlyingDevice> underlying_device, ArrayList<u64>&& interrupts) : Device(move(underlying_device), move(interrupts), DeviceType::Console, true) {}
 
