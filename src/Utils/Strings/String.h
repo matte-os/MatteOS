@@ -23,6 +23,7 @@ namespace Utils {
 
     String(String&& other) noexcept : m_value(move(other.m_value)) {}
 
+    // ReSharper disable once CppNonExplicitConvertingConstructor
     String(const char*);
     explicit String(const char* src, size_t length);
     ~String() = default;
@@ -85,8 +86,10 @@ namespace Utils {
     size_t m_offset {};
 
   public:
+    // ReSharper disable once CppNonExplicitConvertingConstructor
     StringView(const String& string) : m_value(string.m_value) {}
 
+    // ReSharper disable once CppNonExplicitConvertingConstructor
     StringView(const char* cstring) : m_value(StringValue::create(cstring, String::calculate_size(cstring))) {}
 
     StringView offset(size_t offset) {

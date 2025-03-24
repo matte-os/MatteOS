@@ -9,9 +9,8 @@
 namespace Utils {
 
   template<typename Key, typename Value, HashFunction<Key, u32> Function = HashFunctions::djb2, size_t DefaultSize = 20>
-  class HashMap : public Map<Key, Value> {
-  private:
-    struct Entry : RefCounted<Entry> {
+  class HashMap final : public Map<Key, Value> {
+    struct Entry final : RefCounted<Entry> {
       Key key;
       Value value;
       RefPtr<Entry> next;
@@ -26,21 +25,21 @@ namespace Utils {
       }
     }
 
-    HashMap(const HashMap<Key, Value, Function, DefaultSize>& other) : m_entries(other.m_entries) {
+    HashMap(const HashMap& other) : m_entries(other.m_entries) {
       static_assert(false, "Copy constructor not yet implemented!");
     }
 
-    HashMap(HashMap<Key, Value, Function, DefaultSize>&& other) noexcept : m_entries(move(other.m_entries)) {
+    HashMap(HashMap&& other) noexcept : m_entries(move(other.m_entries)) {
       other.m_entries = Array<RefPtr<Entry>>(DefaultSize);
     }
 
-    ~HashMap() = default;
+    ~HashMap() override = default;
 
-    HashMap<Key, Value, Function, DefaultSize>& operator=(const HashMap<Key, Value, Function, DefaultSize>& other) {
+    HashMap& operator=(const HashMap& other) {
       static_assert(false, "Assignment operator not yet implemented!");
     }
 
-    HashMap<Key, Value, Function, DefaultSize>& operator=(HashMap<Key, Value, Function, DefaultSize>&& other) noexcept {
+    HashMap& operator=(HashMap&& other) noexcept {
       if(this != &other) {
         m_entries = move(other.m_entries);
         other.m_entries = Array<RefPtr<Entry>>(DefaultSize);

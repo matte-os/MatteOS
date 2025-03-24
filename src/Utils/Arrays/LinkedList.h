@@ -11,8 +11,7 @@ namespace Utils {
   class LinkedListElement;
 
   template<typename T>
-  class LinkedList : public RefCounted<LinkedList<T>> {
-  private:
+  class LinkedList final : public RefCounted<LinkedList<T>> {
     LinkedListElement<T>* m_head;
     LinkedListElement<T>* m_tail;
     size_t m_size;
@@ -20,9 +19,9 @@ namespace Utils {
   public:
     LinkedList() : m_head(nullptr), m_tail(nullptr), m_size(0) {}
 
-    LinkedList(const LinkedList<T>& other) = delete;
+    LinkedList(const LinkedList& other) = delete;
 
-    LinkedList(LinkedList<T>&& other) {
+    LinkedList(LinkedList&& other) {
       m_head = other.m_head;
       m_tail = other.m_tail;
       m_size = other.m_size;
@@ -31,9 +30,9 @@ namespace Utils {
       other.m_size = 0;
     }
 
-    LinkedList<T>& operator=(const LinkedList<T>& other) = delete;
+    LinkedList& operator=(const LinkedList& other) = delete;
 
-    LinkedList<T>& operator=(LinkedList<T>&& other) {
+    LinkedList& operator=(LinkedList&& other) noexcept {
       if(this != &other) {
         m_head = other.m_head;
         m_tail = other.m_tail;
@@ -45,7 +44,7 @@ namespace Utils {
       return *this;
     }
 
-    ~LinkedList() {
+    ~LinkedList() override {
       auto head = m_head;
       while(head) {
         auto next = head->m_next;
@@ -147,19 +146,18 @@ namespace Utils {
 
   template<typename T>
   class LinkedListElement {
-  private:
     friend class LinkedList<T>;
     T m_data;
-    LinkedListElement<T>* m_next;
-    LinkedListElement<T>* m_prev;
+    LinkedListElement* m_next;
+    LinkedListElement* m_prev;
 
   public:
     LinkedListElement(T data) : m_data(data), m_next(nullptr), m_prev(nullptr) {}
 
-    LinkedListElement(const LinkedListElement<T>& other) = delete;
-    LinkedListElement(LinkedListElement<T>&& other) = delete;
-    LinkedListElement<T>& operator=(const LinkedListElement<T>& other) = delete;
-    LinkedListElement<T>& operator=(LinkedListElement<T>&& other) = delete;
+    LinkedListElement(const LinkedListElement& other) = delete;
+    LinkedListElement(LinkedListElement&& other) = delete;
+    LinkedListElement& operator=(const LinkedListElement& other) = delete;
+    LinkedListElement& operator=(LinkedListElement&& other) = delete;
   };
 
 }// namespace Utils

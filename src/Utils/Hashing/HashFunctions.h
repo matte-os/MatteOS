@@ -29,7 +29,7 @@ namespace Utils {
       auto input = to_hash_input(value);
       Output hash = 5381;
       for(size_t i = 0; i < input.size; i++) {
-        hash = ((hash << 5) + hash) + input.data[i];
+        hash = (hash << 5) + hash + input.data[i];
       }
       return hash;
     }

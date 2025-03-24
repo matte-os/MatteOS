@@ -128,7 +128,9 @@ description = "Build the kernel"
 [targets.image]
 dependencies = ["kernel"]
 action = """
-scripts/build_image.sh
+riscv64-unknown-linux-gnu-objcopy -O binary -R .note -R .comment -S build/dist/riscv/kernel.elf build/dist/riscv/kernel.bin
+gzip -f -9 build/dist/riscv/kernel.bin
+mkimage -f kernel.its build/dist/riscv/kernel.itb
 """
 description = "Build the image"
 
@@ -147,7 +149,7 @@ description = "Create a 1G disk image"
 [targets.run]
 dependencies = ["image", "disk", "print-boot-info"]
 action = """
-toolchain/qemu/build/qemu-system-riscv64 -cpu rv64 -nographic -serial mon:stdio -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=build/dist/riscv/uImage,addr=0x82000000,force-raw=on -drive if=none,format=raw,file=build/dist/riscv/disk.img,id=rootfs -device virtio-blk-device,drive=rootfs -device virtio-rng-device -s -d guest_errors
+toolchain/qemu/build/qemu-system-riscv64 -cpu rv64 -nographic -serial mon:stdio -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=build/dist/riscv/kernel.itb,addr=0x82000000,force-raw=on -drive if=none,format=raw,file=build/dist/riscv/disk.img,id=rootfs -device virtio-blk-device,drive=rootfs -device virtio-rng-device -s -d guest_errors
 """
 description = "Run the image"
 
@@ -170,7 +172,7 @@ description = "Check for needed libraries and tools"
 [targets.debug]
 dependencies = ["image", "disk", "print-boot-info"]
 action = """
-toolchain/qemu/build/qemu-system-riscv64 -cpu rv64 -nographic -serial mon:stdio -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=build/dist/riscv/uImage,addr=0x82000000,force-raw=on -drive if=none,format=raw,file=build/dist/riscv/disk.img,id=rootfs -device virtio-blk-device,drive=rootfs -device virtio-rng-device -s -S -d guest_errors
+toolchain/qemu/build/qemu-system-riscv64 -cpu rv64 -nographic -serial mon:stdio -machine virt -smp 1 -m 2G -bios toolchain/u-boot/spl/u-boot-spl.bin -kernel toolchain/u-boot/u-boot.itb -device loader,file=build/dist/riscv/kernel.itb,addr=0x82000000,force-raw=on -drive if=none,format=raw,file=build/dist/riscv/disk.img,id=rootfs -device virtio-blk-device,drive=rootfs -device virtio-rng-device -s -S -d guest_errors
 """
 description = "Run QEMU in debug mode"
 

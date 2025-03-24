@@ -4,10 +4,9 @@
 
 #pragma once
 
-#include <Kernel/Firmware/FDT/FDT.h>
+#include <Kernel/Arch/riscv64/CSR.h>
 #include <Kernel/Firmware/FDT/FDTParser.h>
 #include <Kernel/Memory/MemoryRegion.h>
-#include <Kernel/SBI/SBI.h>
 #include <Kernel/System/KernelTrapFrame.h>
 #include <Kernel/System/TrapFrame.h>
 #include <Utils/Arrays/ArrayList.h>
@@ -23,18 +22,25 @@ namespace Kernel {
   class System {
     size_t m_number_of_harts;
     RefPtr<ArrayList<MemoryRegion>> m_memory_regions;
-    u64* m_mtime;
     ArrayList<KernelTrapFrame*> m_kernel_trap_frames;
     static constexpr size_t TRAP_VECTOR_ADDRESS = 0x1000;
 
   public:
     static void init();
     static System& the();
+
     static KernelTrapFrame* get_current_kernel_trap_frame() { return reinterpret_cast<KernelTrapFrame*>(TRAP_VECTOR_ADDRESS); }
+
     KernelTrapFrame* get_kernel_trap_frame(size_t hart_id) { return m_kernel_trap_frames[hart_id]; }
+
     [[nodiscard]] RefPtr<ArrayList<MemoryRegion>> get_memory_regions() const { return m_memory_regions; }
+
     [[nodiscard]] size_t get_number_of_harts() const;
-    [[nodiscard]] u64 get_mtime() const { return *m_mtime; }
+
+    [[nodiscard]] u64 get_time() const {
+      return Kernel::RISCV64::CSR::read<RISCV64::CSR::Address::TIME>();
+    }
+
     void set_default_trap_vector();
     //NOTE: This function is called by individual harts to initialize the kernel process for them.
     void setup_interrupts();
