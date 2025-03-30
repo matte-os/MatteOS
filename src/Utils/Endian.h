@@ -8,7 +8,6 @@ namespace Utils {
   };
   template<typename T, Endianness E>
   class Endian {
-  private:
     T value;
     T swap_endian(T val) {
       if(sizeof(T) == 8) {
@@ -37,7 +36,7 @@ namespace Utils {
       return in_system_endian();
     }
 
-    Endian<T, E>& operator=(T val) {
+    Endian& operator=(T val) {
       if(E == Endianness::Big && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__) {
         value = swap_endian(val);
       } else if(E == Endianness::Little && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__) {

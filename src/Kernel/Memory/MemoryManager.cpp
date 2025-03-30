@@ -102,7 +102,7 @@ namespace Kernel {
     }
 
     uintptr_t addr = m_heap_start + ((uintptr_t) ptr - m_alloc_start) / PAGE_SIZE;
-    Page* page = (Page*) addr;
+    auto page = reinterpret_cast<Page*>(addr);
 
     while(page->is_taken()) {
       page->clear();

@@ -53,12 +53,6 @@ namespace Kernel {
   }
 
   ErrorOr<uintptr_t, SysError> Process::handle_read(int file_descriptor, Userspace<u8*> buffer, size_t size) {
-    DebugConsole::print("Reading from file descriptor: ");
-    DebugConsole::print_ln_number(file_descriptor, 10);
-    DebugConsole::print("Reading from buffer: ");
-    DebugConsole::print_ln_number(static_cast<u64>(buffer.virtual_address()), 16);
-    DebugConsole::print("Buffer size: ");
-    DebugConsole::print_ln_number(size, 10);
     auto file = m_fd_table[file_descriptor];
     auto error_or_buffer = buffer.get(m_page_table);
 

@@ -39,13 +39,18 @@ m_trap_vector:
 	li t6, 0x1000
     # Save all GP registers
     # This also svaesthe SP, GP etc. as their are a part of the GP registers
-	.set 	i, 1
-	.rept	30
+	.set 	i, 0
+	.rept	31
 		save_gp	%i
 		.set	i, i+1
 	.endr
 
 	# TODO: Save all FP registers
+    .set 	i, 0
+    .rept	32
+        save_fp	%i
+        .set	i, i+1
+    .endr
 
 	# Save the actual t6 register, which we swapped into
 	# sscratch
@@ -119,47 +124,64 @@ m_trap_vector:
 
 .global switch_to_user
 switch_to_user:
-  # a0 - Frame address
-	# a1 - Program counter
-  # a2 - SATP
-	# Load program counter
-  ld	a1, 512(a0)
-  ld    a2, 520(a0)
-  csrr  a3, satp
-  sd    a3, 520(a0)
-  csrw  sscratch, a2
-  
-	# 1 << 7 is MPIE
-	# Since user mode is 00, we don't need to set anything
-	# in MPP (bits 12:11)
-	# 1 << 5 is SPIE
-	# 1 << 13 is FS
-	# 1 << 18 is SUM
-	li		t0, 1 << 5 | 1 << 13 | 1 << 18 
-	csrw	sstatus, t0
+    # a0: Trap frame from C++
+    # a1: Program counter
+    # a2: Userland SATP
+    # Load program counter
+    ld	  a1, 512(a0)
+    ld    a2, 520(a0)
+
+    # Save the kernel SATP to the process trap frame
+    csrr  a3, satp
+    sd    a3, 520(a0)
+
+    # Set correct bits to sstatus
+    # 1 << 5 is SPIE
+    # 1 << 13 is FS
+    # 1 << 18 is SUM
+    li		t0, 1 << 5 | 1 << 13 | 1 << 18
+    csrw	sstatus, t0
+
+    # Set sepc to the process' program counter
     csrw	sepc, a1
+
+    # Enable individual interrupts
     # 1 << 1 is Supervisor Interrupt Enable
     # 1 << 5 is Supervisor Timer Interrupt Enable
     # 1 << 9 is Supervisor External Interrupt Enable
     li		t1, 1 << 1 | 1 << 5 | 1 << 9
     csrw	sie, t1
+
+    # Set the trap vector to m_trap_vector
     la		t2, m_trap_vector
     csrw	stvec, t2
-    # A0 is the context frame, so we need to reload it back
-    # and mret so we can start running the program.
-    mv	t6, a0
+
+    # Switch to userland address space
+    csrw satp, a2
+
+    # Load the trap frame userland address
+    li t6, 0x1000
+
+    # Load the process' t6 original value
+    ld t5, 256(t6)
+    csrw sscratch, t5
+
+    # Load the process' fp registers
     .set	i, 0
     .rept	32
         load_fp %i
         .set i, i+1
     .endr
 
+    # Load the process' gp registers
     .set	i, 1
     .rept	31
         load_gp %i, t6
         .set	i, i+1
     .endr
-  csrrw t6, sscratch, t6
-  csrw satp, t6
-  csrrw t6, sscratch, t6
-  sret
+
+    # Restore the t6 original value
+    csrrw t6, sscratch, t6
+
+    # Context switch to userland
+    sret

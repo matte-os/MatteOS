@@ -17,7 +17,6 @@ namespace Kernel {
   };
 
   class FileOpenMode {
-  private:
     size_t m_mode;
 
   public:
