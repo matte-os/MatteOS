@@ -1,4 +1,5 @@
 set(SOURCE Assertions.cpp
+        Strings/Formatter.cpp
         Basic.cpp
         DebugConsole.cpp
         cxx.cpp
@@ -9,7 +10,6 @@ set(SOURCE Assertions.cpp
         Hashing/HashFunctions.cpp
         kmalloc.cpp
         Types.cpp
-        Strings/Formatter.cpp
         Math.cpp
 )
 include_directories(SYSTEM ${SOURCE_DIRECTORY})

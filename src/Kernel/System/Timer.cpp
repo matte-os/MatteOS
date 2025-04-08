@@ -36,9 +36,6 @@ namespace Kernel {
         const u64 ticks = (m_frequency / 1000) * time_in_ms;
         const u64 next_time = current_time + ticks;
 
-        DebugConsole::print("Timer: Setting timer to ");
-        DebugConsole::print_ln_number(next_time, 10);
-
         SBI::sbi_set_timer(next_time);
     }
 } // namespace Kernel

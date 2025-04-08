@@ -49,11 +49,6 @@ namespace Kernel {
               Error::create_from_string("No filesystem mounted at this path!"));
     }
 
-    DebugConsole::print("FS found for ");
-    DebugConsole::println(relative_path);
-    DebugConsole::print("FS type: ");
-    DebugConsole::println(fs->name());
-
     if(!fs->exists(relative_path)) {
       if(mode.is<FileOperationMode::Create>()) {
         //TODO: Implement create

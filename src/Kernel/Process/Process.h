@@ -21,7 +21,6 @@
 #include <Utils/Types.h>
 
 using Kernel::MemoryManager;
-using Kernel::MemoryManager;
 using Kernel::MemoryRegion;
 using Kernel::PageTable;
 using Utils::Array;
@@ -37,6 +36,7 @@ namespace Kernel {
 
   class Process {
     friend class ProcessManager;
+
   protected:
     size_t m_pid;
     size_t m_gid;
@@ -54,7 +54,9 @@ namespace Kernel {
                                            m_state(state), m_credentials({}) {}
 
     virtual ~Process() = default;
+
     [[nodiscard]] ProcessState get_state() const { return m_state; }
+
     [[nodiscard]] Thread* get_thread() const { return m_thread; }
 
     ErrorOr<uintptr_t, SysError> handle_open(Userspace<char*> path, u64 flags);
@@ -62,11 +64,16 @@ namespace Kernel {
     ErrorOr<uintptr_t, SysError> handle_dbgln(Userspace<char*> message);
     ErrorOr<uintptr_t, SysError> handle_read(int file_descriptor, Userspace<u8*> buffer, size_t size);
     ErrorOr<uintptr_t, SysError> handle_exit(int exit_code);
+    ErrorOr<uintptr_t, SysError> handle_dmesg();
+    ErrorOr<uintptr_t, SysError> handle_stats();
 
 
     void map_memory_region(MemoryRegion&);
     void unmap_memory_region(MemoryRegion&);
+
     [[nodiscard]] PageTable* get_page_table() const { return m_page_table; }
+
+    u64 get_pid() const { return m_pid; }
   };
 
   class KernelProcess : public Process {

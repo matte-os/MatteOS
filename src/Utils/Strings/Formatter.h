@@ -14,43 +14,51 @@ namespace Utils {
   struct FormatterContext {
     bool escaped = false;
     bool open = false;
-    String flags{};
-    String result{};
-    const char *format{};
+    String flags {};
+    String result {};
+    const char* format {};
   };
 
+  String to_string(const String& value);
+  String to_string(const char* value);
+  String to_string(int value);
+  String to_string(char value);
+  String to_string(bool value);
+  String to_string(size_t value);
+  String to_string(size_t value, String& flags);
+
   // `Stringifiable` concept for non-pointers
-  template <typename T>
+  template<typename T>
   concept Stringifiable = requires(T t) {
     { to_string(t) };
   };
 
   // `StringifiablePointer` concept for pointers
-  template <typename T>
+  template<typename T>
   concept StringifiablePointer = Pointer<T> && requires(T t) {
     { to_string(t) };
   };
 
   // `StringifiableWithFlags` concept for types that use flags
-  template <typename T>
-  concept StringifiableWithFlags = requires(T t, String &flags) {
+  template<typename T>
+  concept StringifiableWithFlags = requires(T t, String& flags) {
     { to_string(t, flags) };
   };
 
-  void process(FormatterContext &context);
+  void process(FormatterContext& context);
 
-  template <typename T, typename... Args>
-  void process(FormatterContext &context, const T &value, const Args &...args) {
-    while (*context.format) {
-      if (*context.format == '{' && !context.escaped) {
+  template<typename T, typename... Args>
+  void process(FormatterContext& context, const T& value, const Args&... args) {
+    while(*context.format) {
+      if(*context.format == '{' && !context.escaped) {
         context.open = true;
-      } else if (*context.format == '}' && !context.escaped && context.open) {
+      } else if(*context.format == '}' && !context.escaped && context.open) {
         context.open = false;
-        if constexpr (StringifiableWithFlags<T>) {
+        if constexpr(StringifiableWithFlags<T>) {
           context.result += to_string(value, context.flags);
-        } else if constexpr (Stringifiable<T>) {
+        } else if constexpr(Stringifiable<T>) {
           context.result += to_string(value);
-        } else if constexpr (StringifiablePointer<T>) {
+        } else if constexpr(StringifiablePointer<T>) {
           context.result += to_string(value);
         } else {
           static_assert(false, "No formatter found for the type T");
@@ -58,8 +66,8 @@ namespace Utils {
         context.format++;
         process(context, args...);
         return;
-      } else if (*context.format == '\\') {
-        if (context.escaped) {
+      } else if(*context.format == '\\') {
+        if(context.escaped) {
           context.escaped = false;
           context.result += *context.format;
         } else {
@@ -67,7 +75,7 @@ namespace Utils {
         }
       } else {
         context.escaped = false;
-        if (context.open) {
+        if(context.open) {
           context.flags += *context.format;
         } else {
           context.result += *context.format;
@@ -78,9 +86,9 @@ namespace Utils {
     }
   }
 
-  template <typename... Args>
-  String format(const char *format, const Args &...args) {
-    FormatterContext context{};
+  template<typename... Args>
+  String format(const char* format, const Args&... args) {
+    FormatterContext context {};
     context.format = format;
     process(context, args...);
     return context.result;

@@ -91,9 +91,6 @@ namespace Kernel {
 
     auto satp = CPU::build_satp(SatpMode::Sv39, 1, (uintptr_t) root);
 
-    DebugConsole::print("The dummy process PC: ");
-    DebugConsole::print_ln_number(program_counter,
-                                  16);
     auto* thread = initialize_thread(
             program_counter, satp, 0);
     auto* trap_frame = thread->get_trap_frame();

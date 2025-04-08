@@ -100,24 +100,16 @@ namespace Kernel {
      *
      */
     auto error_or_char = read_char();
-    if(error_or_char.has_error()) {
-      DebugConsole::println("NS16550ADriver: No data available.");
-    } else {
+    if(error_or_char.has_value()) {
       auto value = error_or_char.get_value();
       if(value == '\r') {
         m_lines.add(m_buffer);
         m_buffer = "";
-        DebugConsole::println("NS16550ADriver: Read line.");
+        write('\n');
       } else {
         m_buffer += value;
+        write(value);
       }
-
-      DebugConsole::print("NS16550ADriver: Received character: ");
-      DebugConsole::print(error_or_char.get_value());
-      DebugConsole::print('\n');
-
-      DebugConsole::print("NS16550ADriver: Char as number: ");
-      DebugConsole::print_ln_number(static_cast<u64>(value), 16);
     }
   }
 

@@ -40,10 +40,6 @@ namespace Kernel {
       process_list->rotate_left();
       first = process_list->first();
 
-      DebugConsole::print("Scheduler: Scheduling process ");
-      DebugConsole::print_ln_number(reinterpret_cast<uintptr_t>(first), 16);
-
-
       if(first->get_state() == ProcessState::Running) {
         break;
       }

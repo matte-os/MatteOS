@@ -11,7 +11,7 @@ namespace Kernel {
     u32 m_frequency;
   public:
     explicit Timer(const u32 frequency) : m_frequency(frequency) {}
-    static constexpr size_t DEFAULT_PROCESS_TIME = 1000; // In ms
+    static constexpr size_t DEFAULT_PROCESS_TIME = 100; // In ms
     static void init();
     static Timer& the();
 

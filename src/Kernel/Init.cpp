@@ -59,6 +59,8 @@ void sizeof_test();
 extern "C" void kmain([[maybe_unused]] int heart_id, FDTHeader* header) {
   DebugConsole::println("MatteOS: v0.0.1, U-Boot + OpenSBI, SPL configuration");
   auto* page_table = init_memory();
+  Logger::init();
+
   System::init();
 
   //FIXME: We should have a trap handler setup here
@@ -88,22 +90,6 @@ extern "C" void kmain([[maybe_unused]] int heart_id, FDTHeader* header) {
   DeviceManager::the().load_drivers();
 
   auto block_devices = DeviceManager::the().get_devices_of_type(Kernel::DeviceType::Block);
-  /*
-    DebugConsole::println("MatteOS: Block Device write test.");
-    for(size_t i = 0; i < block_devices.size(); i++) {
-      auto device = block_devices[i];
-      auto block_device = device->as<Kernel::BlockDevice>();
-      auto buffer = new char[512];
-      buffer[0] = 'H';
-      buffer[1] = 'e';
-      buffer[2] = 'l';
-      buffer[3] = 'l';
-      buffer[4] = 'o';
-      auto write_result = block_device->write((u8*) buffer, 512, 0);
-      if(write_result.has_error()) {
-        DebugConsole::println("MatteOS: Block Device write failed.");
-      }
-    }*/
 
   if(block_devices.size() == 0) {
     DebugConsole::println("MatteOS: No block devices found.");
@@ -135,7 +121,6 @@ extern "C" void kmain([[maybe_unused]] int heart_id, FDTHeader* header) {
   InterruptManager::the().set_threshold(0);
   InterruptManager::the().enable_device_interrupts();
 
-  Logger::init();
   Logger::the().try_console_lookup();
   dbgln("MatteOS: Logger initialized.");
   DebugConsole::switch_to_device();
@@ -143,11 +128,14 @@ extern "C" void kmain([[maybe_unused]] int heart_id, FDTHeader* header) {
   Timer::init();
   Scheduler::init();
   SyscallManager::init();
-  DebugConsole::println("Initialization completed");
 
   DebugConsole::print("MatteOS: The state of SIE is ");
   DebugConsole::print_ln_number(CPU::read_sie(), 16);
 
+  DebugConsole::println("MatteOS: Logging to logfile from now! Available using dmesg.");
+  Logger::the().switch_to_logfile();
+
+  DebugConsole::println("MatteOS: Initialization complete! Scheduling next process!");
   //TODO: Here we should start the init process and the scheduler
   Scheduler::the().start_scheduling();
 }

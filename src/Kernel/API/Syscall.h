@@ -17,7 +17,9 @@
   F(close)                   \
   F(dbgln)                   \
   F(read)                    \
-  F(exit)
+  F(exit)                    \
+  F(dmesg)                   \
+  F(stats)
 
 namespace Kernel {
   enum class SysError : size_t {
@@ -34,6 +36,16 @@ namespace Kernel {
 
   static const char* syscall_names[] = {
           SYSCALL_GENERATOR(SYSCALL_NAME)};
+
+  inline uintptr_t syscall(Syscalls syscall) {
+    register uintptr_t a7 asm("a7") = Utils::as_underlying(syscall);
+    register uintptr_t result asm("a0");
+
+    asm volatile("ecall"
+                 : "=r"(result)
+                 : "r"(a7));
+    return result;
+  }
 
   template<typename T1>
   uintptr_t syscall(Syscalls syscall, T1 arg1) {

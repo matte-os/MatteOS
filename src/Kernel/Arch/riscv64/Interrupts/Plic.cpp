@@ -1,5 +1,6 @@
 #include <Kernel/Arch/riscv64/Interrupts/Plic.h>
 #include <Kernel/Firmware/DeviceTree.h>
+#include <Kernel/Logger.h>
 #include <Utils/Assertions.h>
 #include <Utils/DebugConsole.h>
 
@@ -17,30 +18,26 @@ namespace Kernel {
     if(!s_plic) {
       s_plic = new Plic();
     } else {
-      DebugConsole::println("Plic: Already initialized.");
+      dbgln("Plic: Already initialized!");
     }
   }
 
   Plic::Plic() {
-    DebugConsole::println("Plic: Initializing");
-    DebugConsole::println("Plic: Detecting base address from the device tree");
+    dbgln("Plic: Initializing...");
+    dbgln("Plic: Detecting base address from the device tree");
     auto node_or_error = DeviceTree::the().find_node("/soc/plic");
     if(node_or_error.has_error()) {
-      DebugConsole::println("Plic: Could not find the plic node in the device tree");
+      dbgln("Plic: Could not find the plic node in the device tree ({})", "/soc/plic");
       return;
     }
 
     auto node = node_or_error.get_value();
     m_base = node->get_address().to_uint(16);
-    DebugConsole::print("Plic: Base address: ");
-    DebugConsole::print_ln_number(m_base, 16);
+    dbgln("Plic: Base: {16}", m_base);
   }
 
   void Plic::enable(u32 context_id, u32 id) {
-    DebugConsole::print("Plic: Enabling interrupt ");
-    DebugConsole::print_number(id, 10);
-    DebugConsole::print(" for context ");
-    DebugConsole::print_ln_number(context_id, 10);
+    dbgln("Plic: Enable: context_id: {}, id: {}", context_id, id);
     auto* enable = reinterpret_cast<u32*>(m_base + static_cast<size_t>(PlicOffsets::InterruptEnable) + 4 * (id / 32) + 0x80 * context_id);
     u32 actual_id = 1 << id % 32;
     *enable = *enable | actual_id;
@@ -58,31 +55,15 @@ namespace Kernel {
   }
 
   void Plic::set_priority(u32 id, u8 priority) {
-    DebugConsole::print("Plic: Setting priority ");
-    DebugConsole::print_number(priority, 10);
-    DebugConsole::print(" for interrupt ");
-    DebugConsole::print_ln_number(id, 10);
+    dbgln("Plic: Setting priority: id: {}, priority: {}", id, priority);
     auto* priority_register = reinterpret_cast<u32*>(m_base + static_cast<size_t>(PlicOffsets::Priority) + 4 * id);
     *priority_register = priority & 7;
-
-    //DebugConsole::print("Plic: Priority write to ");
-    //DebugConsole::print_number(reinterpret_cast<u64>(priority_register), 16);
-    //DebugConsole::print(" value ");
-    //DebugConsole::print_ln_number(*priority_register, 16);
   }
 
   void Plic::set_threshold(u32 context_id, u8 threshold) {
-    DebugConsole::print("Plic: Setting threshold ");
-    DebugConsole::print_number(threshold, 10);
-    DebugConsole::print(" for context ");
-    DebugConsole::print_ln_number(context_id, 10);
+    dbgln("Plic: Setting threshold: id: {}, threshold: {}", context_id, threshold);
     auto* threshold_register = reinterpret_cast<u32*>(m_base + static_cast<size_t>(PlicOffsets::PriorityThreshold) + 0x1000 * context_id);
     *threshold_register = threshold & 7;
-
-    //DebugConsole::print("Plic: Threshold write to ");
-    //DebugConsole::print_number(reinterpret_cast<u64>(threshold_register), 16);
-    //DebugConsole::print(" value ");
-    //DebugConsole::print_ln_number(*threshold_register, 16);
   }
 
   Optional<u32> Plic::next(u32 context_id) {
@@ -99,13 +80,7 @@ namespace Kernel {
     auto* complete_register = reinterpret_cast<u32*>(m_base + static_cast<size_t>(PlicOffsets::Complete) + 0x1000 * context_id);
     *complete_register = id;
 
-    DebugConsole::print("Plic: Completed interrupt for context ");
-    DebugConsole::print_ln_number(context_id, 10);
-
-    //DebugConsole::print("Plic: Complete write to ");
-    //DebugConsole::print_number(reinterpret_cast<u64>(complete_register), 16);
-    //DebugConsole::print(" value ");
-    //DebugConsole::print_ln_number(id, 16);
+    dbgln("Plic: Completed id: {}", id);
   }
 
   bool Plic::is_pending(u32 id) {

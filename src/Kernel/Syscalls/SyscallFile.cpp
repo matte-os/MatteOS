@@ -22,20 +22,15 @@ namespace Kernel {
 
     auto file_or_error = vfs.open(m_credentials, path_in_kernel, flags);
     if(file_or_error.has_error()) {
-      DebugConsole::print("Failed to open file: ");
-      DebugConsole::println(file_or_error.get_error().get_message().value());
       return SysError::Error;
     }
 
     //auto open_or_error = ErrorOr<size_t>::create(0);
     auto open_or_error = m_fd_table.open(RefPtr<File>(new File(file_or_error.get_value(), flags)));
     if(open_or_error.has_error()) {
-      DebugConsole::print("Failed to open file: ");
-      DebugConsole::println(open_or_error.get_error().get_message().value());
       return SysError::Error;
     }
 
-    DebugConsole::println("Opened file successfully");
     return open_or_error.get_value();
   }
 
@@ -47,8 +42,6 @@ namespace Kernel {
 
     m_fd_table.close(fd);
 
-    DebugConsole::print("Closing file descriptor: ");
-    DebugConsole::print_ln_number(fd, 10);
     return ErrorOr<uintptr_t, SysError>::create(0);
   }
 

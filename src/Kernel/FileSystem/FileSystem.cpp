@@ -48,16 +48,12 @@ Utils::ErrorOr<RefPtr<Kernel::OpenFileDescriptor>> Kernel::FileSystem::open(cons
     path_so_far += name;
 
     RefPtr<Inode> new_inode;
-    DebugConsole::print("Path so far: ");
-    DebugConsole::println(path_so_far);
 
     if(m_open_files.has_descriptor(path_so_far)) {
       new_inode = TRY(m_open_files.open(path_so_far))->inode();
     } else {
       new_inode = TRY(inode->get_child(name));
       m_open_files.create_descriptor_and_open(path_so_far, new_inode);
-      DebugConsole::print("Created descriptor for: ");
-      DebugConsole::println(path_so_far);
     }
 
     if(root_inode != inode) {
@@ -68,7 +64,5 @@ Utils::ErrorOr<RefPtr<Kernel::OpenFileDescriptor>> Kernel::FileSystem::open(cons
     node_index++;
   }
 
-  DebugConsole::print("Opened file: ");
-  DebugConsole::println(path);
   return TRY(m_open_files.get_descriptor(path));
 }
