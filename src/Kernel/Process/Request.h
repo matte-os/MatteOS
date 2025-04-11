@@ -1,7 +1,3 @@
-//
-// Created by matejbucek on 23.3.25.
-//
-
 #pragma once
 
 #include <Utils/Optional.h>
@@ -15,21 +11,28 @@ namespace Kernel {
 
   class RequestContext final : public RefCounted<RequestContext> {
     u64 m_pid;
+    u64 m_tid;
 
-    RequestContext() : m_pid(0) {}
+    RequestContext() : m_pid(0), m_tid(0) {}
 
   public:
     static RefPtr<RequestContext> create_context() {
       return {new RequestContext};
     }
 
-    void assign_pid(u64 pid) {
+    void assign(u64 pid, u64 tid) {
       if(m_pid == 0) {
         m_pid = pid;
+        m_tid = tid;
       }
     }
+
     u64 get_pid() {
       return m_pid;
+    }
+
+    u64 get_tid() {
+      return m_tid;
     }
   };
 
@@ -74,9 +77,9 @@ namespace Kernel {
       return m_state == RequestState::Finalized;
     }
 
-    void assign_pid(const u64 pid) {
+    void assign(const u64 pid, const u64 tid) {
       if(m_context) {
-        m_context->assign_pid(pid);
+        m_context->assign(pid, tid);
       }
     }
 

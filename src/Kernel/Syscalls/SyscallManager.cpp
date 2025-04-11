@@ -7,6 +7,7 @@
 #include <Kernel/API/Syscall.h>
 #include <Kernel/Logger.h>
 #include <Kernel/Process/Process.h>
+#include <Kernel/Process/ProcessManager.h>
 #include <Kernel/Syscalls/SyscallManager.h>
 #include <Utils/Assertions.h>
 
@@ -39,7 +40,9 @@ namespace Kernel {
     auto handler = syscall_handlers[syscall_id];
     dbgln("SyscallManager: Process {} called syscall {}", process->get_pid(), syscall_id);
 
-    auto trap_frame = process->get_thread()->get_trap_frame();
+    auto current_thread = ProcessManager::the().get_current_thread();
+
+    auto trap_frame = current_thread->get_trap_frame();
 
     auto arg0 = trap_frame->get_register<u64>(RegisterOffset::GP0);
     auto arg1 = trap_frame->get_register<u64>(RegisterOffset::GP1);

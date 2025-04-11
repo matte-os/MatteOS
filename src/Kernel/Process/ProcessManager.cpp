@@ -23,11 +23,8 @@ namespace Kernel {
 
   ProcessManager::ProcessManager(PageTable* kernel_root_table)
       : m_process_list_lock(SpinLock()) {
-    m_processes = RefPtr(new LinkedQueue<Process*>());
     m_kernel_process = &initialize_kernel_process(kernel_root_table);
     m_pid_counter = 1;
-    DebugConsole::print("Depth: ");
-    DebugConsole::print_ln_number(m_processes->size(), 10);
   }
 
   Process& ProcessManager::initialize_process() {
@@ -67,9 +64,6 @@ namespace Kernel {
 
     // Console main
     auto* root2 = create_dummy_process(reinterpret_cast<uintptr_t>(console_main));
-
-    DebugConsole::print("ProcessManager: The size of the process queue is: ");
-    DebugConsole::print_ln_number(m_processes->size(), 10);
   }
 
   PageTable* ProcessManager::create_dummy_process(uintptr_t program_counter) {
@@ -91,8 +85,10 @@ namespace Kernel {
 
     auto satp = CPU::build_satp(SatpMode::Sv39, 1, (uintptr_t) root);
 
+    auto current_pid = m_pid_counter++;
+
     auto* thread = initialize_thread(
-            program_counter, satp, 0);
+            program_counter, satp, 0, current_pid, 0);
     auto* trap_frame = thread->get_trap_frame();
 
     // Map the kernel trap frame to the special address
@@ -108,16 +104,16 @@ namespace Kernel {
                                    (size_t) EntryBits::USER_READ_WRITE);
 
 
-    auto* process = new Process(m_pid_counter++, thread,
+    auto* process = new Process(current_pid, thread,
                                 root,
                                 ProcessState::Running);
     m_process_list.add(process);
-    m_processes->add(process);
+    m_run_queue.add(thread);
     return root;
   }
 
   Thread* ProcessManager::initialize_thread(uintptr_t program_counter, SATP satp,
-                                            size_t hart_id) {
+                                            size_t hart_id, size_t pid, size_t tid) {
     auto* trap_frame = new(MemoryManager::the().zalloc(1)) TrapFrame;
     trap_frame->satp = satp;
     trap_frame->trap_stack =
@@ -126,11 +122,11 @@ namespace Kernel {
     trap_frame->regs[2] = STACK_ADDRESS;
     trap_frame->program_counter = program_counter;
     return new Thread(trap_frame, (uintptr_t*) ((u8*) trap_frame->trap_stack) -
-                                          (STACK_PAGES * MemoryManager::PAGE_SIZE));
+                                          (STACK_PAGES * MemoryManager::PAGE_SIZE), pid, tid);
   }
 
   ProcessManager::~ProcessManager() {
-    DebugConsole::println("ProcessManager destroyed");
+    DebugConsole::println("ProcessManager: destroyed");
   }
 
   ErrorOr<Process*> ProcessManager::get_process(u64 pid) {
@@ -139,23 +135,55 @@ namespace Kernel {
     });
   }
 
-  void ProcessManager::block_process(const u64 pid) {
-    if(const auto error_or_process = get_process(pid)) {
-      block_process(error_or_process.get_value());
+  ErrorOr<Thread*> ProcessManager::get_thread(u64 pid, u64 tid) {
+    auto process = TRY(get_process(pid));
+    return process->get_threads().find_first_match([tid](auto* thread) {
+      return thread->m_tid == tid;
+    });
+  }
+
+  void ProcessManager::unblock(size_t pid, size_t tid) {
+    auto error_or_thread = get_thread(pid, tid);
+    if(error_or_thread.has_error()) {
+      return;
     }
+
+    auto thread = error_or_thread.get_value();
+    thread->m_state = ThreadState::Running;
+
+    //TODO: m_run_queue.add(thread);
   }
 
-  void ProcessManager::unblock_process(const u64 pid) {
-    if(const auto error_or_process = get_process(pid)) {
-      unblock_process(error_or_process.get_value());
+  void ProcessManager::block(size_t pid, size_t tid) {
+    auto error_or_thread = get_thread(pid, tid);
+    if(error_or_thread.has_error()) {
+      return;
     }
+
+    auto thread = error_or_thread.get_value();
+    thread->m_state = ThreadState::Blocked;
+    //TODO: m_run_queue.remove(thread);
   }
 
-  void ProcessManager::block_process(Process* process) {
-    process->m_state = ProcessState::Blocked;
+  Thread* ProcessManager::get_current_thread() {
+    auto* trap_frame = System::get_current_kernel_trap_frame();
+    auto error_or_thread = get_thread(trap_frame->current_process_id, trap_frame->current_thread_id);
+
+    if(error_or_thread.has_error()) {
+      return nullptr;
+    }
+
+    return error_or_thread.get_value();
   }
 
-  void ProcessManager::unblock_process(Process* process) {
-    process->m_state = ProcessState::Running;
+  Process* ProcessManager::get_current_process() {
+    auto* trap_frame = System::get_current_kernel_trap_frame();
+    auto error_or_process = get_process(trap_frame->current_process_id);
+
+    if(error_or_process.has_error()) {
+      return nullptr;
+    }
+
+    return error_or_process.get_value();
   }
 }// namespace Kernel

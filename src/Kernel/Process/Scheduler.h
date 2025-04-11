@@ -11,7 +11,7 @@ namespace Kernel {
   public:
     static void init();
     static Scheduler& the();
-    Process* schedule();
+    Thread* schedule();
     [[noreturn]] void start_scheduling();
 
   private:

@@ -23,9 +23,8 @@ namespace Kernel {
     return *s_scheduler;
   }
 
-  Process* Scheduler::schedule() {
+  Thread* Scheduler::schedule() {
     auto& process_manager = ProcessManager::the();
-    //Someone has the lock, probably kernel.
     //We could probably use RAII to reduce the code.
     auto& lock = process_manager.get_process_list_lock();
     if(!lock.try_lock()) {
@@ -33,28 +32,29 @@ namespace Kernel {
       return nullptr;
     }
 
-    const auto& process_list = process_manager.get_process_list();
+    auto& run_queue = process_manager.get_run_queue();
 
-    Process* first = nullptr;
+    Thread* first = nullptr;
     while(true) {
-      process_list->rotate_left();
-      first = process_list->first();
+      run_queue.rotate_left();
+      first = run_queue.first();
 
-      if(first->get_state() == ProcessState::Running) {
+      if(first->get_state() == ThreadState::Running) {
         break;
       }
     }
 
     lock.unlock();
 
-    System::get_current_kernel_trap_frame()->current_process = first;
+    System::get_current_kernel_trap_frame()->current_process_id = first->get_pid();
+    System::get_current_kernel_trap_frame()->current_thread_id = first->get_tid();
 
     return first;
   }
 
   void Scheduler::start_scheduling() {
     Timer::the().set_timer(Timer::DEFAULT_PROCESS_TIME);
-    System::the().switch_to_user_mode(schedule()->get_thread()->get_trap_frame());
+    System::the().switch_to_user_mode(schedule()->get_trap_frame());
   }
 
 }// namespace Kernel

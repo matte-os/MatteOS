@@ -1,4 +1,5 @@
 #include <Kernel/API/Syscall.h>
+#include <Kernel/Arch/riscv64/CSR.h>
 #include <Kernel/Logger.h>
 #include <Kernel/Process/Process.h>
 #include <Kernel/Process/Userspace.h>

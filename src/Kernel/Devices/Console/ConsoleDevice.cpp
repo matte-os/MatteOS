@@ -19,7 +19,7 @@ namespace Kernel {
 
     for(auto request : m_requests) {
       if(m_driver->as<ConsoleDeviceDriver>()->line_available()) {
-        ProcessManager::the().unblock_process(request->get_pid());
+        ProcessManager::the().unblock(request->get_pid(), request->get_tid());
       }
     }
 

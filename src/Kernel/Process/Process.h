@@ -13,8 +13,6 @@
 #include <Kernel/Memory/PageTable.h>
 #include <Kernel/Process/Thread.h>
 #include <Kernel/Security/Credentials.h>
-#include <Kernel/System/System.h>
-#include <Kernel/System/TrapFrame.h>
 #include <Utils/Arrays/Array.h>
 #include <Utils/Arrays/ArrayList.h>
 #include <Utils/Pointers/RefPtr.h>
@@ -40,24 +38,26 @@ namespace Kernel {
   protected:
     size_t m_pid;
     size_t m_gid;
-    Thread* m_thread;
     PageTable* m_page_table;
     ProcessState m_state;
     Credentials m_credentials;
     FileDescriptorTable m_fd_table;
+    ArrayList<Thread*> m_threads;
 
   public:
     explicit Process(size_t pid,
                      Thread* thread,
                      PageTable* page_table,
-                     ProcessState state) : m_pid(pid), m_gid(m_pid), m_thread(thread), m_page_table(page_table),
-                                           m_state(state), m_credentials({}) {}
+                     ProcessState state) : m_pid(pid), m_gid(m_pid), m_page_table(page_table),
+                                           m_state(state), m_credentials({}) {
+      m_threads.add(thread);
+    }
 
     virtual ~Process() = default;
 
     [[nodiscard]] ProcessState get_state() const { return m_state; }
 
-    [[nodiscard]] Thread* get_thread() const { return m_thread; }
+    [[nodiscard]] ArrayList<Thread*>& get_threads() { return m_threads; }
 
     ErrorOr<uintptr_t, SysError> handle_open(Userspace<char*> path, u64 flags);
     ErrorOr<uintptr_t, SysError> handle_close(u64);
@@ -66,7 +66,6 @@ namespace Kernel {
     ErrorOr<uintptr_t, SysError> handle_exit(int exit_code);
     ErrorOr<uintptr_t, SysError> handle_dmesg();
     ErrorOr<uintptr_t, SysError> handle_stats();
-
 
     void map_memory_region(MemoryRegion&);
     void unmap_memory_region(MemoryRegion&);

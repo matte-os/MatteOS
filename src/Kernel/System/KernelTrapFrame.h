@@ -4,8 +4,9 @@
 
 namespace Kernel {
   class Process;
-  struct KernelTrapFrame : public TrapFrame {
+  struct KernelTrapFrame : TrapFrame {
     u64 cpu_id;
-    Process* current_process;
+    size_t current_thread_id;
+    size_t current_process_id;
   };
 }

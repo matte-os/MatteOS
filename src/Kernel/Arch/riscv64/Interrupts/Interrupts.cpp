@@ -18,16 +18,16 @@ namespace Kernel {
   }
 
   size_t handle_timer_interrupt(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus) {
-    if(const auto current_process = System::get_current_kernel_trap_frame()->current_process) {
-      current_process->get_thread()->get_trap_frame()->program_counter = sepc;
+    if(auto* current_thread = ProcessManager::the().get_current_thread()) {
+      current_thread->get_trap_frame()->program_counter = sepc;
     }
 
-    const auto process = Scheduler::the().schedule();
+    const auto thread = Scheduler::the().schedule();
 
     // Write process SATP to the SSCRATCH register
-    RISCV64::CSR::write<RISCV64::CSR::Address::SSCRATCH>(*reinterpret_cast<u64*>(reinterpret_cast<u64>(&process->get_thread()->get_trap_frame()->satp)));
+    RISCV64::CSR::write<RISCV64::CSR::Address::SSCRATCH>(*reinterpret_cast<u64*>(reinterpret_cast<u64>(&thread->get_trap_frame()->satp)));
 
-    const auto program_counter = process->get_thread()->get_trap_frame()->program_counter;
+    const auto program_counter = thread->get_trap_frame()->program_counter;
 
     Timer::the().set_timer(Timer::DEFAULT_PROCESS_TIME);
     return program_counter;
@@ -45,21 +45,20 @@ namespace Kernel {
   }
 
   size_t handle_system_call(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus) {
-    auto* process = System::get_current_kernel_trap_frame()->current_process;
-    const auto syscallId = process->get_thread()->get_trap_frame()->regs[static_cast<size_t>(
+    auto* process = ProcessManager::the().get_current_process();
+    auto* current_thread = ProcessManager::the().get_current_thread();
+    const auto syscallId = current_thread->get_trap_frame()->regs[static_cast<size_t>(
             RegisterOffset::SyscallId)];
     auto error_or_ok = SyscallManager::the().handle_syscall(process, syscallId);
     if(error_or_ok.has_error() && error_or_ok.get_error() == SysError::Blocked) {
       // Reschedule different process
-      if(const auto current_process = System::get_current_kernel_trap_frame()->current_process) {
-        current_process->get_thread()->get_trap_frame()->program_counter = sepc;
-      }
+      current_thread->get_trap_frame()->program_counter = sepc;
       const auto new_process = Scheduler::the().schedule();
 
       // Write process SATP to the SSCRATCH register
-      RISCV64::CSR::write<RISCV64::CSR::Address::SSCRATCH>(*reinterpret_cast<u64*>(reinterpret_cast<u64>(&new_process->get_thread()->get_trap_frame()->satp)));
+      RISCV64::CSR::write<RISCV64::CSR::Address::SSCRATCH>(*reinterpret_cast<u64*>(reinterpret_cast<u64>(&new_process->get_trap_frame()->satp)));
 
-      return new_process->get_thread()->get_trap_frame()->program_counter;
+      return new_process->get_trap_frame()->program_counter;
     }
     return sepc + 4;
   }

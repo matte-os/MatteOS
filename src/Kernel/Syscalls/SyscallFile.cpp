@@ -61,9 +61,12 @@ namespace Kernel {
 
     auto request = error_or_request.get_value();
 
-    if(request.is_blocked()) {
-      request.assign_pid(m_pid);
-      ProcessManager::the().block_process(this);
+    auto current_thread = ProcessManager::the().get_current_thread();
+    runtime_assert(current_thread, "No current thread found.");
+
+    if(request.is_blocked() && current_thread) {
+      request.assign(m_pid, current_thread->get_tid());
+      ProcessManager::the().block(m_pid, current_thread->get_tid());
       return SysError::Blocked;
     }
 
