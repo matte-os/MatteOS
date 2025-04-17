@@ -71,7 +71,7 @@ namespace Kernel {
         return Request<size_t>::propagate_blocked(device_request);
       }
 
-      const auto to_copy = Utils::min(size, device_request.release_value().length());
+      const auto to_copy = Utils::min(size, device_request.release_value().length() + 1);
 
       Utils::memcpy(reinterpret_cast<char*>(buffer), device_request.release_value().to_cstring(), to_copy);
       return Request<size_t>::create_finalized(to_copy);

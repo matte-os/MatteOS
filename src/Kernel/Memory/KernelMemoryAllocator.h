@@ -52,6 +52,14 @@ namespace Kernel {
     void kfree(uintptr_t*);
     void debug();
 
+    struct Statistics {
+      u64 total_size;
+      u64 free_size;
+      u64 used_size;
+    };
+
+    Statistics get_statistics();
+
   private:
     void coalesce();
     KernelMemoryAllocator();

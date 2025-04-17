@@ -26,11 +26,11 @@ set(SOURCE
         Memory/Page.cpp
         Memory/PageTable.cpp
         Memory/PageTableEntry.cpp
-        Uart.cpp
         Syscalls/SyscallManager.cpp
         Syscalls/SyscallFile.cpp
         Syscalls/SyscallDebug.cpp
         Syscalls/SyscallProcess.cpp
+        Syscalls/SyscallStatistics.cpp
         Devices/DeviceManager.cpp
         Drivers/DriverManager.cpp
         Drivers/DeviceDriver.cpp

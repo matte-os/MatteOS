@@ -66,6 +66,8 @@ namespace Kernel {
     ErrorOr<uintptr_t, SysError> handle_exit(int exit_code);
     ErrorOr<uintptr_t, SysError> handle_dmesg();
     ErrorOr<uintptr_t, SysError> handle_stats();
+    ErrorOr<uintptr_t, SysError> handle_ls();
+    ErrorOr<uintptr_t, SysError> handle_mem();
 
     void map_memory_region(MemoryRegion&);
     void unmap_memory_region(MemoryRegion&);

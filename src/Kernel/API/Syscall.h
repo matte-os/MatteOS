@@ -19,7 +19,9 @@
   F(read)                    \
   F(exit)                    \
   F(dmesg)                   \
-  F(stats)
+  F(stats)                   \
+  F(mem)                     \
+  F(ls)
 
 namespace Kernel {
   enum class SysError : size_t {

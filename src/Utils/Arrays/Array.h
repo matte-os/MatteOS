@@ -28,6 +28,9 @@ namespace Utils {
          */
     explicit Array(size_t size) : m_size(size) {
       m_array = new T[size];
+      for(size_t i = 0; i < size; i++) {
+        m_array[i] = T();
+      }
     }
 
     /**

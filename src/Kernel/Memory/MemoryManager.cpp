@@ -182,6 +182,21 @@ namespace Kernel {
   MemoryManager::MemoryManager() {
   }
 
+  MemoryManager::Statistics MemoryManager::get_statistics() {
+    size_t allocated = 0;
+    for(size_t i = 0; i < m_number_of_pages; i++) {
+      if(!m_first_page[i].is_free()) {
+        allocated++;
+      }
+    }
+
+    return {
+        .total_pages = m_number_of_pages,
+        .free_pages = m_number_of_pages - allocated,
+        .used_pages = allocated,
+    };
+  }
+
   MemoryManager::~MemoryManager() {
   }
   void MemoryManager::map_range(PageTable& root, size_t virtual_start, size_t virtual_end, size_t physical_start, u64 bits) {

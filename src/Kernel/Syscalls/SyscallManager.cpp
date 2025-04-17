@@ -39,6 +39,7 @@ namespace Kernel {
 
     auto handler = syscall_handlers[syscall_id];
     dbgln("SyscallManager: Process {} called syscall {}", process->get_pid(), syscall_id);
+    m_statistics.increment(syscall_id);
 
     auto current_thread = ProcessManager::the().get_current_thread();
 

@@ -80,7 +80,7 @@ namespace Kernel {
     auto* complete_register = reinterpret_cast<u32*>(m_base + static_cast<size_t>(PlicOffsets::Complete) + 0x1000 * context_id);
     *complete_register = id;
 
-    dbgln("Plic: Completed id: {}", id);
+    //dbgln("Plic: Completed id: {}", id);
   }
 
   bool Plic::is_pending(u32 id) {

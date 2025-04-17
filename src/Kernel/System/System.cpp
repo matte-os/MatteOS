@@ -11,7 +11,6 @@
 #include <Kernel/SBI/SBI.h>
 #include <Kernel/System/System.h>
 #include <Kernel/System/TrapFrame.h>
-#include <Kernel/Uart.h>
 #include <Utils/Assertions.h>
 #include <Utils/DebugConsole.h>
 

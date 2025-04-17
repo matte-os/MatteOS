@@ -48,7 +48,7 @@ namespace Kernel {
 
     virtual ~DirectoryEntry() = default;
 
-    StringView get_name() {
+    StringView get_name() const {
       return m_name;
     }
   };

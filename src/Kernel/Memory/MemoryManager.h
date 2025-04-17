@@ -79,6 +79,13 @@ namespace Kernel {
     void debug_output();
     PageTable* get_current_root_page_table();
 
+    struct Statistics {
+      u64 total_pages;
+      u64 free_pages;
+      u64 used_pages;
+    };
+
+    Statistics get_statistics();
 
     ~MemoryManager();
 

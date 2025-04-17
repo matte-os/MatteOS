@@ -108,6 +108,26 @@ namespace Kernel {
     DebugConsole::print_ln_number(m_total_size - taken, 10);
   }
 
+  KernelMemoryAllocator::Statistics KernelMemoryAllocator::get_statistics() {
+    auto* ptr = m_head;
+    auto* tail = (AllocHeader*) (((u8*) m_head) + m_total_size);
+    AllocHeader* prev = nullptr;
+
+    u64 taken = 0;
+    u64 free = 0;
+    while(ptr < tail) {
+      if(ptr->is_taken()) {
+        taken += ptr->get_size();
+      } else {
+        free += ptr->get_size();
+      }
+      prev = ptr;
+      ptr = (AllocHeader*) (((u8*) ptr) + ptr->get_size());
+    }
+
+    return {m_total_size, free, taken};
+  }
+
   void KernelMemoryAllocator::coalesce() {
     auto* ptr = m_head;
     auto* tail = (AllocHeader*) (((u8*) m_head) + m_total_size);

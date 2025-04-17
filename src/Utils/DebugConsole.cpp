@@ -1,11 +1,8 @@
 #include <Kernel/SBI/SBI.h>
-#include <Kernel/Uart.h>
 #include <Utils/Basic.h>
 #include <Utils/DebugConsole.h>
 #include <Utils/Strings/String.h>
 #include <Kernel/Logger.h>
-
-using Kernel::Uart;
 
 namespace Utils {
   static bool use_device = false;
