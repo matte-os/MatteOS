@@ -1,3 +1,7 @@
+/**
+ * @file PageTableEntry.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Memory/PageTableEntry.h>
 
 namespace Kernel {

@@ -1,3 +1,9 @@
+/**
+ * @file TrapFrame.h
+ * @author Matěj Bucek
+ *
+ * This file was inspired by OSBlog.
+ */
 #pragma once
 
 #include <Kernel/Arch/RegisterOffset.h>

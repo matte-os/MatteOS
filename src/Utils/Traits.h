@@ -1,5 +1,5 @@
 /**
- * @file Utility.h
+ * @file Traits.h
  *
  * @author Matěj Bucek
  */

@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 3.9.24.
-//
-
+/**
+ * @file VirtIODriver.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Kernel/Drivers/Driver.h>

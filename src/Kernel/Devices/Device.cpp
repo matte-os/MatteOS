@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 24.8.24.
-//
-
+/**
+ * @file Device.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Devices/Device.h>
 #include <Kernel/Drivers/Storage/VirtIO/BlockIODriver.h>
 #include <Kernel/Devices/DeviceManager.h>

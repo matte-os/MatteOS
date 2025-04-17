@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 3.9.24.
-//
-
+/**
+ * @file EntropyDevice.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Devices/Entropy/EntropyDevice.h>
 
 namespace Kernel {

@@ -1,7 +1,9 @@
-//
-// Created by matejbucek on 31.8.22.
-//
-
+/**
+ * @file Lock.h
+ * @author Matěj Bucek (matejbucek)
+ *
+ * This file was inspired by OSBlog.
+ */
 #pragma once
 
 namespace Utils::Locks {

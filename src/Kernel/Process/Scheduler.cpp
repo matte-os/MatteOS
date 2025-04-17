@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 21.10.22.
-//
-
+/**
+ * @file Scheduler.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Process/ProcessManager.h>
 #include <Kernel/Process/Scheduler.h>
 #include <Kernel/System/System.h>

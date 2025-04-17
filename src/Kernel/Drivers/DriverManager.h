@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 6.7.24.
-//
-
+/**
+ * @file DriverManager.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Kernel/Drivers/DeviceDriver.h>

@@ -1,3 +1,7 @@
+/**
+ * @file FileDescriptorTable.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/FileSystem/FileDescriptorTable.h>
 #include <Utils/Errors/ErrorOr.h>
 

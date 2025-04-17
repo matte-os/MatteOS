@@ -1,5 +1,5 @@
-//
-// Created by matejbucek on 8.7.24.
-//
-
+/**
+ * @file VirtQueue.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Drivers/VirtIO/VirtQueue.h>

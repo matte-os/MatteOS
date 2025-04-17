@@ -1,3 +1,9 @@
+/**
+ * @file PageTableEntry.h
+ * @author Matěj Bucek
+ *
+ * This file is based on the RISC-V specification.
+ */
 #pragma once
 
 #include <Utils/Types.h>

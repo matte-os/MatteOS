@@ -1,7 +1,10 @@
-//
-// Created by matejbucek on 1.9.22.
-//
-
+/**
+ * @file KernelMemoryAllocator.cpp
+ * @author Matěj Bucek
+ *
+ * The allocator is inspired by the memory allocator implemented in the
+ * repository osblog written by Stephen Marz
+ */
 #include <Kernel/Memory/KernelMemoryAllocator.h>
 #include <Kernel/Memory/MemoryManager.h>
 #include <Utils/Assertions.h>

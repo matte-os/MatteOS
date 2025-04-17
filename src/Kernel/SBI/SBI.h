@@ -1,3 +1,9 @@
+/**
+ * @file SBI.h
+ * @author Matěj Bucek
+ *
+ * This file was inspired by Linux.
+ */
 #pragma once
 
 #include <Utils/Types.h>

@@ -1,3 +1,7 @@
+/**
+ * @file Console.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/API/Syscall.h>
 #include <Kernel/Process/Console/Console.h>
 #include <Utils/Memory.h>
@@ -18,7 +22,7 @@ void print_help() {
                              "1. dmesg - Print the kernel log\n"
                              "2. stats - Print the system stats\n"
                              "3. excel - Print a message to Excel@FIT\n"
-                             "4. ls - List files in the current directory\n"
+                             "4. ls - List files in the / directory (FAT32)\n"
                              "5. mem - Print memory statistics\n"
                              "6. help - Show this help message\n";
 

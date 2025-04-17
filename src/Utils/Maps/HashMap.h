@@ -1,3 +1,7 @@
+/**
+ * @file HashMap.h
+ * @author Matěj Bucek (matejbucek)
+ */
 #pragma once
 
 #include <Utils/Arrays/Array.h>

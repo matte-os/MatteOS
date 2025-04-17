@@ -1,3 +1,7 @@
+/**
+ * @file Optional.h
+ * @author Matěj Bucek (matejbucek)
+ */
 #pragma once
 
 #include <Utils/Assertions.h>
@@ -8,7 +12,7 @@ namespace Utils {
   template<class E>
   class Optional {
     bool m_has_value;
-    alignas(E) char m_storage[sizeof(E)];// Properly aligned storage for m_value
+    alignas(E) char m_storage[sizeof(E)];
 
     E* value_ptr() { return reinterpret_cast<E*>(m_storage); }
 

@@ -1,10 +1,9 @@
 /**
  * @file ErrorOr.h
- * @brief File containing Error and ErrorOr classes.
+ * @author Matěj Bucek (matejbucek)
  *
- * @author Matěj Bucek
+ * This file was inspired by SerenityOS.
  */
-
 #pragma once
 
 #include <Utils/Forwards.h>
@@ -12,7 +11,6 @@
 #include <Utils/Traits.h>
 #include <Utils/Variant.h>
 
-// Implemented similarly to SerenityOS
 #define TRY(expr)                           \
   ({                                        \
     auto _temporary_result = expr;          \

@@ -1,3 +1,9 @@
+/**
+ * @file String.cpp
+ * @author Matěj Bucek (matejbucek)
+ *
+ * This file was inspired by SerenityOS.
+ */
 #include <Utils/Arrays/ArrayList.h>
 #include <Utils/Basic.h>
 #include <Utils/Strings/String.h>

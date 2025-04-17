@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 21.10.22.
-//
-
+/**
+ * @file Scheduler.h
+ * @author Matěj Bucek
+ */
 #pragma once
 #include "Process.h"
 #include <Kernel/System/TrapFrame.h>

@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 3.9.24.
-//
-
+/**
+ * @file VirtIODriver.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Devices/DeviceManager.h>
 #include <Kernel/Drivers/VirtIO/VirtIODriver.h>
 #include <Kernel/Firmware/DeviceTree.h>

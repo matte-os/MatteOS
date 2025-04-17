@@ -1,3 +1,7 @@
+/**
+ * @file Endian.h
+ * @author Matěj Bucek (matejbucek)
+ */
 #pragma once
 
 #include <Utils/Types.h>

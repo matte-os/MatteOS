@@ -1,3 +1,9 @@
+/**
+ * @file FDTParser.cpp
+ * @author Matěj Bucek
+ *
+ * This file is based on the Flat Device Tree (FDT) specification.
+ */
 #include <Kernel/Firmware/FDT/FDTParser.h>
 #include <Utils/DebugConsole.h>
 #include <Utils/Traits.h>

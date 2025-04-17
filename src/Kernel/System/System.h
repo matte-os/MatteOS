@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 1.9.22.
-//
-
+/**
+ * @file System.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Kernel/Arch/riscv64/CSR.h>

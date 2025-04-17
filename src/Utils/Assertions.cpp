@@ -1,3 +1,7 @@
+/**
+ * @file Assertions.cpp
+ * @author Matěj Bucek (matejbucek)
+ */
 #include <Kernel/Arch/riscv64/CPU.h>
 #include <Utils/Assertions.h>
 #include <Utils/DebugConsole.h>

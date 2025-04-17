@@ -1,3 +1,7 @@
+/**
+ * @file PageTable.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Memory/PageTable.h>
 #include <Kernel/Memory/PageTableEntry.h>
 #include <Utils/Basic.h>

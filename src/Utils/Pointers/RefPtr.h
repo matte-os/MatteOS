@@ -1,7 +1,9 @@
-//
-// Created by matejbucek on 1.9.22.
-//
-
+/**
+ * @file RefPtr.h
+ * @author Matěj Bucek (matejbucek)
+ *
+ * This file was inspired by SerenityOS.
+ */
 #pragma once
 #include <Utils/Traits.h>
 

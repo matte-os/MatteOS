@@ -1,3 +1,7 @@
+/**
+ * @file AccessPrivileges.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 namespace Kernel {

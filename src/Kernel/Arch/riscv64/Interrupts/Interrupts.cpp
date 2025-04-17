@@ -1,3 +1,8 @@
+/**
+ * @file Interrupts.cpp
+ * @author Matěj Bucek
+ */
+
 #include <Kernel/Arch/riscv64/CSR.h>
 #include <Kernel/Arch/riscv64/Interrupts/Interrupts.h>
 #include <Kernel/Arch/riscv64/Interrupts/Plic.h>

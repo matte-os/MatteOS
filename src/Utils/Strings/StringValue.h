@@ -1,7 +1,9 @@
-//
-// Created by matejbucek on 10.9.22.
-//
-
+/**
+ * @file StringValue.cpp
+ * @author Matěj Bucek (matejbucek)
+ *
+ * This file was inspired by SerenityOS.
+ */
 #pragma once
 
 #include <Utils/DebugConsole.h>

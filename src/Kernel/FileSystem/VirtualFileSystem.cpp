@@ -1,3 +1,7 @@
+/**
+ * @file VirtualFileSystem.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Devices/Device.h>
 #include <Kernel/FileSystem/FATFS/FATFileSystem.h>
 #include <Kernel/FileSystem/FileSystem.h>

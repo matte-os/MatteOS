@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 1.9.22.
-//
-
+/**
+ * @file System.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Arch/riscv64/CPU.h>
 #include <Kernel/Devices/Console/ConsoleDevice.h>
 #include <Kernel/Devices/DeviceManager.h>

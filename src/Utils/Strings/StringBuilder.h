@@ -1,3 +1,7 @@
+/**
+ * @file StringBuilder.h
+ * @author Matěj Bucek (matejbucek)
+ */
 #pragma once
 
 #include <Utils/Strings/String.h>
@@ -5,7 +9,6 @@
 namespace Utils {
   using Utils::String;
   class StringBuilder {
-  private:
     static constexpr size_t DEFAULT_CAPACITY = 16;
     char* m_data;
     size_t m_capacity;

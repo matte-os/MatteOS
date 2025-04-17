@@ -1,3 +1,7 @@
+/**
+ * @file DeviceTree.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Kernel/Firmware/FDT/FDT.h>

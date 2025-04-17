@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 2.9.22.
-//
-
+/**
+ * @file MemoryRegion.cpp
+ * @author Matěj Bucek
+ */
 #pragma once
 #include <Utils/Types.h>
 
@@ -12,7 +12,6 @@ namespace Kernel {
     VirtIO
   };
   class MemoryRegion {
-  private:
     MemoryRegionType m_type = MemoryRegionType::Uninitialized;
     u64 m_start_address{};
     u64 m_size{};

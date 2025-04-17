@@ -1,7 +1,9 @@
-//
-// Created by matejbucek on 28.8.24.
-//
-
+/**
+ * @file FATFileSystem.cpp
+ * @author Matěj Bucek
+ *
+ * This file is based on the FAT32 specification.
+ */
 #include <Kernel/Devices/Device.h>
 #include <Kernel/FileSystem/FATFS/FAT.h>
 #include <Kernel/FileSystem/FATFS/FATFileSystem.h>

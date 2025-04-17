@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 14.7.24.
-//
-
+/**
+ * @file StringBuilder.cpp
+ * @author Matěj Bucek (matejbucek)
+ */
 #include <Utils/Memory.h>
 #include <Utils/Strings/StringBuilder.h>
 

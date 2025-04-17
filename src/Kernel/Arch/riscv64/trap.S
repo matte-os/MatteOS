@@ -1,3 +1,8 @@
+##
+## @file trap.S
+## @author Matěj Bucek
+##
+## Some parts of this file were taken and inspired from OSBlog
 .option norvc
 .altmacro
 .set NUM_GP_REGS, 32  # Number of registers per context
@@ -116,9 +121,6 @@ m_trap_vector:
 		load_gp %i
 		.set	i, i+1
 	.endr
-
-	# Since we ran this loop 31 times starting with i = 1,
-	# the last one loaded t6 back to its original value.
 
 	sret
 

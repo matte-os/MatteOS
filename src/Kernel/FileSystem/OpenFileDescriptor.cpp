@@ -1,5 +1,8 @@
+/**
+ * @file OpenFileDescriptor.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/FileSystem/OpenFileDescriptor.h>
-
 namespace Kernel {
 
   void OpenFileDescriptor::open() {

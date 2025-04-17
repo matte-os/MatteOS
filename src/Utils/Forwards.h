@@ -1,3 +1,7 @@
+/**
+ * @file Forwards.h
+ * @author Matěj Bucek (matejbucek)
+ */
 #pragma once
 
 namespace Utils {

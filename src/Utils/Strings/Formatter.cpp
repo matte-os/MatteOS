@@ -1,3 +1,7 @@
+/**
+ * @file Formatter.cpp
+ * @author Matěj Bucek (matejbucek)
+ */
 #include <Utils/Strings/Formatter.h>
 
 namespace Utils {

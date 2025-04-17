@@ -1,3 +1,7 @@
+/**
+ * @file OpenFileDescriptor.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Kernel/FileSystem/Inode.h>

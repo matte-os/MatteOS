@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 10.9.22.
-//
-
+/**
+ * @file kmalloc.h
+ * @author Matěj Bucek (matejbucek)
+ */
 #pragma once
 
 #include <Kernel/Memory/KernelMemoryAllocator.h>

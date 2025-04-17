@@ -1,8 +1,7 @@
-//
-// Created by matejbucek on 17.4.25.
-//
-
-
+/**
+ * @file SyscallStatistics.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Syscalls/SyscallStatistics.h>
 
 namespace Kernel {

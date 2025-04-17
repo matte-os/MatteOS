@@ -1,8 +1,7 @@
-//
-// Created by matejbucek on 24.8.24.
-//
-
-
+/**
+ * @file Driver.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Drivers/Driver.h>
 
 namespace Kernel {

@@ -1,3 +1,7 @@
+/**
+ * @file Locked.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Utils/Traits.h>

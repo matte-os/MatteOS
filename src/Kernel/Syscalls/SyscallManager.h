@@ -1,10 +1,8 @@
 /**
  * @file SyscallManager.h
  * @brief Contains the SyscallManager class and all the handlers for syscalls.
- *
- * @author Matěj Bucek (matejbucek)
+ * @author Matěj Bucek
  */
-
 #pragma once
 
 
@@ -19,9 +17,6 @@ using Utils::Function;
 using Utils::String;
 
 namespace Kernel {
-  /**
-   * @brief SyscallManager is a singleton class that manages syscalls.
-   */
   class SyscallManager {
     SyscallStatistics m_statistics;
 

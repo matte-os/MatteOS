@@ -1,3 +1,7 @@
+/**
+ * @file Callable.h
+ * @author Matěj Bucek (matejbucek)
+ */
 #pragma once
 
 #include <Utils/Pointers/RefCounted.h>
@@ -11,7 +15,6 @@ namespace Utils {
 
   template<typename ReturnType, typename... Args>
   class Callable {
-  private:
     struct AnonymousFunction : public RefCounted<AnonymousFunction> {
       virtual ReturnType invoke(Args...) = 0;
       virtual ~AnonymousFunction() = default;

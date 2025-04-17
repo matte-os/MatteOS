@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 28.8.24.
-//
-
+/**
+ * @file FATInode.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Kernel/FileSystem/FATFS/FAT.h>

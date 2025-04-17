@@ -1,3 +1,7 @@
+/**
+ * @file Assertions.h
+ * @author Matěj Bucek (matejbucek)
+ */
 #pragma once
 
 #ifdef __GNUC__

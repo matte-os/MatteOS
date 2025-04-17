@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 24.8.24.
-//
-
+/**
+ * @file Driver.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Kernel/Forwards.h>

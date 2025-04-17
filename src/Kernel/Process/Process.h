@@ -1,7 +1,9 @@
-//
-// Created by matejbucek on 8.10.22.
-//
-
+/**
+ * @file Process.h
+ * @author Matěj Bucek
+ *
+ * This file was inspired by SerenityOS.
+ */
 #pragma once
 
 #include "Userspace.h"

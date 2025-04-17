@@ -1,6 +1,9 @@
-//
-// Created by matejbucek on 1.9.22.
-//
+/**
+ * @file FDT.h
+ * @author Matěj Bucek
+ *
+ * This file was based on the Flat Device Tree (FDT) specification.
+ */
 
 #pragma once
 #include <Utils/Arrays/ArrayList.h>

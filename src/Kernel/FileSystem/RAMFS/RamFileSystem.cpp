@@ -1,3 +1,7 @@
+/**
+ * @file RamFileSystem.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/FileSystem/RAMFS/RamFileSystem.h>
 #include <Kernel/Devices/Device.h>
 

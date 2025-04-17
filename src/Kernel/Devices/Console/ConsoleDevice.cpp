@@ -1,3 +1,7 @@
+/**
+* @file ConsoleDevice.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Devices/Console/ConsoleDevice.h>
 #include <Kernel/Drivers/Console/ConsoleDeviceDriver.h>
 #include <Kernel/Process/ProcessManager.h>

@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 29.10.22.
-//
-
+/**
+ * @file Thread.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Process/Thread.h>
 
 namespace Kernel {

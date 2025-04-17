@@ -1,3 +1,7 @@
+/**
+ * @file LinkedList.h
+ * @author Matěj Bucek (matejbucek)
+ */
 #pragma once
 
 #include <Utils/Callable.h>

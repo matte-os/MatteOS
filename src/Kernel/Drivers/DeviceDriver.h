@@ -1,3 +1,7 @@
+/**
+ * @file DeviceDriver.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Kernel/Forwards.h>

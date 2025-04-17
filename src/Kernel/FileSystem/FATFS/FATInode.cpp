@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 28.8.24.
-//
-
+/**
+ * @file FATInode.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/FileSystem/FATFS/FATFileSystem.h>
 #include <Kernel/FileSystem/FATFS/FATInode.h>
 #include <Kernel/Process/Request.h>

@@ -1,7 +1,9 @@
-//
-// Created by matejbucek on 8.7.24.
-//
-
+/**
+ * @file VirtQueue.h
+ * @author Matěj Bucek
+ *
+ * This file is based on the VirtIO specification
+ */
 #pragma once
 
 #include <Kernel/Memory/MemoryManager.h>

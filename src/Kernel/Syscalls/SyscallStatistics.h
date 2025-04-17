@@ -1,3 +1,7 @@
+/**
+ * @file SyscallStatistics.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Kernel/API/Syscall.h>

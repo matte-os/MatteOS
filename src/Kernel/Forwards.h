@@ -1,3 +1,7 @@
+/**
+ * @file Forwards.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 namespace Kernel {

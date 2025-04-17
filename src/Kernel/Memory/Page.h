@@ -1,3 +1,8 @@
+/**
+ * @file Page.h
+ * @author Matěj Bucek
+ * This file is inspired by OSBlog.
+ */
 #pragma once
 #include <Utils/Types.h>
 

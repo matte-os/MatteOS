@@ -1,3 +1,8 @@
+/**
+ * @file cxx.cpp
+ * @author Matěj Bucek (matejbucek)
+ */
+
 extern "C" {
 
 int __cxa_atexit(void (*Destructor)(void*), void* Parameter, void* HomeDSO);

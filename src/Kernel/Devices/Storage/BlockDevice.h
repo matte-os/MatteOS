@@ -1,3 +1,7 @@
+/**
+ * @file BlockDevice.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Kernel/Devices/AsyncRequest.h>
@@ -13,7 +17,6 @@ namespace Kernel {
   };
 
   class BlockDeviceAsyncResult : public AsyncResult {
-  private:
     BlockDeviceAsyncRequestType m_type;
 
   public:
@@ -23,7 +26,6 @@ namespace Kernel {
   };
 
   class BlockDeviceAsyncRequest : public AsyncRequest {
-  private:
     u8* m_buffer;
     u64 m_size;
     u64 m_offset;
@@ -48,7 +50,6 @@ namespace Kernel {
   };
 
   class BlockDevice : public Device {
-  private:
     ArrayList<RefPtr<BlockDeviceAsyncRequest>> m_requests;
     //FIXME: This should be atomic.
     s64 m_next_request_id = 0;

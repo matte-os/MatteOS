@@ -1,3 +1,9 @@
+/**
+ * @file FAT.h
+ * @author Matěj Bucek
+ *
+ * This file is based on the FAT32 specification.
+ */
 #pragma once
 
 #include <Utils/Traits.h>

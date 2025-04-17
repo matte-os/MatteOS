@@ -1,3 +1,7 @@
+/**
+ * @file InterruptManager.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Arch/PLIC.h>
 #include <Kernel/System/InterruptManager.h>
 #include <Utils/Assertions.h>

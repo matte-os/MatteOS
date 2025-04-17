@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 1.1.25.
-//
-
+/**
+ * @file Observable.h
+ * @author Matěj Bucek (matejbucek)
+ */
 #pragma once
 
 template<typename T>

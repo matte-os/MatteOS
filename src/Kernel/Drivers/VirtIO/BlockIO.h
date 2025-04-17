@@ -1,3 +1,9 @@
+/**
+ * @file BlockIO.h
+ * @author Matěj Bucek
+ *
+ * This code is based on the VirtIO specification
+ */
 #pragma once
 
 #include <Utils/Endian.h>

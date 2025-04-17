@@ -1,3 +1,7 @@
+/**
+ * @file Map.h
+ * @author Matěj Bucek (matejbucek)
+ */
 #pragma once
 
 #include <Utils/Errors/ErrorOr.h>

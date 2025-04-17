@@ -1,3 +1,9 @@
+/**
+ * @file BlockBackedFileSystem.cpp
+ * @author Matěj Bucek
+ *
+ * This file was inspired by the SerenityOS's BlockBasedFileSystem.
+ */
 #pragma once
 
 #include <Kernel/Devices/Storage/BlockDevice.h>

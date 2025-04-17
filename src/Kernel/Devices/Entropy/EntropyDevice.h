@@ -1,3 +1,7 @@
+/**
+ * @file EntropyDevice.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Kernel/Devices/Device.h>

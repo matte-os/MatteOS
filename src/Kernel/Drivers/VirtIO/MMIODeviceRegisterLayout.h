@@ -1,3 +1,9 @@
+/**
+ * @file MMIODeviceRegisterLayout.h
+ * @author Matěj Bucek
+ *
+ * This code is based on the VirtIO specification
+ */
 #pragma once
 
 #include <Utils/Types.h>

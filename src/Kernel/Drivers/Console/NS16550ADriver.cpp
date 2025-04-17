@@ -1,3 +1,9 @@
+/**
+ * @file NS16550ADriver.cpp
+ * @author Matěj Bucek
+ *
+ * This code was inspired by wiki.osdev.org/Serial_Ports
+ */
 #include <Kernel/Devices/Device.h>
 #include <Kernel/Drivers/Console/NS16550ADriver.h>
 

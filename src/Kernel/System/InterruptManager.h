@@ -1,3 +1,7 @@
+/**
+* @file InterruptManager.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Kernel/Arch/Interrupts.h>

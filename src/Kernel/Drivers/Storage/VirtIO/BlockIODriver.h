@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 24.8.24.
-//
-
+/**
+ * @file BlockIODriver.cpp
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Kernel/Drivers/DeviceDriver.h>
@@ -14,7 +14,7 @@ namespace Kernel {
 
   class BlockIODriver : public BlockDeviceDriver {
     RefPtr<BlockDevice> m_device;
-    ArrayList<BlockIO::Request*> m_ignored_requests; // This is used to ignore requests, that were issued using poll methods
+    ArrayList<BlockIO::Request*> m_ignored_requests;// This is used to ignore requests, that were issued using poll methods
 
   public:
     explicit BlockIODriver(RefPtr<BlockDevice> device);

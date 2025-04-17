@@ -1,3 +1,7 @@
+/**
+ * @file SyscallDebug.cpp
+ * @author Matěj Bucek
+ */
 #include "SyscallManager.h"
 
 

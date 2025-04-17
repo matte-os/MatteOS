@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 30.10.22.
-//
-
+/**
+ * @file Locked.h
+ * @author Matěj Bucek (matejbucek)
+ */
 #pragma once
 
 #include <Utils/Locks/Lock.h>

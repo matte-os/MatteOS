@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 4.7.24.
-//
-
+/**
+ * @file DeviceManager.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Devices/Device.h>
 #include <Kernel/Devices/DeviceManager.h>
 #include <Kernel/Devices/Entropy/EntropyDevice.h>

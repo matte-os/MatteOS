@@ -1,3 +1,9 @@
+/**
+ * @file FileSystem.h
+ * @author Matěj Bucek
+ *
+ * This file was inspired by SerenityOS.
+ */
 #pragma once
 
 #include <Kernel/FileSystem/Inode.h>

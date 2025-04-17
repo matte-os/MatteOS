@@ -1,5 +1,5 @@
-//
-// Created by matejbucek on 10.9.22.
-//
-
+/**
+ * @file kmalloc.cpp
+ * @author Matěj Bucek (matejbucek)
+ */
 #include <Utils/kmalloc.h>

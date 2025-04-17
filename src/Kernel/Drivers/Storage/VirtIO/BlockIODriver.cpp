@@ -1,8 +1,9 @@
-//
-// Created by matejbucek on 24.8.24.
-//
-
-
+/**
+ * @file BlockIODriver.cpp
+ * @author Matěj Bucek
+ *
+ * This code was inspired by OSBlog
+ */
 #include <Kernel/Devices/Device.h>
 #include <Kernel/Devices/Storage/BlockDevice.h>
 #include <Kernel/Drivers/Storage/VirtIO/BlockIODriver.h>

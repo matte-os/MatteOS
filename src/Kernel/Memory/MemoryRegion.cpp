@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 2.9.22.
-//
-
+/**
+ * @file MemoryRegion.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Memory/MemoryRegion.h>
 
 namespace Kernel {

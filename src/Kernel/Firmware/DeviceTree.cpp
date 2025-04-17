@@ -1,3 +1,8 @@
+/**
+ * @file DeviceTree.cpp
+ * @author Matěj Bucek
+ */
+
 #include <Kernel/Firmware/DeviceTree.h>
 #include <Utils/Assertions.h>
 

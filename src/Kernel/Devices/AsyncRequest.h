@@ -1,3 +1,7 @@
+/**
+ * @file AsyncRequest.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Utils/Errors/ErrorOr.h>
@@ -6,7 +10,6 @@
 namespace Kernel {
 
   class AsyncResult : public RefCounted<AsyncResult> {
-  private:
     s64 m_request_id;
 
   public:
@@ -16,7 +19,6 @@ namespace Kernel {
   };
 
   class AsyncRequest : public RefCounted<AsyncRequest> {
-  private:
     s64 m_id;
 
   public:

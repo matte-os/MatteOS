@@ -1,3 +1,7 @@
+/**
+ * @file Function.h
+ * @author Matěj Bucek (matejbucek)
+ */
 #pragma once
 
 namespace Utils {

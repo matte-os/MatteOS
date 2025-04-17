@@ -1,7 +1,10 @@
-//
-// Created by matejbucek on 31.8.22.
-//
-
+/**
+ * @file MemoryManager.cpp
+ * @author Matěj Bucek
+ *
+ * The allocator is inspired by the memory allocator implemented in the
+ * repository osblog written by Stephen Marz
+ */
 #include <Kernel/Arch/riscv64/Satp.h>
 #include <Kernel/Memory/MemoryManager.h>
 #include <Utils/Assertions.h>

@@ -1,3 +1,8 @@
+/**
+ * @file Interrupts.h
+ * @author Matěj Bucek
+ */
+
 #pragma once
 
 #include <Utils/Types.h>

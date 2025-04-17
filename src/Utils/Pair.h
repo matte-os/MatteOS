@@ -1,3 +1,7 @@
+/**
+ * @file Pair.h
+ * @author Matěj Bucek (matejbucek)
+ */
 #pragma once
 
 namespace Utils {

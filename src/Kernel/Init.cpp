@@ -1,3 +1,7 @@
+/**
+ * @file Init.cpp
+ * @author Matěj Bucek
+ */
 #define KERNEL 1
 
 #include "FileSystem/RAMFS/RamFileSystem.h"

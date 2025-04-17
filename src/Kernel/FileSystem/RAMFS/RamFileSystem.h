@@ -1,3 +1,7 @@
+/**
+ * @file RamFileSystem.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Kernel/FileSystem/FileSystem.h>

@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 28.8.24.
-//
-
+/**
+ * @file FATFileSystem.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Kernel/FileSystem/FATFS/FATInode.h>
@@ -23,7 +23,6 @@ namespace Kernel {
   };
 
   class FATFileSystem : public BlockBackedFileSystem {
-  private:
     friend class FATInode;
     FATType m_fat_type;
     BootSector* m_fat_boot_sector;

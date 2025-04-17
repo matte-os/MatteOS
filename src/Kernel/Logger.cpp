@@ -1,3 +1,7 @@
+/**
+ * @file Logger.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Devices/Console/ConsoleDevice.h>
 #include <Kernel/Devices/Device.h>
 #include <Kernel/Devices/DeviceManager.h>

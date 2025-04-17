@@ -1,3 +1,9 @@
+/**
+ * @file String.h
+ * @author Matěj Bucek (matejbucek)
+ *
+ * This file was inspired by SerenityOS.
+ */
 #pragma once
 
 #include <Utils/DebugConsole.h>

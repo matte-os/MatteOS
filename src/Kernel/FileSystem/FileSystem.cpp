@@ -1,3 +1,7 @@
+/**
+ * @file FileSystem.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/FileSystem/FileSystem.h>
 
 Utils::ErrorOr<RefPtr<Kernel::OpenFileDescriptor>> Kernel::FileSystem::open(const Credentials& credentials, StringView path, FileOpenMode mode) {

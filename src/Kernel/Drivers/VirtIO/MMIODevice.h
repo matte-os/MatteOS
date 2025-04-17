@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 4.7.24.
-//
-
+/**
+ * @file MMIODevice.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Kernel/Drivers/VirtIO/MMIODeviceRegisterLayout.h>

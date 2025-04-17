@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 3.9.24.
-//
-
+/**
+ * @file DeviceDriver.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Drivers/DeviceDriver.h>
 
 namespace Kernel {

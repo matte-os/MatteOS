@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 8.10.22.
-//
-
+/**
+ * @file Process.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Process/Process.h>
 
 namespace Kernel {

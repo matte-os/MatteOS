@@ -1,14 +1,15 @@
-//
-// Created by matejbucek on 10.9.22.
-//
-
+/**
+ * @file RefCounted.h
+ * @author Matěj Bucek (matejbucek)
+ *
+ * This file was inspired by SerenityOS.
+ */
 #pragma once
 
 namespace Utils {
     class RefCountedBase{
     public:
         unsigned int mutable m_ref_count = 0;
-    public:
         void ref() const {
             ++m_ref_count;
         }

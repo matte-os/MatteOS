@@ -1,3 +1,7 @@
+/**
+ * @file PageTable.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Kernel/Memory/VirtualAddress.h>

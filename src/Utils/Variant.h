@@ -1,7 +1,9 @@
-//
-// Created by matejbucek on 24.4.24.
-//
-
+/**
+ * @file Variant.h
+ * @author Matěj Bucek (matejbucek)
+ *
+ * This code was inspired by Tibor Djurica Potpara (https://ojdip.net/2013/10/implementing-a-variant-type-in-cpp).
+ */
 #pragma once
 
 #include <Utils/DebugConsole.h>

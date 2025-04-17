@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 19.6.24.
-//
-
+/**
+ * @file Formatter.cpp
+ * @author Matěj Bucek (matejbucek)
+ */
 #pragma once
 
 #include <Utils/Basic.h>

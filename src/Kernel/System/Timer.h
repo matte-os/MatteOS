@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 13.5.24.
-//
-
+/**
+ * @file Timer.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Utils/Types.h>

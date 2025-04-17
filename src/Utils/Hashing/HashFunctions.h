@@ -1,3 +1,7 @@
+/**
+ * @file HashFunctions.cpp
+ * @author Matěj Bucek (matejbucek)
+ */
 #pragma once
 
 #include <Utils/Function.h>

@@ -1,10 +1,9 @@
-//
-// Created by matejbucek on 1.9.22.
-//
-
+/**
+ * @file ProcessManager.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
-#include <Kernel/Locking/Locked.h>
 #include <Kernel/Process/Process.h>
 #include <Utils/Arrays/Queue.h>
 #include <Utils/Locks/Lock.h>

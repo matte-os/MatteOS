@@ -1,3 +1,7 @@
+/**
+ * @file File.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/FileSystem/VirtualFileSystem.h>
 #include <Kernel/FileSystem/File.h>
 

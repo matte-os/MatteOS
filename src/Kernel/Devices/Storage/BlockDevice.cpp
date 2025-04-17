@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 3.9.24.
-//
-
+/**
+ * @file BlockDevice.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Devices/Storage/BlockDevice.h>
 #include <Kernel/Drivers/Storage/VirtIO/BlockIODriver.h>
 

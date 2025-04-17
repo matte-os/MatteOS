@@ -1,3 +1,9 @@
+/**
+ * @file SBI.cpp
+ * @author Matěj Bucek
+ *
+ * This file was inspired by Linux.
+ */
 #include <Kernel/SBI/SBI.h>
 
 namespace Kernel {

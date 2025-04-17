@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 1.1.25.
-//
-
+/**
+ * @file NS16550ADriver.cpp
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Kernel/Devices/Console/ConsoleDevice.h>

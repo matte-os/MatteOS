@@ -1,3 +1,7 @@
+/**
+ * @file ConsoleDeviceDriver.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Kernel/Drivers/DeviceDriver.h>

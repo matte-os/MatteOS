@@ -1,3 +1,7 @@
+/**
+ * @file FileOpenMode.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Utils/Types.h>

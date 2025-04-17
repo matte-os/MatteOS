@@ -1,4 +1,7 @@
 /**
+* @file KernelMemoryAllocator.cpp
+ * @author Matěj Bucek
+ *
  * The allocator is inspired by the memory allocator implemented in the
  * repository osblog written by Stephen Marz.
  */

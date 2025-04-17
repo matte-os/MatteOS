@@ -1,5 +1,8 @@
-// mem.S
-// Importation of linker symbols
+##
+## @file mem.S
+## @author Matěj Bucek
+##
+## This file was taken from OSBlog
 
 .section .rodata
 .global HEAP_START

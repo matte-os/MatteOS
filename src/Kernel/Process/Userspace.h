@@ -1,3 +1,9 @@
+/**
+ * @file Userspace.h
+ * @author Matěj Bucek
+ *
+ * This file was inspired by SerenityOS.
+ */
 #pragma once
 
 #include <Kernel/Memory/PageTable.h>

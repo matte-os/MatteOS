@@ -1,3 +1,7 @@
+/**
+ * @file Logger.h
+ * @author Matěj Bucek
+ */
 #pragma once
 #include <Kernel/Forwards.h>
 #include <Utils/Arrays/ArrayList.h>

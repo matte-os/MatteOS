@@ -1,3 +1,7 @@
+/**
+ * @file HashFunctions.cpp
+ * @author Matěj Bucek (matejbucek)
+ */
 #include <Utils/Hashing/HashFunctions.h>
 
 namespace Utils {

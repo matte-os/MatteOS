@@ -1,3 +1,8 @@
+/**
+ * @file Page.cpp
+ * @author Matěj Bucek
+ * This file is inspired by OSBlog.
+ */
 #include <Kernel/Memory/Page.h>
 
 namespace Kernel {

@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 6.7.24.
-//
-
+/**
+ * @file DriverManager.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Devices/Device.h>
 #include <Kernel/Drivers/DriverManager.h>
 #include <Kernel/Drivers/Storage/VirtIO/BlockIODriver.h>

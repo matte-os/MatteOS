@@ -1,7 +1,7 @@
-//
-// Created by matejbucek on 13.5.24.
-//
-
+/**
+ * @file Timer.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/Arch/riscv64/CSR.h>
 #include <Kernel/Firmware/DeviceTree.h>
 #include <Kernel/SBI/SBI.h>

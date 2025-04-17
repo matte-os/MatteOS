@@ -1,3 +1,8 @@
+/**
+ * @file CPU.cpp
+ * @author Matěj Bucek
+ */
+
 #include <Kernel/Arch/riscv64/CPU.h>
 
 namespace Kernel {

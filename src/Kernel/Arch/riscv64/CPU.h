@@ -1,3 +1,7 @@
+/**
+ * @file CPU.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Kernel/Arch/riscv64/Satp.h>

@@ -1,3 +1,7 @@
+/**
+ * @file Thread.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #include <Kernel/System/TrapFrame.h>

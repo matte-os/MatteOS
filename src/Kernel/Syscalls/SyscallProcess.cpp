@@ -1,3 +1,7 @@
+/**
+ * @file SyscallProcess.cpp
+ * @author Matěj Bucek
+ */
 #include <Kernel/API/Syscall.h>
 #include <Kernel/Process/Process.h>
 #include <Kernel/Process/ProcessManager.h>

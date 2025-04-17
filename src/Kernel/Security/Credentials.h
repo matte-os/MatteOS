@@ -1,5 +1,10 @@
+/**
+* @file Credentials.h
+ * @author Matěj Bucek
+ *
+ * This file was inspired by SerenityOS.
+ */
 #pragma once
-
 #include <Utils/Types.h>
 
 namespace Kernel {
