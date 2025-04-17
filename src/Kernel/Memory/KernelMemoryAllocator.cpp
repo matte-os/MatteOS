@@ -5,6 +5,7 @@
  * The allocator is inspired by the memory allocator implemented in the
  * repository osblog written by Stephen Marz
  */
+#include <Kernel/Logger.h>
 #include <Kernel/Memory/KernelMemoryAllocator.h>
 #include <Kernel/Memory/MemoryManager.h>
 #include <Utils/Assertions.h>
@@ -83,32 +84,9 @@ namespace Kernel {
   }
 
   void KernelMemoryAllocator::debug() {
-    auto* ptr = m_head;
-    auto* tail = (AllocHeader*) (((u8*) m_head) + m_total_size);
-    AllocHeader* prev = nullptr;
-
-    u64 taken = 0;
-    u64 free = 0;
-    while(ptr < tail) {
-      if(ptr->is_taken()) {
-        taken += ptr->get_size();
-      } else {
-        if(ptr->get_size() > 1000000) {
-          DebugConsole::print("Abnormal free block size: ");
-          DebugConsole::print_ln_number(ptr->get_size(), 10);
-        }
-        free += ptr->get_size();
-      }
-      prev = ptr;
-      ptr = (AllocHeader*) (((u8*) ptr) + ptr->get_size());
-    }
-
-    DebugConsole::print("Taken: ");
-    DebugConsole::print_ln_number(taken, 10);
-    DebugConsole::print("Free Counted: ");
-    DebugConsole::print_ln_number(free, 10);
-    DebugConsole::print("Free: ");
-    DebugConsole::print_ln_number(m_total_size - taken, 10);
+    auto statistics = get_statistics();
+    dbglog_direct("KernelMemoryAllocator: total size: {16}, free size: {16}, used size: {16}\n",
+          statistics.total_size, statistics.free_size, statistics.used_size);
   }
 
   KernelMemoryAllocator::Statistics KernelMemoryAllocator::get_statistics() {
@@ -131,6 +109,20 @@ namespace Kernel {
     return {m_total_size, free, taken};
   }
 
+  bool KernelMemoryAllocator::is_in_freed_memory(uintptr_t* potential_ptr) {
+    auto* ptr = m_head;
+    auto* tail = (AllocHeader*) (((u8*) m_head) + m_total_size);
+
+    while(ptr < tail) {
+      if(potential_ptr >= (uintptr_t*) ptr && potential_ptr < (uintptr_t*) (((u8*) ptr) + ptr->get_size()) && ptr->is_free()) {
+        return true;
+      }
+      ptr = (AllocHeader*) (((u8*) ptr) + ptr->get_size());
+    }
+
+    return false;
+  }
+
   void KernelMemoryAllocator::coalesce() {
     auto* ptr = m_head;
     auto* tail = (AllocHeader*) (((u8*) m_head) + m_total_size);
@@ -151,6 +143,7 @@ namespace Kernel {
 }// namespace Kernel
 
 namespace std {// NOLINT(cert-dcl58-cpp) These declarations must be in ::std and we are not using <new>
+
   struct nothrow_t {
     explicit nothrow_t() = default;
   };

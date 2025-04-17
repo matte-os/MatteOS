@@ -62,6 +62,7 @@ namespace Kernel {
     };
 
     Statistics get_statistics();
+    bool is_in_freed_memory(uintptr_t* ptr);
 
   private:
     void coalesce();

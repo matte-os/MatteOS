@@ -44,9 +44,14 @@ namespace Utils {
 
     ArrayList(const ArrayList& other) {
       m_array = kmalloc<T>(sizeof(T) * other.m_size);
+      memset(reinterpret_cast<char*>(m_array), 0, sizeof(T) * other.m_size);
       m_size = other.m_size;
       m_ptr = other.m_ptr;
-      memcpy((char*) m_array, (char*) other.m_array, m_ptr * sizeof(T));
+
+      // Deep copy the elements
+      for(size_t i = 0; i < m_ptr; i++) {
+        new(&m_array[i]) T(other.m_array[i]);
+      }
     }
 
     ArrayList(ArrayList&& other) noexcept {
@@ -66,6 +71,9 @@ namespace Utils {
         m_array[i].~T();
       }
       kfree(m_array);
+      m_array = nullptr;
+      m_size = 0;
+      m_ptr = 0;
     }
 
     /**
@@ -147,9 +155,13 @@ namespace Utils {
     ArrayList& operator=(const ArrayList& other) {
       if(this == &other) return *this;
       m_array = kmalloc<T>(sizeof(T) * other.m_size);
+      memset(reinterpret_cast<char*>(m_array), 0, sizeof(T) * other.m_size);
       m_size = other.m_size;
       m_ptr = other.m_ptr;
-      memcpy((char*) m_array, (char*) other.m_array, m_ptr * sizeof(T));
+      // Deep copy the elements
+      for(size_t i = 0; i < m_ptr; i++) {
+        new(&m_array[i]) T(other.m_array[i]);
+      }
       return *this;
     }
 

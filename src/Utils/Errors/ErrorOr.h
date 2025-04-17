@@ -77,59 +77,93 @@ namespace Utils {
     using ErrorType = E;
 
   protected:
-    Variant<ResultType, ErrorType> m_value_or_error;
+    alignas(ResultType) unsigned char m_result_data[sizeof(ResultType)];
+    alignas(ErrorType) unsigned char m_error_data[sizeof(ErrorType)];
+    bool m_has_value;
 
-    ErrorOr() = default;
+    // Helper methods to manage construction and destruction
+    void construct_result_type(const ResultType& value) {
+      new(&m_result_data) ResultType(value);// placement new
+    }
+
+    void construct_result_type(ResultType&& value) {
+      new(&m_result_data) ResultType(move(value));// placement new
+    }
+
+    void construct_error_type(const ErrorType& error) {
+      new(&m_error_data) ErrorType(error);// placement new
+    }
+
+    void construct_error_type(ErrorType&& error) {
+      new(&m_error_data) ErrorType(move(error));// placement new
+    }
+
+    void destroy_result_type() {
+      reinterpret_cast<ResultType*>(&m_result_data)->~ResultType();// manually call the destructor
+    }
+
+    void destroy_error_type() {
+      reinterpret_cast<ErrorType*>(&m_error_data)->~ErrorType();// manually call the destructor
+    }
 
   public:
-    ErrorOr(ResultType& value) {
-      m_value_or_error.template set<ResultType>(value);
+    // Constructors for success and error
+    ErrorOr(const ResultType& value) : m_has_value(true) {
+      construct_result_type(value);
     }
 
-    ErrorOr(ResultType&& value) {
-      m_value_or_error.template set<ResultType>(move(value));
+    ErrorOr(ResultType&& value) : m_has_value(true) {
+      construct_result_type(move(value));
     }
 
-    ErrorOr(ErrorType error) {
-      m_value_or_error.template set<ErrorType>(error);
+    ErrorOr(const ErrorType& error) : m_has_value(false) {
+      construct_error_type(error);
     }
 
-    ErrorOr(const ErrorOr& other) {
-      if(other.has_error()) {
-        m_value_or_error.template set<ErrorType>(other.get_error());
+    ErrorOr(ErrorType&& error) : m_has_value(false) {
+      construct_error_type(move(error));
+    }
+
+    // Copy constructor
+    ErrorOr(const ErrorOr& other) : m_has_value(other.m_has_value) {
+      if(m_has_value) {
+        construct_result_type(other.get_value());
       } else {
-        m_value_or_error.template set<ResultType>(other.get_value());
+        construct_error_type(other.get_error());
       }
     }
 
-    static ErrorOr<T, E> create(T& value) { return ErrorOr<T, E>(value); }
+    // Destructor
+    ~ErrorOr() {
+      if(m_has_value) {
+        destroy_result_type();
+      } else {
+        destroy_error_type();
+      }
+    }
+
+    // Static creators
+    static ErrorOr<T, E> create(const T& value) { return ErrorOr<T, E>(value); }
 
     static ErrorOr<T, E> create(T&& value) { return ErrorOr<T, E>(move(value)); }
 
-    static ErrorOr<T, E> create_error(ErrorType error) {
-      return ErrorOr<T, E>(error);
+    static ErrorOr<T, E> create_error(const E& error) { return ErrorOr<T, E>(error); }
+
+    // Accessors
+    bool has_value() const { return m_has_value; }
+
+    bool has_error() const { return !m_has_value; }
+
+    ResultType get_value() const {
+      return *reinterpret_cast<const ResultType*>(&m_result_data);
     }
 
-    ~ErrorOr() = default;
-
-    [[nodiscard]] bool has_value() const {
-      return m_value_or_error.template is<ResultType>();
+    ErrorType get_error() const {
+      return *reinterpret_cast<const ErrorType*>(&m_error_data);
     }
 
-    [[nodiscard]] bool has_error() const {
-      return m_value_or_error.template is<ErrorType>();
-    }
-
-    [[nodiscard]] ResultType get_value() const {
-      return m_value_or_error.template as<ResultType>();
-    }
-
-    [[nodiscard]] ErrorType get_error() const {
-      return m_value_or_error.template as<ErrorType>();
-    }
-
-    [[nodiscard]] ResultType&& get_unique() {
-      return move(m_value_or_error.template as<ResultType>());
+    ResultType&& get_unique() {
+      return move(*reinterpret_cast<ResultType*>(&m_result_data));
     }
 
     operator bool() const {
@@ -146,14 +180,10 @@ namespace Utils {
     using ErrorType = E;
 
     // Default constructor for success
-    ErrorOr() {
-      this->m_value_or_error.template set<ResultType>(Empty{});
-    }
+    ErrorOr() : ErrorOr<Empty, E>(Empty {}) {}
 
     // Constructor from ErrorType
-    ErrorOr(ErrorType error) {
-      this->m_value_or_error.template set<ErrorType>(error);
-    }
+    ErrorOr(ErrorType error) : ErrorOr<Empty, E>(move(error)) {}
 
     ErrorOr(const ErrorOr<Empty, E>& other)
         : ErrorOr<Empty, E>(other) {}// Properly initialize the base class
