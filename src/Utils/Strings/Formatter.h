@@ -56,6 +56,7 @@ namespace Utils {
         context.open = false;
         if constexpr(StringifiableWithFlags<T>) {
           context.result += to_string(value, context.flags);
+          context.flags = "";
         } else if constexpr(Stringifiable<T>) {
           context.result += to_string(value);
         } else if constexpr(StringifiablePointer<T>) {
