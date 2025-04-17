@@ -6,9 +6,9 @@
 
 namespace Utils {
   extern "C" {
-  void* memcpy(char* dst, const char* src, int n);
-  void* memset(char* dst, int ch, int n);
-  void* memmov(char* dst, char* src, int base, int until, int to);
+  void* memcpy(char* destination, const char* source, int n);
+  void* memset(char* destination, int c, int n);
+  int strcmp(const char* str1, const char* str2);
   }
 
   template<typename T>

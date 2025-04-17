@@ -1,3 +1,8 @@
+/**
+ * @file DebugConsole.cpp
+ * @author Matěj Bucek (matejbucek)
+ */
+
 #include <Kernel/SBI/SBI.h>
 #include <Utils/Basic.h>
 #include <Utils/DebugConsole.h>
@@ -63,12 +68,4 @@ namespace Utils {
   void DebugConsole::switch_to_device() {
     use_device = true;
   }
-
-  /*
-  void DebugConsole::dbgln(const char* fmt, ...) {
-            va_list args;
-        va_start(args, fmt);
-
-        va_end(args);
-  } */
 };// namespace Utils

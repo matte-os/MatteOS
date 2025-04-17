@@ -1,3 +1,10 @@
+/**
+ * @file Basic.cpp
+ * @author Matěj Bucek (matejbucek)
+ *
+ * This file was inspired by Samy Pessé, How to make a Computer Operating System,
+ * https://github.com/SamyPesse/How-to-Make-a-Computer-Operating-System/blob/master/src/kernel/runtime/itoa.cc
+ */
 #include <Utils/Basic.h>
 
 void itoa(char* buf, unsigned long int n, int base) {
@@ -38,11 +45,8 @@ size_t atoi(const char* str, size_t base) {
     } else if(str[i] >= 'A' && str[i] <= 'F') {
       result = result * base + (str[i] - 'A' + 10);
     } else {
-      // Handle invalid character for the base
-      // (You may want to return an error code or handle it differently)
       return sign * result;
     }
   }
-
   return sign * result;
 }

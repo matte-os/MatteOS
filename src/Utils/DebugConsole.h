@@ -1,3 +1,7 @@
+/**
+ * @file DebugConsole.h
+ * @author Matěj Bucek (matejbucek)
+ */
 #pragma once
 
 #include <Utils/Forwards.h>

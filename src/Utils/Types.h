@@ -1,6 +1,9 @@
 /**
  * @file Types.h
  * @author Matěj Bucek (matejbucek)
+ *
+* This file contains type definitions from Samy Passém, How to make a Computer Operating System,
+ * https://github.com/SamyPesse/How-to-Make-a-Computer-Operating-System/blob/master/src/kernel/runtime/types.h
  */
 #pragma once
 #define NULL 0

@@ -7,15 +7,8 @@
 #include <Utils/Memory.h>
 #include <Utils/Types.h>
 
-int strcmp(const char* str1, const char* str2) {
-  for(; *str1 && *str2; ++str1, ++str2) {
-    if(*str1 != *str2) {
-      return *str1 - *str2;
-    }
-  }
-
-  return *str1 - *str2;
-}
+using Utils::memset;
+using Utils::strcmp;
 
 void print_help() {
   const char* help_message = "Available commands:\n"
@@ -62,7 +55,7 @@ extern "C" int console_main() {
       }
     }
     // Clear the buffer for the next command just in case
-    Utils::memset(buffer, 0, 512);
+    memset(buffer, 0, 512);
   }
 
   Kernel::syscall(Kernel::Syscalls::Sys$exit, 0);
