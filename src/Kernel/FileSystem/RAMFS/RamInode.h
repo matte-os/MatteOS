@@ -14,7 +14,7 @@ namespace Kernel {
 
     class RamInode : public Inode {
         friend class DeviceManager;
-        HashMap<String, RefPtr<Inode> > m_children;
+        HashMap<String, RefPtr<Inode>> m_children;
         RefPtr<RamFileSystem> m_fs;
 
     protected:

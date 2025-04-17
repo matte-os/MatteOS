@@ -53,6 +53,7 @@ namespace Kernel {
       } break;
       case LogOutput::LogFile: {
         m_lines.add(message);
+        m_buffer_size += message.length();
       } break;
     }
   }
@@ -87,6 +88,10 @@ namespace Kernel {
       log(message, m_level);
     }
     m_output = previous;
+  }
+
+  size_t Logger::get_buffer_size() {
+    return m_buffer_size;
   }
 
   void Logger::log_to_console(const String& message) {

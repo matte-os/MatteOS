@@ -40,6 +40,7 @@ namespace Kernel {
 
     RefPtr<ConsoleDevice> m_console;
     ArrayList<String> m_lines;
+    size_t m_buffer_size = 0;
 
   public:
     static void init();
@@ -56,6 +57,8 @@ namespace Kernel {
     void log_to_console(const String& message);
 
     void print_logfile();
+
+    size_t get_buffer_size();
   };
 
   template<typename... Args>

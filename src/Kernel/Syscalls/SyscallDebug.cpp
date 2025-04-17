@@ -60,7 +60,7 @@ namespace Kernel {
     auto memory = format("\\{\"total_pages\": {}, \"free_pages\": {}, \"used_pages\": {}}", memory_statistics.total_pages, memory_statistics.free_pages, memory_statistics.used_pages);
     auto kernel_memory = format("\\{\"total_bytes\": {}, \"free_bytes\": {}, \"used_bytes\": {}}", kernel_memory_statistics.total_size, kernel_memory_statistics.free_size, kernel_memory_statistics.used_size);
 
-    dbglog_direct("\\{\"memory\": {}, \"kernel_memory_allocator\": {}}\n", memory, kernel_memory);
+    dbglog_direct("\\{\"memory\": {}, \"kernel_memory_allocator\": {}, \"logfile\": {}}\n", memory, kernel_memory, Logger::the().get_buffer_size());
     return {0};
   }
 }// namespace Kernel

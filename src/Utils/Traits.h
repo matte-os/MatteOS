@@ -72,13 +72,13 @@ namespace Utils {
   };
 
   template<typename T>
-  constexpr T&& forward(typename remove_reference<T>::type&& arg) noexcept {
-    return static_cast<typename remove_reference<T>::type&&>(arg);
+  constexpr T&& forward(typename remove_reference<T>::type& arg) noexcept {
+    return static_cast<T&&>(arg);
   }
 
   template<typename T>
-  constexpr T&& forward(typename remove_reference<T>::type& arg) noexcept {
-    return static_cast<typename remove_reference<T>::type&&>(arg);
+  constexpr T&& forward(typename remove_reference<T>::type&& arg) noexcept {
+    return static_cast<T&&>(arg);
   }
 
   template<class T>
