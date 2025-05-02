@@ -12,6 +12,7 @@
 
 # Use macros for saving and restoring multiple registers
 # These were taken from the OS Blog by Stephen Marz
+# Copyright (c) 2019 Stephen Marz
 .macro save_gp i, basereg=t6
 	sd	x\i, ((\i)*REG_SIZE)(\basereg)
 .endm

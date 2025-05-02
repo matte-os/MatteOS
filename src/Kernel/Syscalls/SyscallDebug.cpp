@@ -47,7 +47,7 @@ namespace Kernel {
     }
 
     error_or_list.get_value().for_each([](const auto &entry) {
-      dbglog_direct("{}\n", entry.get_name());
+      dbglog_direct("{}\n", entry->get_name());
     });
 
     return {0};

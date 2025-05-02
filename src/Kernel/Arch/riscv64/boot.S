@@ -1,3 +1,8 @@
+##
+## @file trap.S
+## @author Matěj Bucek
+##
+## Some parts of this file were taken and inspired from OSBlog
 .option norvc
 .section .text.init
 .global _start

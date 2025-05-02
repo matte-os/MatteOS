@@ -115,8 +115,8 @@ namespace Kernel {
     return ErrorOr<void>::create({});
   }
 
-  ErrorOr<ArrayList<DirectoryEntry>> VirtualFileSystem::list_directory(const StringView& path) {
-    return Error::create_from_string("Not implemented");
+  ErrorOr<ArrayList<RefPtr<DirectoryEntry>>> VirtualFileSystem::list_directory(const StringView& path) {
+    return TRY(m_root_inode->list_dir());
   }
 
   ErrorOr<Pair<RefPtr<FileSystem>, u32>> VirtualFileSystem::longest_common_prefix(const ArrayList<String>& path) {

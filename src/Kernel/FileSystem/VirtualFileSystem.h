@@ -67,7 +67,7 @@ namespace Kernel {
     ErrorOr<void> close(RefPtr<OpenFileDescriptor> file);
     ErrorOr<void> mount_root_fs(RefPtr<FileSystem> file_system);
 
-    ErrorOr<ArrayList<DirectoryEntry>> list_directory(const StringView& path);
+    ErrorOr<ArrayList<RefPtr<DirectoryEntry>>> list_directory(const StringView& path);
 
   private:
     ErrorOr<void> fs_mount(const StringView& mount_point, RefPtr<FileSystem> file_system, u64 mount_flags);

@@ -1,6 +1,7 @@
 /**
  * This LinkerScript was taken over from the osblog written by Stephen Marz.
  * I've made some modifications to fit this os's needs.
+ * Copyright (c) 2019 Stephen Marz
  */
 OUTPUT_ARCH( "riscv" )
 

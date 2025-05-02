@@ -1,8 +1,9 @@
 ##
 ## @file mem.S
-## @author Matěj Bucek
 ##
 ## This file was taken from OSBlog
+## Copyright (c) 2019 Stephen Marz
+
 
 .section .rodata
 .global HEAP_START
