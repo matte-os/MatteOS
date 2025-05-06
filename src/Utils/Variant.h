@@ -17,7 +17,7 @@ namespace Utils {
     static const size_t size = sizeof(T) > VariantHelper<Types...>::size ? sizeof(T) : VariantHelper<Types...>::size;
     inline static void destroy(size_t type_id, char* data) {
       if(type_id == TypeID<T>::get()) {
-        using Type = typename remove_reference<T>::type;
+        using Type = typename RemoveReference<T>::type;
         reinterpret_cast<Type*>(data)->~Type();
       }
     }

@@ -76,4 +76,8 @@ namespace Kernel {
 
     return request.release_value();
   }
+
+  ErrorOr<uintptr_t, SysError> Process::handle_write(int file_descriptor, Userspace<u8*> buffer, size_t size) {
+    return SysError::Error;
+  }
 }// namespace Kernel

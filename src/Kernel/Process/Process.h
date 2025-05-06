@@ -65,6 +65,7 @@ namespace Kernel {
     ErrorOr<uintptr_t, SysError> handle_close(u64);
     ErrorOr<uintptr_t, SysError> handle_dbgln(Userspace<char*> message);
     ErrorOr<uintptr_t, SysError> handle_read(int file_descriptor, Userspace<u8*> buffer, size_t size);
+    ErrorOr<uintptr_t, SysError> handle_write(int file_descriptor, Userspace<u8*> buffer, size_t size);
     ErrorOr<uintptr_t, SysError> handle_exit(int exit_code);
     ErrorOr<uintptr_t, SysError> handle_dmesg();
     ErrorOr<uintptr_t, SysError> handle_stats();

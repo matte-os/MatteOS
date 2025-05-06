@@ -21,7 +21,7 @@ namespace Utils {
 
   template<typename T>
   concept Hashable = requires(T t) {
-    { to_hash_input(t) } -> same_as<HashInput>;
+    { to_hash_input(t) } -> SameAs<HashInput>;
   };
 
   template<Hashable Input, typename Output>

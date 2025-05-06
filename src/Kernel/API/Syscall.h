@@ -17,6 +17,7 @@
   F(close)                   \
   F(dbgln)                   \
   F(read)                    \
+  F(write)                   \
   F(exit)                    \
   F(dmesg)                   \
   F(stats)                   \
