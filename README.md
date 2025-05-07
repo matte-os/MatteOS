@@ -2,8 +2,6 @@
 
 This project is part of my bachelor's thesis and is a RISC-V-based operating system designed for educational purposes. It aims to provide a clear and approachable codebase, making it an excellent starting point for learning how operating systems work. The primary focus is on documentation, readability, and simplicity, ensuring that the concepts are easy to grasp without compromising functionality.
 
-A huge thanks to **Stephen Marz** for his amazing **[osblog](https://osblog.stephenmarz.com/)**, which has been a constant source of inspiration and guidance throughout this journey.
-
 ## Key Components 🌐
 
 - **Virtual File System (VFS)**
