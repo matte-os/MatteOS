@@ -1,3 +1,7 @@
+/**
+ * @file Interrupts.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #if ARCH == RISCV64

@@ -1,3 +1,7 @@
+/**
+ * @file RegisterOffset.h
+ * @author Matěj Bucek
+ */
 #pragma once
 
 #if ARCH == RISCV64
