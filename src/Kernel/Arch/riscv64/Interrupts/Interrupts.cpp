@@ -54,9 +54,16 @@ namespace Kernel {
     auto* current_thread = ProcessManager::the().get_current_thread();
     const auto syscallId = current_thread->get_trap_frame()->regs[static_cast<size_t>(
             RegisterOffset::SyscallId)];
+
+    s64 log_size_before = Logger::the().get_buffer_size();
+    s64 mem_usage_before = KernelMemoryAllocator::the().get_statistics().used_size;
     auto error_or_ok = SyscallManager::the().handle_syscall(process, syscallId);
+    s64 mem_usage_after = KernelMemoryAllocator::the().get_statistics().used_size;
+    s64 log_size_after = Logger::the().get_buffer_size();
+    dbgln("Memory usage change during syscall: {} bytes", mem_usage_after - mem_usage_before - (log_size_after - log_size_before));
+
     if(error_or_ok.has_error() && error_or_ok.get_error() == SysError::Blocked) {
-      // Reschedule different process
+      // Reschedule a different process
       current_thread->get_trap_frame()->program_counter = sepc;
       const auto new_process = Scheduler::the().schedule();
 
@@ -95,21 +102,34 @@ extern "C" size_t handle_interrupt(size_t sepc, size_t stval, size_t scause, siz
     return sepc;
   }
 
+  s64 allocated_bytes_on_int_start = Kernel::KernelMemoryAllocator::the().get_statistics().used_size;
+  s64 allocated_by_logger_start = Kernel::Logger::the().get_buffer_size();
+  size_t ret_sepc;
+
   switch(static_cast<Kernel::Interrupts>(scause)) {
     case Kernel::Interrupts::SoftwareInterrupt: {
-      return Kernel::handle_software_interrupt(sepc, stval, scause, cpu_id, sstatus);
-    }
+      ret_sepc = Kernel::handle_software_interrupt(sepc, stval, scause, cpu_id, sstatus);
+    } break;
     case Kernel::Interrupts::TimerInterrupt: {
-      return Kernel::handle_timer_interrupt(sepc, stval, scause, cpu_id, sstatus);
-    }
+      ret_sepc =  Kernel::handle_timer_interrupt(sepc, stval, scause, cpu_id, sstatus);
+    }break;
     case Kernel::Interrupts::ExternalInterrupt: {
-      return Kernel::handle_external_interrupt(sepc, stval, scause, cpu_id, sstatus);
-    }
+      ret_sepc =  Kernel::handle_external_interrupt(sepc, stval, scause, cpu_id, sstatus);
+    }break;
     case Kernel::Interrupts::SystemCall: {
-      return Kernel::handle_system_call(sepc, stval, scause, cpu_id, sstatus);
-    }
+      ret_sepc =  Kernel::handle_system_call(sepc, stval, scause, cpu_id, sstatus);
+    }break;
     default: {
-      return Kernel::unknown_interrupt(sepc, stval, scause, cpu_id, sstatus);
-    }
+      ret_sepc =  Kernel::unknown_interrupt(sepc, stval, scause, cpu_id, sstatus);
+    }break;
   }
+
+  s64 allocated_bytes_on_int_end = Kernel::KernelMemoryAllocator::the().get_statistics().used_size;
+  s64 allocated_by_logger_end = Kernel::Logger::the().get_buffer_size();
+  s64 total = allocated_bytes_on_int_end - allocated_bytes_on_int_start - (allocated_by_logger_end - allocated_by_logger_start);
+  if(total > 300) {
+    dbgln("Interrupts: Warning, memory allocation during interrupt (int: {}) handling detected! ({} bytes)", scause, total);
+  }
+
+  return ret_sepc;
 }

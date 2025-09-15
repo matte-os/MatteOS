@@ -7,7 +7,6 @@
 
 #pragma once
 #include <Utils/Assertions.h>
-#include <Utils/Pointers/RefCounted.h>
 #include <Utils/Types.h>
 
 namespace Utils {
@@ -17,16 +16,35 @@ namespace Utils {
      * @tparam T Type of elements in the array
      */
   template<typename T>
-  class Array final : public RefCounted<Array<T>> {
+  class Array final {
     T* m_array;   //!< The underlying array
     size_t m_size;//!< The size of the array
+
+    void clear() {
+      if(m_array) {
+        for(size_t i = 0; i < m_size; i++) {
+          m_array[i].~T();
+        }
+        kfree(m_array);
+        m_array = nullptr;
+        m_size = 0;
+      }
+    }
   public:
+
+    explicit Array() : Array(0) {}
+
     /**
          * @brief Allocates sufficient memory for an array of size elements of type T
          *
          * @param size Size of the array
          */
     explicit Array(size_t size) : m_size(size) {
+      if(size == 0) {
+        m_array = nullptr;
+        return;
+      }
+
       m_array = new T[size];
       for(size_t i = 0; i < size; i++) {
         m_array[i] = T();
@@ -50,15 +68,17 @@ namespace Utils {
       }
     }
 
-    Array(Array&& other) noexcept : m_size(other.m_size), m_array(other.m_array) {
+    Array(Array&& other) noexcept : m_array(other.m_array), m_size(other.m_size) {
       other.m_array = nullptr;
       other.m_size = 0;
     }
 
     Array& operator=(const Array& other) {
       if(this != &other) {
+
+        clear();
+
         m_size = other.m_size;
-        delete[] m_array;
         m_array = new T[m_size];
         for(size_t i = 0; i < m_size; i++) {
           m_array[i] = other.m_array[i];
@@ -69,8 +89,9 @@ namespace Utils {
 
     Array& operator=(Array&& other) noexcept {
       if(this != &other) {
+        clear();
+
         m_size = other.m_size;
-        delete[] m_array;
         m_array = other.m_array;
         other.m_array = nullptr;
         other.m_size = 0;
@@ -87,8 +108,8 @@ namespace Utils {
     /**
          * @brief Destructor
          */
-    ~Array() override {
-      delete[] m_array;
+    ~Array() {
+      clear();
     }
 
     /**

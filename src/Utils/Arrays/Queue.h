@@ -3,124 +3,141 @@
  * @author Matěj Bucek (matejbucek)
  */
 #pragma once
-#include <Utils/Pointers/RefCounted.h>
 
-using Utils::RefCounted;
+#include <Utils/Assertions.h>
+#include <Utils/Memory.h>
+#include <Utils/Types.h>
 
 namespace Utils {
   template<typename T>
   class QueueElement;
 
   template<typename T>
-  class LinkedQueue final : public RefCounted<LinkedQueue<T>> {
-    QueueElement<T>* m_first_element;
-    QueueElement<T>* m_last_element;
+  class LinkedQueue final {
+    QueueElement<T>* m_head = nullptr;
+    QueueElement<T>* m_tail = nullptr;
 
   public:
-    LinkedQueue() : m_first_element(nullptr), m_last_element(nullptr) {
+    LinkedQueue() : m_head(nullptr), m_tail(nullptr) {
     }
 
-    void clear() {
-      if(!m_first_element) return;
-      m_first_element->delete_next();
-      delete m_first_element;
-      m_first_element = nullptr;
-      m_last_element = nullptr;
-    }
-
-    void add(T element) {
-      if(!m_last_element) {
-        m_first_element = new QueueElement<T>(element, nullptr);
-        m_last_element = m_first_element;
-        return;
+    LinkedQueue(const LinkedQueue& other) {
+      for(auto current = other.m_head; current != nullptr; current = current->m_next) {
+        append(current->m_element);
       }
-      m_last_element->m_next = new QueueElement<T>(element, nullptr);
-      m_last_element = m_last_element->m_next;
     }
 
-    T add_and_return(T element) {
-      add(element);
-      return element;
+    LinkedQueue(LinkedQueue&& other) noexcept {
+      m_head = other.m_head;
+      m_tail = other.m_tail;
+      other.m_head = nullptr;
+      other.m_tail = nullptr;
     }
 
-    T get(size_t i) {
-      QueueElement<T>* current = m_first_element;
-      size_t index = 0;
-      while(current) {
-        if(index == i) return current->m_element;
-        current = current->m_next;
-        index++;
+    LinkedQueue& operator=(const LinkedQueue& other) {
+      if(this != &other) {
+        clear();
+        for(auto current = other.m_head; current != nullptr; current = current->m_next) {
+          append(current->m_element);
+        }
       }
-      runtime_assert(true, "Index out of bounds");
+      return *this;
     }
 
-    size_t size() {
-      size_t depth = 0;
-      if(!m_first_element) return 0;
-      m_first_element->get_depth(depth);
-      return depth;
+    LinkedQueue& operator=(LinkedQueue&& other) noexcept {
+      if(this != &other) {
+        clear();
+        m_head = other.m_head;
+        m_tail = other.m_tail;
+        other.m_head = nullptr;
+        other.m_tail = nullptr;
+      }
+      return *this;
     }
 
-    T first() {
-      return m_first_element->m_element;
-    }
-
-    T pop() {
-      runtime_assert(m_first_element, "Queue is empty");
-      auto temp = m_first_element->m_element;
-      auto old_first = m_first_element;
-      m_first_element = m_first_element->m_next;
-      delete old_first;
-      if(!m_first_element) m_last_element = nullptr;
-      return temp;
-    }
-
-    T last() {
-      return m_last_element->m_element;
-    }
-
-    void rotate_left() {
-      if(size() <= 1) return;
-      m_last_element->m_next = m_first_element;
-      m_first_element = m_first_element->m_next;
-      m_last_element = m_last_element->m_next;
-      m_last_element->m_next = nullptr;
-    }
-
-    ~LinkedQueue() override {
+    ~LinkedQueue() {
       clear();
     }
 
+    void clear() {
+      auto current = m_head;
+      while(current) {
+        auto next = current->m_next;
+        delete current;
+        current = next;
+      }
+      m_head = nullptr;
+      m_tail = nullptr;
+    }
+
+    void append(const T& element) {
+      if(m_head == nullptr) {
+        m_head = new QueueElement<T>(element);
+        m_tail = m_head;
+      } else {
+        m_tail->m_next = new QueueElement<T>(element);
+        m_tail = m_tail->m_next;
+      }
+    }
+
+    void append(T&& element) {
+      if(m_head == nullptr) {
+        m_head = new QueueElement<T>(move(element));
+        m_tail = m_head;
+      } else {
+        m_tail->m_next = new QueueElement<T>(move(element));
+        m_tail = m_tail->m_next;
+      }
+    }
+
+    T pop() {
+      runtime_assert(!is_empty(), "Cannot pop from empty queue");
+
+      T element = move(m_head->m_element);
+      auto old_head = m_head;
+      m_head = m_head->m_next;
+      delete old_head;
+      if(!m_head) m_tail = nullptr;
+
+      return element;// return by value (NRVO/move optimizations will kick in)
+    }
+
+    const T& peek_first() {
+      runtime_assert(!is_empty(), "Cannot peek from empty queue");
+      return m_head->m_element;
+    }
+
+    const T& peek_last() {
+      runtime_assert(!is_empty(), "Cannot peek from empty queue");
+      return m_tail->m_element;
+    }
+
+    void rotate_left() {
+      if(m_head == nullptr || m_head->m_next == nullptr) {
+        return;// No need to rotate if the queue is empty or has only one element
+      }
+
+      auto old_head = m_head;
+      m_head = m_head->m_next;
+      m_tail->m_next = old_head;
+      old_head->m_next = nullptr;
+      m_tail = old_head;
+    }
+
     bool is_empty() const {
-      return m_first_element == nullptr;
+      return m_head == nullptr;
     }
   };
 
   template<typename T>
-  class QueueElement {
-    friend class LinkedQueue<T>;
+  class QueueElement final {
     T m_element;
-    QueueElement<T>* m_next;
+    QueueElement* m_next {nullptr};
+    friend class LinkedQueue<T>;
 
   public:
-    QueueElement(T element, QueueElement<T>* next) : m_element(element), m_next(next) {
-                                                     };
+    explicit QueueElement(const T& element) : m_element(element), m_next(nullptr) {}
 
-    ~QueueElement() {
-      delete_next();
-    }
-
-    void get_depth(size_t& depth) const {
-      depth++;
-      if(m_next) {
-        m_next->get_depth(depth);
-      }
-    }
-
-    void delete_next() {
-      if(!m_next) return;
-      m_next->delete_next();
-      delete m_next;
-    }
+    explicit QueueElement(T&& element) : m_element(move(element)), m_next(nullptr) {}
   };
 }// namespace Utils

@@ -19,7 +19,7 @@ namespace Utils {
         }
     protected:
         RefCountedBase() = default;
-        ~RefCountedBase() = default;
+        virtual ~RefCountedBase() = default;
     };
 
     template<typename T>

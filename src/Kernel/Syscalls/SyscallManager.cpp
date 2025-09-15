@@ -56,7 +56,12 @@ namespace Kernel {
 
     dbgln("SyscallManager: Arguments: {16}, {16}, {16}, {16}, {16}, {16}, {16}", arg0, arg1, arg2, arg3, arg4, arg5, arg6, syscall_id);
 
+    s64 mem_usage_before = KernelMemoryAllocator::the().get_statistics().used_size;
     auto result = (process->*handler)(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+    s64 mem_usage_after = KernelMemoryAllocator::the().get_statistics().used_size;
+
+    dbgln("SyscallManager: Memory usage before: {}, after: {}, diff: {}", mem_usage_before, mem_usage_after, mem_usage_after - mem_usage_before);
+
     if(result.has_error()) {
       if(result.get_error() == SysError::Blocked) {
         return SysError::Blocked;

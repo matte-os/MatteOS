@@ -15,8 +15,7 @@ using Utils::DebugConsole;
 using Utils::RefPtr;
 
 namespace Utils {
-  class StringValue : public RefCounted<StringValue> {
-  private:
+  class StringValue final : public RefCounted<StringValue> {
     char* m_value {};
     size_t m_length {};
     enum class ValueType {
@@ -37,7 +36,7 @@ namespace Utils {
 
     void append(const RefPtr<StringValue>& other);
     void append(char);
-    virtual ~StringValue();
+    ~StringValue() override;
 
   protected:
     StringValue() = default;

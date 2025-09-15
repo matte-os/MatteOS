@@ -16,5 +16,6 @@ namespace Kernel {
     static Timer& the();
 
     void set_timer(u64 time_in_ms) const;
+    u64 current_time_in_ms() const;
   };
 }// namespace Kernel::System

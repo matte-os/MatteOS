@@ -6,7 +6,6 @@
  */
 #pragma once
 
-#include <Utils/DebugConsole.h>
 #include <Utils/Forwards.h>
 #include <Utils/Pointers/RefPtr.h>
 #include <Utils/Strings/StringValue.h>
@@ -27,7 +26,9 @@ namespace Utils {
 
     String(const String& other) : m_value(StringValue::create(other.m_value->value(), other.m_value->length())) {}
 
-    String(String&& other) noexcept : m_value(move(other.m_value)) {}
+    String(String&& other) noexcept : m_value(move(other.m_value)) {
+      other.m_value = nullptr;
+    }
 
     // ReSharper disable once CppNonExplicitConvertingConstructor
     String(const char*);

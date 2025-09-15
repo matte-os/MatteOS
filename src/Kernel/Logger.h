@@ -5,14 +5,15 @@
 #pragma once
 #include <Kernel/Forwards.h>
 #include <Utils/Arrays/ArrayList.h>
+#include <Utils/Arrays/CircularStringBuffer.h>
 #include <Utils/Strings/Formatter.h>
 #include <Utils/Strings/String.h>
 
 namespace Kernel {
+  using Utils::CircularStringBuffer;
   using Utils::format;
   using Utils::String;
   using Utils::StringView;
-  using Utils::ArrayList;
 #ifdef __GNUC__
 #define GET_CLASS_NAME (__PRETTY_FUNCTION__)
 #else
@@ -25,10 +26,13 @@ namespace Kernel {
     Info,
     Debug
   };
+
   class Logger {
     // ReSharper disable once CppDefaultedSpecialMemberFunctionIsImplicitlyDeleted
     Logger();
     ~Logger() = default;
+
+    static constexpr size_t BufferSize = 10000;
 
     enum class LogOutput {
       SBI,
@@ -39,8 +43,7 @@ namespace Kernel {
     LogLevel m_level = LogLevel::Debug;
 
     RefPtr<ConsoleDevice> m_console;
-    ArrayList<String> m_lines;
-    size_t m_buffer_size = 0;
+    CircularStringBuffer m_buffer;
 
   public:
     static void init();
@@ -51,7 +54,7 @@ namespace Kernel {
     void switch_to_logfile();
     void switch_to_console();
 
-    void log(const String& message, LogLevel level = LogLevel::Debug);
+    void log(const String& message, LogLevel level = LogLevel::Debug, bool include_timestamp = true);
     void log(char c);
 
     void log_to_console(const String& message);
@@ -69,7 +72,7 @@ namespace Kernel {
   template<typename... Args>
   void logln(const char* fmt, const Args&... args) {
     log(fmt, args...);
-    Logger::the().log("\n");
+    Logger::the().log("\n", LogLevel::Debug, false);
   }
 
   template<typename... Args>

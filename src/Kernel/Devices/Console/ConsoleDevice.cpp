@@ -21,7 +21,7 @@ namespace Kernel {
 
     m_driver->as<ConsoleDeviceDriver>()->handle_interrupt(interrupt_id);
 
-    for(auto request : m_requests) {
+    for(auto request: m_requests) {
       if(m_driver->as<ConsoleDeviceDriver>()->line_available()) {
         ProcessManager::the().unblock(request->get_pid(), request->get_tid());
       }

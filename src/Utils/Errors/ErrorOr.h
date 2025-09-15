@@ -142,6 +142,26 @@ namespace Utils {
       }
     }
 
+    ErrorOr& operator=(const ErrorOr& other) {
+      if(this == &other) {
+        // First, destroy the current content
+        if(m_has_value) {
+          destroy_result_type();
+        } else {
+          destroy_error_type();
+        }
+
+        // Now copy from the other object
+        m_has_value = other.m_has_value;
+        if(m_has_value) {
+          construct_result_type(other.get_value());
+        } else {
+          construct_error_type(other.get_error());
+        }
+      }
+      return *this;
+    }
+
     // Static creators
     static ErrorOr<T, E> create(const T& value) { return ErrorOr<T, E>(value); }
 

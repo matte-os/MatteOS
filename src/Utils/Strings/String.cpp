@@ -28,6 +28,7 @@ namespace Utils {
   String& String::operator=(String&& other) noexcept {
     if(this == &other) return *this;
     m_value = move(other.m_value);
+    other.m_value = nullptr;
     return *this;
   }
 

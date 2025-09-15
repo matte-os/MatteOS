@@ -38,4 +38,8 @@ namespace Kernel {
 
         SBI::sbi_set_timer(next_time);
     }
+
+    u64 Timer::current_time_in_ms() const {
+      return RISCV64::CSR::read<RISCV64::CSR::Address::TIME>();
+    }
 } // namespace Kernel

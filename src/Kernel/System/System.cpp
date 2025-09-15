@@ -37,7 +37,6 @@ namespace Kernel {
   }
 
   System::System() {
-    m_memory_regions = RefPtr(new ArrayList<MemoryRegion>());
     m_number_of_harts = 0;
     init_harts();
     //Utils::DebugConsole::println("System: Initialised.");

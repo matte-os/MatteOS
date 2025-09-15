@@ -2,6 +2,9 @@
  * @file Logger.cpp
  * @author Matěj Bucek
  */
+#include "System/Timer.h"
+
+
 #include <Kernel/Devices/Console/ConsoleDevice.h>
 #include <Kernel/Devices/Device.h>
 #include <Kernel/Devices/DeviceManager.h>
@@ -12,7 +15,7 @@
 namespace Kernel {
   static Logger* s_logger = nullptr;
 
-  Logger::Logger() : m_output(LogOutput::SBI), m_level(LogLevel::Debug), m_console(nullptr), m_lines() {}
+  Logger::Logger() : m_output(LogOutput::SBI), m_level(LogLevel::Debug), m_console(nullptr), m_buffer(Logger::BufferSize) {}
 
   void Logger::switch_to_sbi() {
     m_output = LogOutput::SBI;
@@ -37,7 +40,7 @@ namespace Kernel {
     return *s_logger;
   }
 
-  void Logger::log(const String& message, LogLevel level) {
+  void Logger::log(const String& message, LogLevel level, bool include_timestamp) {
     if(Utils::as_underlying(level) > Utils::as_underlying(m_level)) return;
 
     switch(m_output) {
@@ -52,8 +55,12 @@ namespace Kernel {
         }
       } break;
       case LogOutput::LogFile: {
-        m_lines.add(message);
-        m_buffer_size += message.length();
+        if(include_timestamp) {
+          auto formatted = format("[{}] {}", Timer::the().current_time_in_ms(), message);
+          m_buffer.write(formatted.to_cstring(), formatted.length());
+        } else {
+          m_buffer.write(message.to_cstring(), message.length());
+        }
       } break;
     }
   }
@@ -84,14 +91,12 @@ namespace Kernel {
   void Logger::print_logfile() {
     auto previous = m_output;
     m_output = LogOutput::Console;
-    for(const auto& message: m_lines) {
-      log(message, m_level);
-    }
+    log(m_buffer.to_string(), m_level);
     m_output = previous;
   }
 
   size_t Logger::get_buffer_size() {
-    return m_buffer_size;
+    return m_buffer.size();
   }
 
   void Logger::log_to_console(const String& message) {

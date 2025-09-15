@@ -112,7 +112,7 @@ namespace Kernel {
                                 root,
                                 ProcessState::Running);
     m_process_list.add(process);
-    m_run_queue.add(thread);
+    m_run_queue.append(thread);
     return root;
   }
 

@@ -15,7 +15,6 @@
 #include <Utils/Forwards.h>
 #include <Utils/Function.h>
 #include <Utils/Memory.h>
-#include <Utils/Pointers/RefCounted.h>
 #include <Utils/Types.h>
 #include <Utils/kmalloc.h>
 
@@ -26,11 +25,21 @@ namespace Utils {
    * @tparam T Type of the elements in the array.
    */
   template<typename T>
-  class ArrayList final : public RefCounted<ArrayList<T>> {
+  class ArrayList final {
     static constexpr size_t DEFAULT_SIZE = 8;//!< Default size of the array.
     T* m_array;                          //!< Pointer to the array.
     size_t m_size;                       //!< Size of the array.
     size_t m_ptr;                        //!< Pointer to the last element in the array.
+
+    void clear() {
+      for(size_t i = 0; i < m_ptr; i++) {
+        m_array[i].~T();
+      }
+      kfree(m_array);
+      m_array = nullptr;
+      m_size = 0;
+      m_ptr = 0;
+    }
 
   public:
     /**
@@ -40,6 +49,9 @@ namespace Utils {
       m_array = kmalloc<T>(sizeof(T) * DEFAULT_SIZE);
       m_size = DEFAULT_SIZE;
       m_ptr = 0;
+      //for(size_t i = 0; i < m_size; i++) {
+      //  new(&m_array[i]) T();
+      //}
     }
 
     ArrayList(const ArrayList& other) {
@@ -66,14 +78,8 @@ namespace Utils {
     /**
      * @brief Destroys the ArrayList object.
      */
-    ~ArrayList() override {
-      for(size_t i = 0; i < m_ptr; i++) {
-        m_array[i].~T();
-      }
-      kfree(m_array);
-      m_array = nullptr;
-      m_size = 0;
-      m_ptr = 0;
+    ~ArrayList() {
+      clear();
     }
 
     /**
@@ -81,10 +87,20 @@ namespace Utils {
      *
      * @param value Element to be added.
      */
-    size_t add(T value) {
+    size_t add(T&& value) {
       if(m_ptr >= m_size) grow();
+
       //Zero-initialize the memory
-      memset((char*) &m_array[m_ptr], 0, sizeof(T));
+      //memset((char*) &m_array[m_ptr], 0, sizeof(T));
+      new(&m_array[m_ptr]) T(move(value));
+      return m_ptr++;
+    }
+
+    size_t add(const T& value) {
+      if(m_ptr >= m_size) grow();
+
+      //Zero-initialize the memory
+      //memset((char*) &m_array[m_ptr], 0, sizeof(T));
       new(&m_array[m_ptr]) T(value);
       return m_ptr++;
     }
@@ -124,9 +140,14 @@ namespace Utils {
     //TODO: Implement remove method
     void remove(size_t index) {
       runtime_assert(index < m_size, "Array: Index out of bounds!");
+
+      m_array[index].~T();
+
       for(size_t i = index; i < m_ptr - 1; i++) {
-        m_array[i] = m_array[i + 1];
+        m_array[i] = move(m_array[i + 1]);
       }
+
+      m_array[m_ptr - 1].~T();
       m_ptr--;
     }
 
@@ -154,6 +175,9 @@ namespace Utils {
 
     ArrayList& operator=(const ArrayList& other) {
       if(this == &other) return *this;
+
+      clear();
+
       m_array = kmalloc<T>(sizeof(T) * other.m_size);
       memset(reinterpret_cast<char*>(m_array), 0, sizeof(T) * other.m_size);
       m_size = other.m_size;
@@ -167,6 +191,9 @@ namespace Utils {
 
     ArrayList& operator=(ArrayList&& other) noexcept {
       if(this == &other) return *this;
+
+      clear();
+
       m_array = other.m_array;
       m_size = other.m_size;
       m_ptr = other.m_ptr;
@@ -234,7 +261,7 @@ namespace Utils {
     }
 
     bool is_empty() const {
-      return m_size == 0;
+      return m_ptr == 0;
     }
 
     class Iterator {
@@ -274,7 +301,12 @@ namespace Utils {
     void grow() {
       auto newSize = m_size * 2;
       auto* tmpArray = kmalloc<T>(newSize * sizeof(T));
-      memcpy((char*) tmpArray, (char*) m_array, m_ptr * sizeof(T));
+
+      for(size_t i = 0; i < m_ptr; i++) {
+        new(&tmpArray[i]) T(move(m_array[i]));
+        m_array[i].~T();
+      }
+
       kfree(m_array);
       m_array = tmpArray;
       m_size = newSize;

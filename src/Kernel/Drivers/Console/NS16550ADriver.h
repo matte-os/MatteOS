@@ -15,7 +15,7 @@ namespace Kernel {
   class NS16550ADriver final : public ConsoleDeviceDriver {
     RefPtr<ConsoleDevice> m_device;
     String m_buffer;
-    Utils::LinkedQueue<String> m_lines;
+    LinkedQueue<String> m_lines;
 
   public:
     void init(RefPtr<Device> device) override;

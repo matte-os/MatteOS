@@ -176,7 +176,7 @@ void operator delete(void* ptr) {
   return Kernel::KernelMemoryAllocator::the().kfree((uintptr_t*) ptr);
 }
 
-void operator delete[](void* ptr) {
+void operator delete[](void* ptr) noexcept {
   if(!ptr) return;
   return Kernel::KernelMemoryAllocator::the().kfree((uintptr_t*) ptr);
 }

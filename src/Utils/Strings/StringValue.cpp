@@ -35,13 +35,13 @@ namespace Utils {
   }
 
   StringValue::~StringValue() {
-    if(m_length != 0) {
+    if(m_value != nullptr) {
       delete[] m_value;
     }
   }
 
   RefPtr<StringValue> StringValue::adopt(char* cstring, size_t length) {
-    auto ptr = RefPtr<StringValue>(new StringValue);
+    auto ptr = RefPtr(new StringValue);
     ptr->m_value = cstring;
     ptr->m_length = length;
     return ptr;

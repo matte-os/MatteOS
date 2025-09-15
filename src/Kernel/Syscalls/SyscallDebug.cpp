@@ -2,15 +2,13 @@
  * @file SyscallDebug.cpp
  * @author Matěj Bucek
  */
-#include "SyscallManager.h"
-
-
 #include <Kernel/API/Syscall.h>
 #include <Kernel/Arch/riscv64/CSR.h>
 #include <Kernel/FileSystem/VirtualFileSystem.h>
 #include <Kernel/Logger.h>
 #include <Kernel/Process/Process.h>
 #include <Kernel/Process/Userspace.h>
+#include <Kernel/Syscalls/SyscallManager.h>
 
 namespace Kernel {
   ErrorOr<uintptr_t, SysError> Process::handle_dbgln(Userspace<char*> message) {
@@ -19,7 +17,8 @@ namespace Kernel {
       return ErrorOr<uintptr_t, SysError>::create_error(SysError::Error);
     }
 
-    DebugConsole::println(error_or_message_in_kernel.get_value());
+    dbglog_direct("{}\n", error_or_message_in_kernel.get_value());
+
     return ErrorOr<uintptr_t, SysError>::create(0);
   }
 
@@ -46,7 +45,7 @@ namespace Kernel {
       return SysError::Error;
     }
 
-    error_or_list.get_value().for_each([](const auto &entry) {
+    error_or_list.get_value().for_each([](const auto& entry) {
       dbglog_direct("{}\n", entry->get_name());
     });
 

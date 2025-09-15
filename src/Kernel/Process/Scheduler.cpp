@@ -37,7 +37,7 @@ namespace Kernel {
     Thread* first = nullptr;
     while(true) {
       run_queue.rotate_left();
-      first = run_queue.first();
+      first = run_queue.peek_first();
 
       if(first->get_state() == ThreadState::Running) {
         break;

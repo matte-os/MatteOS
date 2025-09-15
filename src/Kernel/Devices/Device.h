@@ -60,16 +60,15 @@ namespace Kernel {
   };
 
   class VirtIODevice final : public UnderlyingDevice {
-  private:
     MMIODevice* m_mmio_device;
     u32 m_features;
     VirtQueueArray m_virt_queues;
-    RefPtr<Array<u64>> m_queue_indexes;
-    RefPtr<Array<u64>> m_queue_acks;
+    Array<u64> m_queue_indexes;
+    Array<u64> m_queue_acks;
     u32 m_selected_queue = 0;
 
   public:
-    explicit VirtIODevice(MMIODevice* mmio_device) : UnderlyingDevice(UnderlyingDeviceType::VirtIO), m_mmio_device(mmio_device), m_virt_queues(), m_queue_indexes(), m_queue_acks() {}
+    explicit VirtIODevice(MMIODevice* mmio_device) : UnderlyingDevice(UnderlyingDeviceType::VirtIO), m_mmio_device(mmio_device), m_virt_queues() {}
 
     u32 get_device_id() override {
       return m_mmio_device->get_device_id();

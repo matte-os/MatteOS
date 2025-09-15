@@ -6,7 +6,6 @@
 
 #include <Utils/Callable.h>
 #include <Utils/Errors/ErrorOr.h>
-#include <Utils/Pointers/RefCounted.h>
 #include <Utils/Types.h>
 
 namespace Utils {
@@ -15,7 +14,7 @@ namespace Utils {
   class LinkedListElement;
 
   template<typename T>
-  class LinkedList final : public RefCounted<LinkedList<T>> {
+  class LinkedList final {
     LinkedListElement<T>* m_head;
     LinkedListElement<T>* m_tail;
     size_t m_size;
@@ -48,7 +47,7 @@ namespace Utils {
       return *this;
     }
 
-    ~LinkedList() override {
+    ~LinkedList() {
       auto head = m_head;
       while(head) {
         auto next = head->m_next;

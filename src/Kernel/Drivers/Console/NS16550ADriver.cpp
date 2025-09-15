@@ -63,7 +63,7 @@ namespace Kernel {
 
   ErrorOr<String> NS16550ADriver::read_line() {
     if(!m_lines.is_empty()) {
-      return m_lines.pop();
+      return move(m_lines.pop());
     }
     return Error::create_from_string("Buffer is empty.");
   }
@@ -109,7 +109,7 @@ namespace Kernel {
     if(error_or_char.has_value()) {
       auto value = error_or_char.get_value();
       if(value == '\r') {
-        m_lines.add(m_buffer);
+        m_lines.append(m_buffer);
         m_buffer = "";
         write('\n');
       } else {

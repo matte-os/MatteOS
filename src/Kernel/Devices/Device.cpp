@@ -29,10 +29,10 @@ namespace Kernel {
   // https://docs.oasis-open.org/virtio/virtio/v1.2/csd01/virtio-v1.2-csd01.html#x1-1070001
   // 3.1.1 Driver Requirements: Device Initialization
   ErrorOr<void> VirtIODevice::init(u32 features, u64 number_of_virt_queues, Function<void, VirtQueue*, u64> init_virt_queue) {
-    m_queue_indexes = RefPtr<Array<u64>>(new Array<u64>(number_of_virt_queues));
-    m_queue_indexes->fill(0);
-    m_queue_acks = RefPtr<Array<u64>>(new Array<u64>(number_of_virt_queues));
-    m_queue_acks->fill(0);
+    m_queue_indexes = Array<u64>(number_of_virt_queues);
+    m_queue_indexes.fill(0);
+    m_queue_acks = Array<u64>(number_of_virt_queues);
+    m_queue_acks.fill(0);
 
     // The driver MUST follow this sequence to initialize the device:
     // 1. Reset the device.
@@ -113,23 +113,23 @@ namespace Kernel {
     auto selected_queue = m_selected_queue;
     auto queue = m_virt_queues[selected_queue];
 
-    if((*m_queue_acks)[selected_queue] == *queue->used.index) {
+    if(m_queue_acks[selected_queue] == *queue->used.index) {
       return ErrorOr<VirtQueueDescriptor*>::create_error(Error::create_from_string("No used descriptor available."));
     }
 
-    auto ack = (*m_queue_acks)[selected_queue];
+    auto ack = m_queue_acks[selected_queue];
     auto element = queue->used.ring[ack % VIRTIO_RING_SIZE];
     auto* descriptor = &queue->descriptors[element.id];
 
     ack = (ack + 1) % VIRTIO_RING_SIZE;
-    (*m_queue_acks)[selected_queue] = ack;
+    m_queue_acks[selected_queue] = ack;
 
     return ErrorOr<VirtQueueDescriptor*>::create(descriptor);
   }
 
   u64 VirtIODevice::get_next_queue_index(u32 selected_queue) {
-    auto index = (*m_queue_indexes)[selected_queue];
-    (*m_queue_indexes)[selected_queue] = (index + 1) % VIRTIO_RING_SIZE;
+    auto index = m_queue_indexes[selected_queue];
+    m_queue_indexes[selected_queue] = (index + 1) % VIRTIO_RING_SIZE;
     return index;
   }
 

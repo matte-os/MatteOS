@@ -1,4 +1,5 @@
 set(SOURCE Assertions.cpp
+        Arrays/CircularStringBuffer.cpp
         Strings/Formatter.cpp
         Basic.cpp
         DebugConsole.cpp

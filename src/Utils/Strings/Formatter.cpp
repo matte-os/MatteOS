@@ -9,7 +9,7 @@ namespace Utils {
 
   String to_string(const char* value) { return {value}; }
 
-  String to_string(int value) {
+  String to_string(s64 value) {
     char buffer[64];
     itoa(buffer, value, 10);
     return {buffer};

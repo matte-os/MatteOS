@@ -21,7 +21,7 @@ using Utils::RefPtr;
 namespace Kernel {
   class System {
     size_t m_number_of_harts;
-    RefPtr<ArrayList<MemoryRegion>> m_memory_regions;
+    ArrayList<MemoryRegion> m_memory_regions;
     ArrayList<KernelTrapFrame*> m_kernel_trap_frames;
     static constexpr size_t TRAP_VECTOR_ADDRESS = 0x1000;
 
@@ -33,7 +33,7 @@ namespace Kernel {
 
     KernelTrapFrame* get_kernel_trap_frame(size_t hart_id) { return m_kernel_trap_frames[hart_id]; }
 
-    [[nodiscard]] RefPtr<ArrayList<MemoryRegion>> get_memory_regions() const { return m_memory_regions; }
+    [[nodiscard]] ArrayList<MemoryRegion> get_memory_regions() const { return m_memory_regions; }
 
     [[nodiscard]] size_t get_number_of_harts() const;
 

@@ -26,6 +26,7 @@ namespace Kernel {
     String m_value;
 
   public:
+    FDTProperty() = default;
     FDTProperty(String name, String value) : m_name(move(name)), m_value(move(value)) {}
 
     [[nodiscard]] String get_name() const {

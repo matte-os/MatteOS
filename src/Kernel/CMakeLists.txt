@@ -7,6 +7,7 @@ set(SOURCE
         Init.cpp
         Arch/riscv64/CPU.cpp
         Arch/riscv64/Interrupts/Interrupts.cpp
+        API/Module/DriverAPI.cpp
         FileSystem/BlockBackedFileSystem.cpp
         FileSystem/FATFS/FATFileSystem.cpp
         FileSystem/FATFS/FATInode.cpp

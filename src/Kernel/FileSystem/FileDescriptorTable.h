@@ -17,7 +17,7 @@ namespace Kernel {
   class FileDescriptor : public RefCounted<FileDescriptor> {
   public:
     FileDescriptor() = default;
-    virtual ~FileDescriptor() = default;
+    ~FileDescriptor() override = default;
 
     virtual bool can_read() const = 0;
     virtual bool can_write() const = 0;
@@ -30,7 +30,7 @@ namespace Kernel {
 
   using Utils::Array;
 
-  class FileDescriptorTable {
+  class FileDescriptorTable final {
     static const size_t MAX_FDS = 256;
     Array<RefPtr<FileDescriptor>> m_fds;
 
@@ -47,9 +47,8 @@ namespace Kernel {
       auto descriptor_or_error = get(fd);
       if(descriptor_or_error.has_error()) {
         return {};
-      } else {
-        return descriptor_or_error.get_value();
       }
+      return descriptor_or_error.get_value();
     }
   };
 }// namespace Kernel
