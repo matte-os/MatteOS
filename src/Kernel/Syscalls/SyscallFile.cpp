@@ -2,6 +2,9 @@
  * @file SyscallFile.cpp
  * @author Matěj Bucek
  */
+#include "Kernel/Logger.h"
+
+
 #include <Kernel/API/Syscall.h>
 #include <Kernel/FileSystem/File.h>
 #include <Kernel/FileSystem/VirtualFileSystem.h>

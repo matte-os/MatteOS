@@ -54,7 +54,8 @@ namespace Kernel {
 
     explicit Request(const RefPtr<RequestContext>& context) : m_value(), m_context(context), m_state(RequestState::Blocked) {}
 
-    explicit Request(T value) : m_value(value), m_context(nullptr), m_state(RequestState::Finalized) {}
+    explicit Request(const T& value) : m_value(value), m_context(nullptr), m_state(RequestState::Finalized) {}
+    explicit Request(T&& value) : m_value(move(value)), m_context(nullptr), m_state(RequestState::Finalized) {}
 
   public:
     static Request create_blocked() {

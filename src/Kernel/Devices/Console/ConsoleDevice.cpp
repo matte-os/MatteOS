@@ -21,10 +21,14 @@ namespace Kernel {
 
     m_driver->as<ConsoleDeviceDriver>()->handle_interrupt(interrupt_id);
 
-    for(auto request: m_requests) {
+    for(const auto& request: m_requests) {
       if(m_driver->as<ConsoleDeviceDriver>()->line_available()) {
         ProcessManager::the().unblock(request->get_pid(), request->get_tid());
       }
+    }
+
+    if(m_driver->as<ConsoleDeviceDriver>()->line_available()) {
+      m_requests.reset();
     }
 
     return {};

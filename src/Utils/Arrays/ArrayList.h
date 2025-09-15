@@ -27,9 +27,9 @@ namespace Utils {
   template<typename T>
   class ArrayList final {
     static constexpr size_t DEFAULT_SIZE = 8;//!< Default size of the array.
-    T* m_array;                          //!< Pointer to the array.
-    size_t m_size;                       //!< Size of the array.
-    size_t m_ptr;                        //!< Pointer to the last element in the array.
+    T* m_array;                              //!< Pointer to the array.
+    size_t m_size;                           //!< Size of the array.
+    size_t m_ptr;                            //!< Pointer to the last element in the array.
 
     void clear() {
       for(size_t i = 0; i < m_ptr; i++) {
@@ -80,6 +80,16 @@ namespace Utils {
      */
     ~ArrayList() {
       clear();
+    }
+
+    void reset() {
+      for(size_t i = 0; i < m_ptr; i++) {
+        m_array[i].~T();
+      }
+      kfree(m_array);
+      m_array = kmalloc<T>(sizeof(T) * DEFAULT_SIZE);
+      m_size = DEFAULT_SIZE;
+      m_ptr = 0;
     }
 
     /**
@@ -266,10 +276,12 @@ namespace Utils {
 
     class Iterator {
       T* m_ptr;
+
     public:
       explicit Iterator(T* ptr) : m_ptr(ptr) {}
 
       T& operator*() const { return *m_ptr; }
+
       T* operator->() { return m_ptr; }
 
       Iterator& operator++() {
@@ -284,14 +296,17 @@ namespace Utils {
       }
 
       bool operator==(const Iterator& other) const { return m_ptr == other.m_ptr; }
+
       bool operator!=(const Iterator& other) const { return m_ptr != other.m_ptr; }
     };
 
     Iterator begin() { return Iterator(m_array); }
+
     Iterator end() { return Iterator(m_array + m_ptr); }
 
     // Const versions
     Iterator begin() const { return Iterator(m_array); }
+
     Iterator end() const { return Iterator(m_array + m_ptr); }
 
   private:
