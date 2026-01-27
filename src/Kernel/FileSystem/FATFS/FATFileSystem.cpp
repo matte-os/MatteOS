@@ -63,7 +63,7 @@ namespace Kernel {
     } else {
       auto boot_sector = new BootSector32(*reinterpret_cast<BootSector32*>(buffer));
       delete buffer;
-      return ErrorOr<RefPtr<FileSystem>>::create(RefPtr<FATFileSystem>(new FATFileSystem(device, FATType::FAT32, boot_sector)));
+      return ErrorOr<RefPtr<FileSystem>>::create(RefPtr(new FATFileSystem(device, FATType::FAT32, boot_sector)));
     }
   }
 

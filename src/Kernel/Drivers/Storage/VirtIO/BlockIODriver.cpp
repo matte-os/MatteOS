@@ -171,7 +171,7 @@ namespace Kernel {
         continue;
       }
 
-      results.add(RefPtr<BlockDeviceAsyncResult>(new BlockDeviceAsyncResult(
+      results.add(RefPtr(new BlockDeviceAsyncResult(
               request->request_id,
               request->status == 0 ? BlockDeviceAsyncRequestType::Ok : BlockDeviceAsyncRequestType::Failed)));
 

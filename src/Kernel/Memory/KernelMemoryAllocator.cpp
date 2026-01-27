@@ -86,7 +86,7 @@ namespace Kernel {
   void KernelMemoryAllocator::debug() {
     auto statistics = get_statistics();
     dbglog_direct("KernelMemoryAllocator: total size: {16}, free size: {16}, used size: {16}\n",
-          statistics.total_size, statistics.free_size, statistics.used_size);
+                  statistics.total_size, statistics.free_size, statistics.used_size);
   }
 
   KernelMemoryAllocator::Statistics KernelMemoryAllocator::get_statistics() {
@@ -177,6 +177,16 @@ void operator delete(void* ptr) {
 }
 
 void operator delete[](void* ptr) noexcept {
+  if(!ptr) return;
+  return Kernel::KernelMemoryAllocator::the().kfree((uintptr_t*) ptr);
+}
+
+void operator delete(void* ptr, size_t size) {
+  if(!ptr) return;
+  return Kernel::KernelMemoryAllocator::the().kfree((uintptr_t*) ptr);
+}
+
+void operator delete[](void* ptr, size_t size) {
   if(!ptr) return;
   return Kernel::KernelMemoryAllocator::the().kfree((uintptr_t*) ptr);
 }

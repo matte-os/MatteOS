@@ -14,7 +14,6 @@ namespace Kernel {
   using Utils::LinkedList;
 
   class DataBlock : public RefCounted<DataBlock> {
-  private:
     u8* m_data;
     size_t m_size;
     size_t m_block_number;
@@ -42,7 +41,6 @@ namespace Kernel {
   // This is a backbone for block-based file systems.
   // It will automatically cache blocks and provide a way to read and write them.
   class BlockBackedFileSystem : public FileSystem {
-  private:
     RefPtr<BlockDevice> m_device;
     LinkedList<RefPtr<DataBlock>> m_cache;
     size_t m_block_size;

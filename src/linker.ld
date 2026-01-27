@@ -211,6 +211,13 @@ SECTIONS
     _data_end = .;
   } >ram AT>ram :data
 
+  .ksymtab : {
+    . = ALIGN(8);
+    _ksymtab_start = .;
+    KEEP(*(.ksymtab))
+    _ksymtab_end = .;
+  } >ram AT>ram :data
+
   .bss : {
     _bss_start = .;
     *(.sbss .sbss.*) *(.bss .bss.*)
