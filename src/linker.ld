@@ -244,9 +244,11 @@ SECTIONS
 	 Therefore we set the stack at the very bottom of its allocated slot.
 	 When we go to allocate from the stack, we'll subtract the number of bytes we need.
   */
+
   _stack_start = _bss_end;
-  _stack_end = _stack_start + 0x80000;
+  _stack_end = _stack_start + 0x200000;
   _memory_end = ORIGIN(ram) + LENGTH(ram);
+
   /*
      Finally, our heap starts right after the kernel stack. This heap will be used mainly
 	 to dole out memory for user-space applications. However, in some circumstances, it will

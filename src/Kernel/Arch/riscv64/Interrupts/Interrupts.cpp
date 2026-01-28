@@ -88,8 +88,7 @@ namespace Kernel {
   }
 }// namespace Kernel
 
-extern "C" size_t handle_interrupt(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus,
-                                   bool kernel_flag) {
+extern "C" size_t handle_interrupt(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus, bool kernel_flag) {
   if(kernel_flag) {
     auto cause = static_cast<Kernel::Interrupts>(scause);
     if(cause == Kernel::Interrupts::InstructionPageFault || cause == Kernel::Interrupts::LoadPageFault || cause == Kernel::Interrupts::StorePageFault || cause == Kernel::Interrupts::IllegalInstruction) {
@@ -111,17 +110,17 @@ extern "C" size_t handle_interrupt(size_t sepc, size_t stval, size_t scause, siz
       ret_sepc = Kernel::handle_software_interrupt(sepc, stval, scause, cpu_id, sstatus);
     } break;
     case Kernel::Interrupts::TimerInterrupt: {
-      ret_sepc =  Kernel::handle_timer_interrupt(sepc, stval, scause, cpu_id, sstatus);
-    }break;
+      ret_sepc = Kernel::handle_timer_interrupt(sepc, stval, scause, cpu_id, sstatus);
+    } break;
     case Kernel::Interrupts::ExternalInterrupt: {
-      ret_sepc =  Kernel::handle_external_interrupt(sepc, stval, scause, cpu_id, sstatus);
-    }break;
+      ret_sepc = Kernel::handle_external_interrupt(sepc, stval, scause, cpu_id, sstatus);
+    } break;
     case Kernel::Interrupts::SystemCall: {
-      ret_sepc =  Kernel::handle_system_call(sepc, stval, scause, cpu_id, sstatus);
-    }break;
+      ret_sepc = Kernel::handle_system_call(sepc, stval, scause, cpu_id, sstatus);
+    } break;
     default: {
-      ret_sepc =  Kernel::unknown_interrupt(sepc, stval, scause, cpu_id, sstatus);
-    }break;
+      ret_sepc = Kernel::unknown_interrupt(sepc, stval, scause, cpu_id, sstatus);
+    } break;
   }
 
   s64 allocated_bytes_on_int_end = Kernel::KernelMemoryAllocator::the().get_statistics().used_size;

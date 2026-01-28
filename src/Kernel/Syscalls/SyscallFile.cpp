@@ -57,12 +57,14 @@ namespace Kernel {
     auto error_or_buffer = buffer.get(m_page_table);
 
     if(error_or_buffer.has_error()) {
+      dbgln("Syscalls::handle_read: Failed to get buffer from userspace.");
       return SysError::Error;
     }
 
     auto error_or_request = file->read(error_or_buffer.get_value(), size);
 
     if(error_or_request.has_error()) {
+      dbgln("Syscalls::handle_read: Read operation failed: {}", error_or_request.get_error().get_message());
       return SysError::Error;
     }
 

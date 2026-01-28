@@ -7,6 +7,7 @@
 #include <Kernel/Devices/Device.h>
 #include <Kernel/FileSystem/FATFS/FAT.h>
 #include <Kernel/FileSystem/FATFS/FATFileSystem.h>
+#include <Kernel/Logger.h>
 #include <Utils/Memory.h>
 
 namespace Kernel {
@@ -142,8 +143,7 @@ namespace Kernel {
     auto maybe_block = get_block_from_cache(block_number);
 
     // If we found the block in the cache, return it.
-    if(maybe_block) {
-      cache(maybe_block.get_value());
+    if(maybe_block.has_value()) {
       return maybe_block;
     }
 
@@ -156,7 +156,6 @@ namespace Kernel {
     TRY(read_or_error);
 
     cache(block);
-
     return block;
   }
 
@@ -167,6 +166,17 @@ namespace Kernel {
   }
 
   ErrorOr<void> FATFileSystem::write_block_request() {
+  }
+
+  ErrorOr<FAT::FATEntry> FATFileSystem::get_fat_entry(u32 index) {
+    size_t entry_offset_in_fat = index * sizeof(FAT::FATEntry);
+
+    size_t fat_block = entry_offset_in_fat / get_block_size();
+    size_t entry_offset_in_block = entry_offset_in_fat % get_block_size();
+
+    auto block = TRY(read_block_poll(fat_block));
+    auto fat_entry = reinterpret_cast<FAT::FATEntry*>(block->data() + entry_offset_in_block);
+    return *fat_entry;
   }
 
   ErrorOr<RefPtr<DataBlock>> FATFileSystem::read_cluster_poll(size_t cluster) {

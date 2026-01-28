@@ -45,7 +45,7 @@ namespace Kernel {
     for(size_t i = 0; i < m_number_of_harts; i++) {
       auto* kernel_trap_frame = reinterpret_cast<KernelTrapFrame*>(MemoryManager::the().zalloc(1));
       kernel_trap_frame->cpu_id = i;
-      kernel_trap_frame->regs[2] = MemoryManager::get_stack_start();
+      kernel_trap_frame->regs[2] = MemoryManager::get_stack_end();
       DebugConsole::print("System: TrapFrame address: ");
       DebugConsole::print_ln_number(reinterpret_cast<u64>(kernel_trap_frame), 16);
 

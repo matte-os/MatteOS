@@ -13,12 +13,12 @@ namespace Kernel {
 
   class FATInode final : public Inode {
     RefPtr<FATFileSystem> m_fs;
-    FAT::DirectoryEntry m_entry;
+    FAT::FullDirectoryEntry m_entry;
     String m_name;
 
   public:
-    FATInode(RefPtr<FATFileSystem>&& fs, FAT::DirectoryEntry entry, String&& name);
-    FATInode(RefPtr<FATFileSystem>& fs, FAT::DirectoryEntry entry, String&& name);
+    FATInode(RefPtr<FATFileSystem>&& fs, FAT::FullDirectoryEntry entry, String&& name);
+    FATInode(RefPtr<FATFileSystem>& fs, FAT::FullDirectoryEntry entry, String&& name);
 
     ErrorOr<StringView> name() override {
       return ErrorOr<StringView>::create(m_name);

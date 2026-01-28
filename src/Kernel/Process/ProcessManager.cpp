@@ -46,6 +46,14 @@ namespace Kernel {
     auto fd = static_cast<int>(syscall(Syscalls::Sys$open, reinterpret_cast<uintptr_t>("/hello.txt"), 0));
     if(fd != -1) {
       syscall(Syscalls::Sys$dbgln, reinterpret_cast<uintptr_t>("Opened file successfully"));
+      char buffer[128] = {};
+      auto bytes_read = static_cast<int>(syscall(Syscalls::Sys$read, fd, reinterpret_cast<uintptr_t>(buffer), sizeof(buffer) - 1));
+      if(bytes_read > 0) {
+        syscall(Syscalls::Sys$dbgln, reinterpret_cast<uintptr_t>("Read from file:"));
+        syscall(Syscalls::Sys$dbgln, reinterpret_cast<uintptr_t>(buffer));
+      } else {
+        syscall(Syscalls::Sys$dbgln, reinterpret_cast<uintptr_t>("Failed to read from file"));
+      }
     } else {
       syscall(Syscalls::Sys$dbgln, reinterpret_cast<uintptr_t>("Failed to open file"));
     }
@@ -125,8 +133,7 @@ namespace Kernel {
             (STACK_PAGES * MemoryManager::PAGE_SIZE);
     trap_frame->regs[2] = STACK_ADDRESS;
     trap_frame->program_counter = program_counter;
-    return new Thread(trap_frame, (uintptr_t*) ((u8*) trap_frame->trap_stack) -
-                                          (STACK_PAGES * MemoryManager::PAGE_SIZE), pid, tid);
+    return new Thread(trap_frame, (uintptr_t*) ((u8*) trap_frame->trap_stack) - (STACK_PAGES * MemoryManager::PAGE_SIZE), pid, tid);
   }
 
   ProcessManager::~ProcessManager() {
