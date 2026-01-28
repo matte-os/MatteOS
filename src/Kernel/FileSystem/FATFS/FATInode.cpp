@@ -18,21 +18,15 @@ namespace Kernel {
   }
 
   ErrorOr<RefPtr<Inode>> FATInode::get_child(StringView name) {
-    dbglog_direct("Looking up child '{}' in directory '{}'\n", name, m_name);
     if(!m_entry.is_directory()) {
       return Error::create_from_string("Not a directory");
     }
 
-    dbglog_direct("It's a directory, reading cluster {}\n", m_entry.first_cluster);
-
     auto block = TRY(m_fs->read_cluster_poll(m_entry.first_cluster));
-    dbglog_direct("Block read, scanning entries\n");
     // FIXME: Add support for FAT linked clusters
     for(size_t directory_entry_index = 0; directory_entry_index < m_fs->get_block_size() / sizeof(FAT::DirectoryEntry); directory_entry_index++) {
       auto directory_entry = reinterpret_cast<FAT::DirectoryEntry*>(block->data() + directory_entry_index * sizeof(FAT::DirectoryEntry));
-      dbglog_direct("Loop at directory entry index {}\n", directory_entry_index);
       if(directory_entry->is_free()) {
-        dbglog_direct("Found free entry, continuing\n");
         continue;
       }
 
@@ -40,7 +34,6 @@ namespace Kernel {
       if(directory_entry->is_long_name()) {
         auto* long_entry = directory_entry->as_long_name();
         while(true) {
-          dbglog_direct("Long name entry found\n");
           String tmp;
           for(size_t i = 0; i < 5; i++) {
             if(long_entry->name1[i] == 0 || long_entry->name1[i] == 0xFFFF) {
@@ -66,14 +59,12 @@ namespace Kernel {
           entry_name = tmp + entry_name;
 
           if(long_entry->is_final_entry() || long_entry->is_free()) {
-            dbglog_direct("Found final long name entry\n");
             directory_entry_index++;
             directory_entry = reinterpret_cast<FAT::DirectoryEntry*>(block->data() + directory_entry_index * sizeof(FAT::DirectoryEntry));
             if(directory_entry->is_long_name()) {
               return Error::create_from_string("Corrupt directory: Last Long name entry not followed by standard entry");
             }
 
-            dbglog_direct("Done with LFN + SFN\n");
             break;
           }
 
@@ -81,7 +72,6 @@ namespace Kernel {
           directory_entry_index++;
         }
       } else {
-        dbglog_direct("Found SFN\n");
         entry_name = String(reinterpret_cast<char*>(directory_entry->name), 11);
       }
 
@@ -90,12 +80,9 @@ namespace Kernel {
       }
 
       if(entry_name == name) {
-        dbglog_direct("Child found\n");
         return RefPtr<Inode>(new FATInode(m_fs, FAT::FullDirectoryEntry::filled_from(entry_name, *directory_entry), move(entry_name)));
       }
     }
-
-    dbglog_direct("Child not found\n");
 
     return Error::create_from_string("Child not found");
   }
@@ -187,7 +174,6 @@ namespace Kernel {
     auto initial_cluster_offset = offset % cluster_size_in_bytes;
 
     for(size_t i = 0; i < clusters_to_skip; i++) {
-      dbgln("FATInode: Skipping cluster {}", current_cluster);
       auto cluster_entry = TRY(m_fs->get_fat_entry(current_cluster));
       if(cluster_entry.is_end_of_chain()) {
         return Error::create_from_string("Corrupt FAT chain: Reached EOF before offset");
@@ -196,7 +182,6 @@ namespace Kernel {
     }
 
     while(bytes_read < size) {
-      dbgln("Reading cluster {}", current_cluster);
       auto cluster_data_block = TRY(m_fs->read_cluster_poll(current_cluster));
       size_t offset_in_cluster = (bytes_read == 0) ? initial_cluster_offset : 0;
       size_t available_bytes_in_cluster = cluster_size_in_bytes - offset_in_cluster;

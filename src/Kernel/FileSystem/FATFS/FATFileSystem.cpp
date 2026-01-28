@@ -144,6 +144,7 @@ namespace Kernel {
 
     // If we found the block in the cache, return it.
     if(maybe_block.has_value()) {
+      cache(maybe_block.get_value());
       return maybe_block;
     }
 
