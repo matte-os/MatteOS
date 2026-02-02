@@ -4,7 +4,9 @@
 #include <Utils/Types.h>
 
 namespace Kernel {
-  using ModuleInit = Utils::Function<int, void*>;
+  class ModuleContext{};
+
+  using ModuleInit = Utils::Function<int, ModuleContext*>;
   using ModuleCleanup = Utils::Function<int>;
 
   struct ModuleHeader {

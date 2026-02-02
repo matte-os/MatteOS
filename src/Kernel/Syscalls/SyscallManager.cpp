@@ -12,15 +12,52 @@
 #include <Utils/Assertions.h>
 
 namespace Kernel {
-  using SysResult = Utils::ErrorOr<uintptr_t, SysError>;
-  using SyscallHandler = auto (Process::*)(uintptr_t arg0, uintptr_t arg1, uintptr_t arg2,
-                                           uintptr_t arg3, uintptr_t arg4, uintptr_t arg5,
-                                           uintptr_t arg6) -> SysResult;
+  using SysResult = ErrorOr<uintptr_t, SysError>;
+  using SyscallHandler = SysResult (*)(Process* proc, uintptr_t arg0, uintptr_t arg1, uintptr_t arg2,
+                                       uintptr_t arg3, uintptr_t arg4, uintptr_t arg5, uintptr_t arg6);
 
 
   static SyscallManager* s_syscall_manager = nullptr;
 
-#define SYSCALL_HANDLER(name) reinterpret_cast<SyscallHandler>((&Process::handle_##name)),
+  template<auto Func>
+  struct SyscallWrapper;
+
+  // --- Specialization for 0 Arguments ---
+  // Matches: SysResult handle_foo()
+  template<typename Ret, typename Class, Ret (Class::*Func)()>
+  struct SyscallWrapper<Func> {
+    static SysResult call(Process* p, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t) {
+      return (p->*Func)();
+    }
+  };
+
+  // --- Specialization for 1 Argument ---
+  // Matches: SysResult handle_foo(Arg1)
+  template<typename Ret, typename Class, typename Arg1, Ret (Class::*Func)(Arg1)>
+  struct SyscallWrapper<Func> {
+    static SysResult call(Process* p, uintptr_t a0, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t) {
+      return (p->*Func)((Arg1) a0);
+    }
+  };
+
+  // --- Specialization for 2 Arguments ---
+  // Matches: SysResult handle_foo(Arg1, Arg2)
+  template<typename Ret, typename Class, typename Arg1, typename Arg2, Ret (Class::*Func)(Arg1, Arg2)>
+  struct SyscallWrapper<Func> {
+    static SysResult call(Process* p, uintptr_t a0, uintptr_t a1, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t) {
+      return (p->*Func)((Arg1) a0, (Arg2) a1);
+    }
+  };
+
+  // --- Specialization for 3 Arguments ---
+  template<typename Ret, typename Class, typename Arg1, typename Arg2, typename Arg3, Ret (Class::*Func)(Arg1, Arg2, Arg3)>
+  struct SyscallWrapper<Func> {
+    static SysResult call(Process* p, uintptr_t a0, uintptr_t a1, uintptr_t a2, uintptr_t, uintptr_t, uintptr_t, uintptr_t) {
+      return (p->*Func)((Arg1) a0, (Arg2) a1, (Arg3) a2);
+    }
+  };
+
+#define SYSCALL_HANDLER(name) SyscallWrapper<&Process::handle_##name>::call,
   static SyscallHandler syscall_handlers[] = {
           SYSCALL_GENERATOR(SYSCALL_HANDLER)};
 #undef SYSCALL_HANDLER
@@ -57,7 +94,7 @@ namespace Kernel {
     dbgln("SyscallManager: Arguments: {16}, {16}, {16}, {16}, {16}, {16}, {16}", arg0, arg1, arg2, arg3, arg4, arg5, arg6, syscall_id);
 
     s64 mem_usage_before = KernelMemoryAllocator::the().get_statistics().used_size;
-    auto result = (process->*handler)(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+    auto result = handler(process, arg0, arg1, arg2, arg3, arg4, arg5, arg6);
     s64 mem_usage_after = KernelMemoryAllocator::the().get_statistics().used_size;
 
     dbgln("SyscallManager: Memory usage before: {}, after: {}, diff: {}", mem_usage_before, mem_usage_after, mem_usage_after - mem_usage_before);

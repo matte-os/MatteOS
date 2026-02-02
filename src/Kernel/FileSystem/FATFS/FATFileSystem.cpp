@@ -56,14 +56,14 @@ namespace Kernel {
     // Lastly, determine the count of clusters as:
     auto count_of_clusters = data_sectors / fat->sectors_per_cluster;
     if(count_of_clusters < 4085) {
-      delete buffer;
+      delete[] buffer;
       return ErrorOr<RefPtr<FileSystem>>::create_error(Error::create_from_string("FAT12 is not supported"));
     } else if(count_of_clusters < 65525) {
-      delete buffer;
+      delete[] buffer;
       return ErrorOr<RefPtr<FileSystem>>::create_error(Error::create_from_string("FAT16 is not supported"));
     } else {
       auto boot_sector = new BootSector32(*reinterpret_cast<BootSector32*>(buffer));
-      delete buffer;
+      delete[] buffer;
       return ErrorOr<RefPtr<FileSystem>>::create(RefPtr(new FATFileSystem(device, FATType::FAT32, boot_sector)));
     }
   }
@@ -161,12 +161,15 @@ namespace Kernel {
   }
 
   ErrorOr<void> FATFileSystem::write_block_poll(size_t block_number, char* buffer) {
+    return Error::create_from_string("Not implemented");
   }
 
   ErrorOr<void> FATFileSystem::read_block_request() {
+    return Error::create_from_string("Not implemented");
   }
 
   ErrorOr<void> FATFileSystem::write_block_request() {
+    return Error::create_from_string("Not implemented");
   }
 
   ErrorOr<FAT::FATEntry> FATFileSystem::get_fat_entry(u32 index) {

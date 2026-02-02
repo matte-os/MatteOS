@@ -79,7 +79,7 @@ add_subdirectory(src)
 
 # --- Pass 1: Temporary Kernel with Dummy Symbols ---
 # We create a dummy file so the linker doesn't complain about missing symbols
-set(DUMMY_SYMS_FILE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/DummyKernelSymbols.cpp")
+set(DUMMY_SYMS_FILE "${DIST_DIR}/generated/DummyKernelSymbols.cpp")
 if (NOT EXISTS ${DUMMY_SYMS_FILE})
     file(WRITE ${DUMMY_SYMS_FILE}
             "#include <Utils/Types.h> \n extern \"C\" { void* k_exported_symbols[] = { 0 }; const size_t k_exported_symbols_count = 0; }"
@@ -96,7 +96,7 @@ add_executable(kernel_temp.elf
 # --- Pass 2: Generate Real Symbols ---
 set(GEN_SCRIPT "${SCRIPT_DIR}/generate_kernel_symbols.py")
 set(ALLOWED_SYMS_LIST "${PROJECT_SOURCE_DIR}/scripts/allowed_symbols.txt")
-set(REAL_SYMS_FILE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/GeneratedKernelSymbols.cpp")
+set(REAL_SYMS_FILE "${DIST_DIR}/generated/GeneratedKernelSymbols.cpp")
 
 # Run the python script on kernel_temp.elf to create generated_ksyms.cpp
 add_custom_command(

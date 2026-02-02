@@ -1,23 +1,20 @@
-#include <Kernel/Drivers/DeviceDriver.h>
-#include <Kernel/API/Module/DriverAPI.h>
-#include <Utils/Pointers/RefPtr.h>
 #include <Kernel/API/Module/Module.h>
+#include <Kernel/Drivers/DeviceDriver.h>
 
 class TestDriver : public Kernel::DeviceDriver {
-
 };
 
 class TestDriverDescriptor : public Kernel::DeviceDriverDescriptor {
 };
 
 extern "C" {
-  int init_module(Kernel::Module::DriverAPI* driver_api) {
-    driver_api->test();
-  }
+int init_module(Kernel::ModuleContext*) {
+  return 0;
+}
 
-  int cleanup_module() {
-
-  }
+int cleanup_module() {
+  return 0;
+}
 }
 
 using Kernel::ModuleHeader;

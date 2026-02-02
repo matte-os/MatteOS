@@ -141,6 +141,7 @@ mkfs.fat -F 32 build/dist/riscv/disk.img
 mkdir -p build/dist/riscv/mnt
 sudo mount -o loop build/dist/riscv/disk.img build/dist/riscv/mnt
 echo 'Hello, World!' | sudo tee build/dist/riscv/mnt/hello.txt > /dev/null
+sudo cp build/dist/riscv/modules/TestModule.ko build/dist/riscv/mnt/TestModule.ko
 sudo sync
 sudo umount -l build/dist/riscv/mnt
 """
