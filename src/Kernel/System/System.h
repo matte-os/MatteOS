@@ -4,9 +4,9 @@
  */
 #pragma once
 
-#include <Kernel/Memory/VirtualMemory/MemoryRegion.h>
 #include <Kernel/Arch/riscv64/CSR.h>
 #include <Kernel/Firmware/FDT/FDTParser.h>
+#include <Kernel/Memory/VirtualMemory/MemoryRegion.h>
 #include <Kernel/System/KernelTrapFrame.h>
 #include <Kernel/System/TrapFrame.h>
 #include <Utils/Arrays/ArrayList.h>
@@ -29,7 +29,11 @@ namespace Kernel {
     static void init();
     static System& the();
 
-    static KernelTrapFrame* get_current_kernel_trap_frame() { return reinterpret_cast<KernelTrapFrame*>(TRAP_VECTOR_ADDRESS); }
+    static KernelTrapFrame* get_current_kernel_trap_frame() {
+      KernelTrapFrame* tf;
+      asm volatile("mv %0, tp" : "=r"(tf));
+      return tf;
+    }
 
     KernelTrapFrame* get_kernel_trap_frame(size_t hart_id) { return m_kernel_trap_frames[hart_id]; }
 
@@ -53,5 +57,7 @@ namespace Kernel {
     void init_harts();
     void set_trap_vector(void (*trap_vector)());
   };
+
+  extern "C" void hart_init(u32 cpu_id);
 
 }// namespace Kernel

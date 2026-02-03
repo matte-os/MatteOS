@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <Kernel/System/TrapFrame.h>
 #include <Utils/Types.h>
 
 namespace Kernel {
@@ -74,4 +75,4 @@ namespace Kernel {
   }
 }// namespace Kernel
 
-extern "C" size_t handle_interrupt(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus, bool kernel_flag);
+extern "C" Kernel::TrapFrame* handle_interrupt(Kernel::TrapFrame* tf);

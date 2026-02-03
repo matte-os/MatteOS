@@ -14,9 +14,16 @@ namespace Kernel {
   struct TrapFrame {
     u64 regs[32];
     u64 fregs[32];
-    uintptr_t program_counter;
-    SATP satp;
-    u64* trap_stack;
+    u64 sepc;   // 512
+    u64 sstatus;// 520
+    u64 scause; // 528
+    u64 stval;  // 536
+
+    u64 kernel_satp;          // User/Kernel SATP, dual use
+    u64 kernel_sp;            // The Kernel Stack Pointer for this thread
+    u64 kernel_trap_frame_ptr;// The pointer to the Kernel Thread's context (For 'tp')
+
+    u64 kernel_addr;
 
     template<typename T>
     T get_register(RegisterOffset offset) {

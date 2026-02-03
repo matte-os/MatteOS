@@ -28,6 +28,7 @@ namespace Kernel {
   void System::init() {
     if(!s_system) {
       s_system = new System;
+      hart_init(0);
     }
   }
 
@@ -42,25 +43,19 @@ namespace Kernel {
     //Utils::DebugConsole::println("System: Initialised.");
 
     m_kernel_trap_frames = ArrayList<KernelTrapFrame*>();
+    auto master_kernel_satp = CPU::read_satp();
+
     for(size_t i = 0; i < m_number_of_harts; i++) {
       auto* kernel_trap_frame = reinterpret_cast<KernelTrapFrame*>(MemoryManager::the().zalloc(1));
-      kernel_trap_frame->cpu_id = i;
-      kernel_trap_frame->regs[2] = MemoryManager::get_stack_end();
-      DebugConsole::print("System: TrapFrame address: ");
-      DebugConsole::print_ln_number(reinterpret_cast<u64>(kernel_trap_frame), 16);
+      auto* hart_stack_bottom = MemoryManager::the().zalloc(2);
+      auto hart_stack_top = reinterpret_cast<u64>(hart_stack_bottom) + 4096 * 2;
 
-      DebugConsole::print("System: TrapFrame regs[2] address: ");
-      DebugConsole::print_ln_number(kernel_trap_frame->regs[2], 16);
-      if(i == 0) {
-        MemoryManager::the().map_range(*MemoryManager::the().get_current_root_page_table(), TRAP_VECTOR_ADDRESS, TRAP_VECTOR_ADDRESS + 0x1000, reinterpret_cast<uintptr_t>(kernel_trap_frame), static_cast<u64>(EntryBits::READ_WRITE));
-        kernel_trap_frame->satp = CPU::read_satp();
-      } else {
-        // The stack decreases from the top of the memory
-        auto* root_page_table = reinterpret_cast<PageTable*>(MemoryManager::the().zalloc(4) + 0x4000);
-        MemoryManager::the().map_system_defaults(*root_page_table);
-        MemoryManager::the().map_range(*root_page_table, TRAP_VECTOR_ADDRESS, TRAP_VECTOR_ADDRESS + 0x1000, reinterpret_cast<uintptr_t>(kernel_trap_frame), static_cast<u64>(EntryBits::READ_WRITE));
-        kernel_trap_frame->satp = CPU::build_satp(SatpMode::Sv39, 0, reinterpret_cast<uintptr_t>(root_page_table));
-      }
+      kernel_trap_frame->cpu_id = i;
+      kernel_trap_frame->regs[2] = hart_stack_top;
+      kernel_trap_frame->kernel_sp = hart_stack_top;
+      kernel_trap_frame->kernel_trap_frame_ptr = reinterpret_cast<u64>(kernel_trap_frame);
+      kernel_trap_frame->kernel_satp = *reinterpret_cast<u64*>(&master_kernel_satp);
+
       m_kernel_trap_frames.add(kernel_trap_frame);
     }
   }
@@ -112,5 +107,12 @@ namespace Kernel {
     } else {
       DebugConsole::println("System: Found /memory node in FDT.");
     }
+  }
+
+  extern "C" void hart_init(u32 cpu_id) {
+    auto* trap_frame = System::the().get_kernel_trap_frame(cpu_id);
+
+    CPU::sscratch_write(reinterpret_cast<u64>(trap_frame));
+    asm volatile("mv tp, %0" ::"r"(trap_frame));
   }
 }// namespace Kernel

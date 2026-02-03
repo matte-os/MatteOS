@@ -18,27 +18,23 @@
 namespace Kernel {
   using Utils::DebugConsole;
 
-  size_t handle_software_interrupt(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus) {
-    return sepc;
+  static bool is_kernel_trap(TrapFrame* tf) {
+    return (tf->sstatus & (1ULL << 8)) != 0;
   }
 
-  size_t handle_timer_interrupt(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus) {
-    if(auto* current_thread = ProcessManager::the().get_current_thread()) {
-      current_thread->get_trap_frame()->program_counter = sepc;
-    }
+  TrapFrame* handle_software_interrupt(TrapFrame* tf) {
+    return tf;
+  }
 
-    const auto thread = Scheduler::the().schedule();
-
-    // Write process SATP to the SSCRATCH register
-    RISCV64::CSR::write<RISCV64::CSR::Address::SSCRATCH>(*reinterpret_cast<u64*>(reinterpret_cast<u64>(&thread->get_trap_frame()->satp)));
-
-    const auto program_counter = thread->get_trap_frame()->program_counter;
+  TrapFrame* handle_timer_interrupt(TrapFrame* tf) {
+    auto* next_thread = Scheduler::the().schedule();
 
     Timer::the().set_timer(Timer::DEFAULT_PROCESS_TIME);
-    return program_counter;
+
+    return next_thread->get_trap_frame();
   }
 
-  size_t handle_external_interrupt(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus) {
+  TrapFrame* handle_external_interrupt(TrapFrame* tf) {
     //auto context_id = System::the().get_current_kernel_trap_frame()->cpu_id;
     constexpr auto context_id = InterruptManager::DEFAULT_CONTEXT_ID;
     if(const auto next_interrupt = Plic::the().next(context_id); next_interrupt.has_value()) {
@@ -46,10 +42,10 @@ namespace Kernel {
       InterruptManager::the().delegate_device_interrupt(interrupt);
       Plic::the().complete(context_id, interrupt);
     }
-    return sepc;
+    return tf;
   }
 
-  size_t handle_system_call(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus) {
+  TrapFrame* handle_system_call(TrapFrame* tf) {
     auto* process = ProcessManager::the().get_current_process();
     auto* current_thread = ProcessManager::the().get_current_thread();
     const auto syscallId = current_thread->get_trap_frame()->regs[static_cast<size_t>(
@@ -64,62 +60,60 @@ namespace Kernel {
 
     if(error_or_ok.has_error() && error_or_ok.get_error() == SysError::Blocked) {
       // Reschedule a different process
-      current_thread->get_trap_frame()->program_counter = sepc;
       const auto new_process = Scheduler::the().schedule();
-
-      // Write process SATP to the SSCRATCH register
-      RISCV64::CSR::write<RISCV64::CSR::Address::SSCRATCH>(*reinterpret_cast<u64*>(reinterpret_cast<u64>(&new_process->get_trap_frame()->satp)));
-
-      return new_process->get_trap_frame()->program_counter;
+      return new_process->get_trap_frame();
     }
-    return sepc + 4;
+    tf->sepc += 4;
+    return tf;
   }
 
-  size_t unknown_interrupt(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus) {
-    dbgln("Interrupts: No handler for interrupt {}, on address: {16}", scause, sepc);
-    return sepc;
+  TrapFrame* unknown_interrupt(TrapFrame* tf) {
+    dbgln("Interrupts: No handler for interrupt {}, on address: {16}", tf->scause, tf->sepc);
+    return tf;
   }
 
-  [[noreturn]] void kernel_panic(size_t sepc, size_t scause) {
+  [[noreturn]] void kernel_panic(TrapFrame* tf) {
     Logger::the().switch_to_sbi();
-    dbgln("Interrupts: Kernel panic, cause: {} on address: {}.", scause, sepc);
+    dbgln("Interrupts: Kernel panic, cause: {} on address: {}.", tf->scause, tf->sepc);
     SBI::sbi_hart_stop();
     asm volatile("wfi");
+    while(true);
   }
 }// namespace Kernel
 
-extern "C" size_t handle_interrupt(size_t sepc, size_t stval, size_t scause, size_t cpu_id, size_t sstatus, bool kernel_flag) {
-  if(kernel_flag) {
-    auto cause = static_cast<Kernel::Interrupts>(scause);
+extern "C" Kernel::TrapFrame* handle_interrupt(Kernel::TrapFrame* tf) {
+  if(Kernel::is_kernel_trap(tf)) {
+    auto cause = static_cast<Kernel::Interrupts>(tf->scause);
     if(cause == Kernel::Interrupts::InstructionPageFault || cause == Kernel::Interrupts::LoadPageFault || cause == Kernel::Interrupts::StorePageFault || cause == Kernel::Interrupts::IllegalInstruction) {
-      Kernel::kernel_panic(sepc, scause);
+      Kernel::kernel_panic(tf);
     }
 
     if(cause == Kernel::Interrupts::ExternalInterrupt) {
-      return Kernel::handle_external_interrupt(sepc, stval, scause, cpu_id, sstatus);
+      return Kernel::handle_external_interrupt(tf);
     }
-    return sepc;
+    return tf;
   }
 
   s64 allocated_bytes_on_int_start = Kernel::KernelMemoryAllocator::the().get_statistics().used_size;
   s64 allocated_by_logger_start = Kernel::Logger::the().get_buffer_size();
-  size_t ret_sepc;
 
-  switch(static_cast<Kernel::Interrupts>(scause)) {
+  Kernel::TrapFrame* next_tf = tf;
+
+  switch(static_cast<Kernel::Interrupts>(tf->scause)) {
     case Kernel::Interrupts::SoftwareInterrupt: {
-      ret_sepc = Kernel::handle_software_interrupt(sepc, stval, scause, cpu_id, sstatus);
+      next_tf = Kernel::handle_software_interrupt(tf);
     } break;
     case Kernel::Interrupts::TimerInterrupt: {
-      ret_sepc = Kernel::handle_timer_interrupt(sepc, stval, scause, cpu_id, sstatus);
+      next_tf = Kernel::handle_timer_interrupt(tf);
     } break;
     case Kernel::Interrupts::ExternalInterrupt: {
-      ret_sepc = Kernel::handle_external_interrupt(sepc, stval, scause, cpu_id, sstatus);
+      next_tf = Kernel::handle_external_interrupt(tf);
     } break;
     case Kernel::Interrupts::SystemCall: {
-      ret_sepc = Kernel::handle_system_call(sepc, stval, scause, cpu_id, sstatus);
+      next_tf = Kernel::handle_system_call(tf);
     } break;
     default: {
-      ret_sepc = Kernel::unknown_interrupt(sepc, stval, scause, cpu_id, sstatus);
+      next_tf = Kernel::unknown_interrupt(tf);
     } break;
   }
 
@@ -127,8 +121,8 @@ extern "C" size_t handle_interrupt(size_t sepc, size_t stval, size_t scause, siz
   s64 allocated_by_logger_end = Kernel::Logger::the().get_buffer_size();
   s64 total = allocated_bytes_on_int_end - allocated_bytes_on_int_start - (allocated_by_logger_end - allocated_by_logger_start);
   if(total > 300) {
-    dbgln("Interrupts: Warning, memory allocation during interrupt (int: {}) handling detected! ({} bytes)", scause, total);
+    dbgln("Interrupts: Warning, memory allocation during interrupt (int: {}) handling detected! ({} bytes)", tf->scause, total);
   }
 
-  return ret_sepc;
+  return next_tf;
 }

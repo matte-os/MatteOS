@@ -16,5 +16,6 @@ namespace Kernel {
 
   private:
     Scheduler() = default;
+    void prepare_for_switch(Thread* target_thread);
   };
 }// namespace Kernel

@@ -107,14 +107,15 @@ namespace Kernel {
     MemoryManager::the().map(
             *root, THREAD_FRAME_ADDRESS,
             reinterpret_cast<uintptr_t>(trap_frame),
-            (size_t) EntryBits::READ_WRITE, 0);
+            (Utils::as_underlying(EntryBits::READ_WRITE) | Utils::as_underlying(EntryBits::ACCESS) | Utils::as_underlying(EntryBits::DIRTY)), 0);
+
+    auto* stack_bottom = MemoryManager::the().zalloc(STACK_PAGES);
 
     // Map the stack
-    MemoryManager::the().map_range(*root, STACK_ADDRESS - 0x1000,
+    MemoryManager::the().map_range(*root, STACK_ADDRESS - MemoryManager::PAGE_SIZE * STACK_PAGES,
                                    STACK_ADDRESS,
-                                   reinterpret_cast<uintptr_t>(trap_frame->trap_stack),
+                                   reinterpret_cast<uintptr_t>(stack_bottom),
                                    (size_t) EntryBits::USER_READ_WRITE);
-
 
     auto* process = new Process(current_pid, thread,
                                 root,
@@ -127,13 +128,16 @@ namespace Kernel {
   Thread* ProcessManager::initialize_thread(uintptr_t program_counter, SATP satp,
                                             size_t hart_id, size_t pid, size_t tid) {
     auto* trap_frame = new(MemoryManager::the().zalloc(1)) TrapFrame;
-    trap_frame->satp = satp;
-    trap_frame->trap_stack =
-            (u64*) ((u8*) MemoryManager::the().zalloc(STACK_PAGES)) +
-            (STACK_PAGES * MemoryManager::PAGE_SIZE);
+    trap_frame->kernel_satp = *reinterpret_cast<u64*>(&satp);
     trap_frame->regs[2] = STACK_ADDRESS;
-    trap_frame->program_counter = program_counter;
-    return new Thread(trap_frame, (uintptr_t*) ((u8*) trap_frame->trap_stack) - (STACK_PAGES * MemoryManager::PAGE_SIZE), pid, tid);
+    u64 sstatus = 0;
+    sstatus |= (1 << 5); // SPIE: Enable interrupts in User Mode
+    sstatus |= (1 << 13);// FS: Enable FPU (Set to Initial state 1)
+    sstatus |= (1 << 18);// SUM: Allow User Mode to access Supervisor memory
+    trap_frame->sstatus = sstatus;
+    trap_frame->sepc = program_counter;
+    trap_frame->kernel_addr = reinterpret_cast<uintptr_t>(trap_frame);
+    return new Thread(trap_frame, pid, tid);
   }
 
   ProcessManager::~ProcessManager() {

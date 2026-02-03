@@ -46,8 +46,7 @@ namespace Kernel {
 
     lock.unlock();
 
-    System::get_current_kernel_trap_frame()->current_process_id = first->get_pid();
-    System::get_current_kernel_trap_frame()->current_thread_id = first->get_tid();
+    prepare_for_switch(first);
 
     return first;
   }
@@ -55,6 +54,31 @@ namespace Kernel {
   void Scheduler::start_scheduling() {
     Timer::the().set_timer(Timer::DEFAULT_PROCESS_TIME);
     System::the().switch_to_user_mode(schedule()->get_trap_frame());
+  }
+
+  void Scheduler::prepare_for_switch(Thread* target_thread) {
+    auto* user_tf = target_thread->get_trap_frame();
+
+    // 1. Get the current CPU's context (The "Kernel" side)
+    // We need to know: "When this guy traps, where does he land?"
+    auto* kernel_tf = System::get_current_kernel_trap_frame();
+
+    // 2. Pack the "Backpack" inside the User TrapFrame
+
+    // B. KERNEL STACK
+    // Ideally, every thread has its own Kernel Stack to allow blocking.
+    // If you implemented per-thread kernel stacks:
+    // If you are using a simple shared per-CPU stack (no kernel preemption):
+    user_tf->kernel_sp = kernel_tf->regs[2];
+
+    // C. KERNEL TP (Thread Pointer)
+    // This MUST point to the KernelTrapFrame so get_current_kernel_trap_frame() works.
+    user_tf->kernel_trap_frame_ptr = reinterpret_cast<u64>(kernel_tf);
+
+    // 3. Update Bookkeeping
+    // So we know who is running on this CPU
+    kernel_tf->current_process_id = target_thread->get_pid();
+    kernel_tf->current_thread_id = target_thread->get_tid();
   }
 
 }// namespace Kernel

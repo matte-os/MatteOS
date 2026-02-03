@@ -25,14 +25,14 @@ namespace Kernel {
     ACCESS = 1 << 6,
     DIRTY = 1 << 7,
 
-    READ_WRITE = 1 << 1 | 1 << 2,
-    READ_EXECUTE = 1 << 1 | 1 << 3,
-    READ_WRITE_EXECUTE = 1 << 1 | 1 << 2 | 1 << 3,
+    READ_WRITE = 1 << 0 | 1 << 1 | 1 << 2,
+    READ_EXECUTE = 1 << 0 | 1 << 1 | 1 << 3,
+    READ_WRITE_EXECUTE = 1 << 0 | 1 << 1 | 1 << 2 | 1 << 3,
 
-    USER_READ = 1 << 1 | 1 << 4,
-    USER_READ_WRITE = 1 << 1 | 1 << 2 | 1 << 4,
-    USER_READ_EXECUTE = 1 << 1 | 1 << 3 | 1 << 4,
-    USER_READ_WRITE_EXECUTE = 1 << 1 | 1 << 2 | 1 << 3 | 1 << 4
+    USER_READ = 1 << 0 | 1 << 1 | 1 << 4,
+    USER_READ_WRITE = 1 << 0 | 1 << 1 | 1 << 2 | 1 << 4,
+    USER_READ_EXECUTE = 1 << 0 | 1 << 1 | 1 << 3 | 1 << 4,
+    USER_READ_WRITE_EXECUTE = 1 << 0 | 1 << 1 | 1 << 2 | 1 << 3 | 1 << 4
   };
 
   class MemoryManager {
