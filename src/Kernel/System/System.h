@@ -4,9 +4,9 @@
  */
 #pragma once
 
+#include <Kernel/Memory/VirtualMemory/MemoryRegion.h>
 #include <Kernel/Arch/riscv64/CSR.h>
 #include <Kernel/Firmware/FDT/FDTParser.h>
-#include <Kernel/Memory/MemoryRegion.h>
 #include <Kernel/System/KernelTrapFrame.h>
 #include <Kernel/System/TrapFrame.h>
 #include <Utils/Arrays/ArrayList.h>

@@ -23,7 +23,7 @@ set(SOURCE
         Firmware/DeviceTree.cpp
         Memory/MemoryManager.cpp
         Memory/KernelMemoryAllocator.cpp
-        Memory/MemoryRegion.cpp
+        Memory/VirtualMemory/MemoryRegion.cpp
         Memory/Page.cpp
         Memory/PageTable.cpp
         Memory/PageTableEntry.cpp

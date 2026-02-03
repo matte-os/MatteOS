@@ -69,4 +69,16 @@ namespace Kernel {
     return rval;
   }
 
+  void CPU::flush_instruction_cache() {
+    asm volatile("fence.i");
+  }
+
+  void CPU::flush_data_cache() {
+    asm volatile("sfence.vma");
+  }
+
+  void CPU::flush_tlb() {
+    asm volatile("sfence.vma");
+  }
+
 };// namespace Kernel

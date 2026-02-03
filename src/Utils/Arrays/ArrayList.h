@@ -7,7 +7,6 @@
 
 #pragma once
 
-#include <Kernel/Memory/MemoryRegion.h>
 #include <Utils/Assertions.h>
 #include <Utils/Callable.h>
 #include <Utils/DebugConsole.h>

@@ -6,12 +6,10 @@
  */
 #pragma once
 
-#include "Userspace.h"
+#include <Kernel/Process/Userspace.h>
 #include <Kernel/API/Syscall.h>
-#include <Kernel/Arch/riscv64/CPU.h>
 #include <Kernel/FileSystem/FileDescriptorTable.h>
 #include <Kernel/Memory/MemoryManager.h>
-#include <Kernel/Memory/MemoryRegion.h>
 #include <Kernel/Memory/PageTable.h>
 #include <Kernel/Process/Thread.h>
 #include <Kernel/Security/Credentials.h>
@@ -19,6 +17,7 @@
 #include <Utils/Arrays/ArrayList.h>
 #include <Utils/Pointers/RefPtr.h>
 #include <Utils/Types.h>
+#include <Kernel/Memory/VirtualMemory/MemoryRegion.h>
 
 using Kernel::MemoryManager;
 using Kernel::MemoryRegion;
